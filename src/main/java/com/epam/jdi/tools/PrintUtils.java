@@ -96,7 +96,7 @@ public final class PrintUtils {
 
     public static String printFields(Object obj, String separator) {
         String className = obj.getClass().getSimpleName();
-        String params = print(select(getFields(obj),
+        String params = print(select(where(getFields(obj), field -> getValueField(field, obj) != null),
                 field -> format("%s:%s", field.getName(), getValueField(field, obj))), separator, "%s");
         return format("%s(%s)", className, params);
     }

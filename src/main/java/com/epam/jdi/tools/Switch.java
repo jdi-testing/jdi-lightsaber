@@ -11,8 +11,8 @@ import static com.epam.jdi.tools.LinqUtils.filter;
 import static com.epam.jdi.tools.LinqUtils.foreach;
 
 public class Switch<T> {
-    private T value;
-    Switch() { }
+    private final T value;
+    Switch() { value = null; }
     Switch(T value) { this.value = value; }
     public void of(Case<T>... pairs) {
         foreach(filter(pairs,

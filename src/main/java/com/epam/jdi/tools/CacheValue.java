@@ -7,19 +7,38 @@ package com.epam.jdi.tools;
 
 import com.epam.jdi.tools.func.JFunc;
 
+import static java.lang.System.currentTimeMillis;
+
 public class CacheValue<T> {
-    public boolean useCache = true;
+    private static long globalCache;
+    public static void reset() { globalCache = currentTimeMillis(); }
+    public long elementCache = 0;
     private T value;
     private JFunc<T> getRule;
     public CacheValue(JFunc<T> getRule) { this.getRule = getRule; }
     public T get() {
-        if (!useCache) return getRule.execute();
-        if (value == null)
-            value = getRule.execute();
-         return value;
+        return get(() -> null);
     }
-    public void set(T value) { this.value = value; }
+    public T get(JFunc<T> defaultResult) {
+        if (elementCache == -1) return defaultResult.execute();
+        if (elementCache < globalCache || value == null) {
+            this.value = getRule.execute();
+            elementCache = globalCache;
+        }
+        return value;
+    }
+    public void useCache(boolean value) { elementCache = value ? 0 : -1; }
+    public T setForce(T value) {
+        elementCache = globalCache;
+        this.value = value;
+        return value;
+    }
+    public T set(T value) {
+        return elementCache > -1
+            ? setForce(value)
+            : value;
+    }
     public void setRule(JFunc<T> getRule) { this.getRule = getRule; }
     public void clear() { value = null; }
-    public boolean hasValue() { return value != null;}
+    public boolean hasValue() { return elementCache > -1 && value != null && elementCache == globalCache;}
 }

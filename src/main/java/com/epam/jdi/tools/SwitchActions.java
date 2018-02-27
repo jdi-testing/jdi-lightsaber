@@ -8,7 +8,7 @@ package com.epam.jdi.tools;
 import com.epam.jdi.tools.func.JAction1;
 import com.epam.jdi.tools.func.JFunc1;
 
-public class SwitchAction {
+public class SwitchActions {
     public static <T> Case<T> Case(JFunc1<T, Boolean> value, JAction1<T> action) {
         return new Case<>(value, action);
     }

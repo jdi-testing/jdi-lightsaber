@@ -19,8 +19,7 @@ public class Timer {
     private long timeoutInMSec = 5 * 1000L;
     private long retryTimeoutInMSec = 100;
 
-    public Timer() {
-    }
+    public Timer() { }
 
     public Timer(long timeoutInMSec, long retryTimeoutInMSec) {
         this();
@@ -94,6 +93,13 @@ public class Timer {
     public Long timePassedInMSec() {
         Long now = currentTimeMillis();
         return now - start;
+    }
+    public String timePassed() {
+        return timePassed("mm:ss.SSS");
+    }
+    public String timePassed(String timeFormat) {
+        return new SimpleDateFormat(timeFormat)
+            .format(new Date(timePassedInMSec()));
     }
 
     public boolean timeoutPassed() {

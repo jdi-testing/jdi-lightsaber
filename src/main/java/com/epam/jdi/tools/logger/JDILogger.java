@@ -10,6 +10,8 @@ import com.epam.jdi.tools.func.JFunc;
 import com.epam.jdi.tools.map.MapArray;
 import org.apache.logging.log4j.Level;
 import org.apache.logging.log4j.Logger;
+import org.apache.logging.log4j.Marker;
+import org.apache.logging.log4j.MarkerManager;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -22,6 +24,7 @@ import static org.apache.logging.log4j.core.config.Configurator.setRootLevel;
 
 public class JDILogger implements ILogger {
     private static MapArray<String, JDILogger> loggers = new MapArray<>();
+    private static Marker jdiMarker = MarkerManager.getMarker("JDI");
 
     public static JDILogger instance(String name) {
         if (!loggers.keys().contains(name))
@@ -30,7 +33,7 @@ public class JDILogger implements ILogger {
     }
 
     public JDILogger() {
-        this("JDI Logger");
+        this("JDI");
     }
     public JDILogger(String name) {
         logger = getLogger(name);
@@ -89,8 +92,8 @@ public class JDILogger implements ILogger {
         if (!multiThread.contains(currentThread().getId()))
             multiThread.add(currentThread().getId());
         return multiThread.size() > 1
-                ? "[JDI: " + currentThread().getId() + "]" + record
-                : "[JDI] " + record;
+                ? "[" + currentThread().getId() + "]" + record
+                : record;
     }
 
     public String getName() {
@@ -99,23 +102,23 @@ public class JDILogger implements ILogger {
 
     public void step(String s, Object... args) {
         if (logLevel.equalOrLessThan(STEP))
-            logger.log(Level.forName("STEP", 350), getRecord(format(s, args)));
+            logger.log(Level.forName("STEP", 350), jdiMarker, getRecord(format(s, args)));
     }
     public void trace(String s, Object... args) {
         if (logLevel.equalOrLessThan(TRACE))
-            logger.trace(getRecord(format(s, args)));
+            logger.trace(jdiMarker, getRecord(format(s, args)));
     }
     public void debug(String s, Object... args) {
         if (logLevel.equalOrLessThan(DEBUG))
-            logger.debug(getRecord(format(s, args)));
+            logger.debug(jdiMarker, getRecord(format(s, args)));
     }
     public void info(String s, Object... args) {
         if (logLevel.equalOrLessThan(INFO))
-            logger.info(getRecord(format(s, args)));
+            logger.info(jdiMarker, getRecord(format(s, args)));
     }
     public void error(String s, Object... args) {
         if (logLevel.equalOrLessThan(ERROR))
-            logger.error(getRecord(format(s, args)));
+            logger.error(jdiMarker, getRecord(format(s, args)));
     }
 
     public void toLog(String msg, LogLevels level) {
