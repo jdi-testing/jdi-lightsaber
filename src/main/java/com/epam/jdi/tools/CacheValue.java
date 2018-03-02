@@ -20,7 +20,7 @@ public class CacheValue<T> {
         return get(() -> null);
     }
     public T get(JFunc<T> defaultResult) {
-        if (elementCache == -1) return defaultResult.execute();
+        if (!isUseCache()) return defaultResult.execute();
         if (elementCache < globalCache || value == null) {
             this.value = getRule.execute();
             elementCache = globalCache;
@@ -34,11 +34,12 @@ public class CacheValue<T> {
         return value;
     }
     public T set(T value) {
-        return elementCache > -1
+        return isUseCache()
             ? setForce(value)
             : value;
     }
     public void setRule(JFunc<T> getRule) { this.getRule = getRule; }
     public void clear() { value = null; }
-    public boolean hasValue() { return elementCache > -1 && value != null && elementCache == globalCache;}
+    public boolean hasValue() { return isUseCache() && value != null && elementCache == globalCache;}
+    public boolean isUseCache() { return elementCache > -1; }
 }

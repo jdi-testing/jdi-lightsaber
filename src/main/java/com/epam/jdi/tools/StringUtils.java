@@ -68,6 +68,9 @@ public final class StringUtils {
     private static boolean isCapital(char ch) {
         return 'A' < ch && ch < 'Z';
     }
+    public static String format(String s, Object... args) {
+        return args.length > 0 ? String.format(s, args) : s;
+    }
 
     private StringUtils() {}
 }
