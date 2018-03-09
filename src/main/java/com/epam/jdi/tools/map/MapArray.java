@@ -6,9 +6,7 @@ package com.epam.jdi.tools.map;
  */
 
 import com.epam.jdi.tools.LinqUtils;
-import com.epam.jdi.tools.func.JAction2;
-import com.epam.jdi.tools.func.JFunc1;
-import com.epam.jdi.tools.func.JFunc2;
+import com.epam.jdi.tools.func.*;
 import com.epam.jdi.tools.pairs.Pair;
 
 import java.util.*;
@@ -421,6 +419,28 @@ public class MapArray<K, V> implements Collection<Pair<K, V>>, Cloneable {
             for (Pair<K,V> pair : pairs)
                 if (func.invoke(pair.key, pair.value))
                     result.add(pair);
+            return result;
+        } catch (Exception ignore) {
+            throwRuntimeException(ignore);
+            return null;
+        }
+    }
+    public void ifDo(JFunc1<Pair<K, V>, Boolean> condition, JAction1<V> action) {
+        try {
+            for (Pair<K,V> el : pairs)
+                if (condition.invoke(el))
+                    action.invoke(el.value);
+        } catch (Exception ignore) {
+            throwRuntimeException(ignore);
+        }
+    }
+
+    public <T> List<T> ifSelect(JFunc1<Pair<K, V>, Boolean> condition, JFunc1<V, T> transform) {
+        try {
+            List<T> result = new ArrayList<>();
+            for (Pair<K,V> el : pairs)
+                if (condition.invoke(el))
+                    result.add(transform.invoke(el.value));
             return result;
         } catch (Exception ignore) {
             throwRuntimeException(ignore);

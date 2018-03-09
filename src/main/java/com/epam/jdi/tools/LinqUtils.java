@@ -15,6 +15,7 @@ import java.util.*;
 import java.util.concurrent.CopyOnWriteArrayList;
 import java.util.stream.Collectors;
 
+import static com.epam.jdi.tools.TryCatchUtil.throwRuntimeException;
 import static java.lang.String.format;
 import static java.util.Arrays.asList;
 import static java.util.stream.IntStream.rangeClosed;
@@ -144,6 +145,59 @@ public final class LinqUtils {
     public static <K, V> Map<K, V> filter(Map<K, V> map, JFunc1<Map.Entry<K, V>, Boolean> func) {
         return where(map, func);
     }
+    public static <T> void ifDo(Collection<T> list,
+        JFunc1<T, Boolean> condition, JAction1<T> action) {
+        try {
+            for (T el : list)
+                if (condition.invoke(el))
+                    action.invoke(el);
+        } catch (Exception ex) {
+            throw new RuntimeException("Can't perform ifDo. Exception: " + ex.getMessage());
+        }
+    }
+    public static <T> void ifDo(T[] array, JFunc1<T, Boolean> condition, JAction1<T> action) {
+        ifDo(asList(array), condition, action);
+    }
+    public static <K, V> void ifDo(Map<K, V> map,
+           JFunc1<Map.Entry<K, V>, Boolean> condition, JAction1<V> action) {
+        try {
+        for (Map.Entry<K,V> el : map.entrySet())
+            if (condition.invoke(el))
+                action.invoke(el.getValue());
+        } catch (Exception ex) {
+            throw new RuntimeException("Can't perform ifDo. Exception: " + ex.getMessage());
+        }
+    }
+
+    public static <T, R> List<R> ifSelect(Collection<T> list,
+            JFunc1<T, Boolean> condition, JFunc1<T, R> transform) {
+        try {
+            List<R> result = new ArrayList<>();
+            for (T el : list)
+                if (condition.invoke(el))
+                    result.add(transform.invoke(el));
+            return result;
+        } catch (Exception ex) {
+            throw new RuntimeException("Can't perform ifSelect. Exception: " + ex.getMessage());
+        }
+    }
+    public static <T, R> List<R> ifSelect(T[] array,
+            JFunc1<T, Boolean> condition, JFunc1<T, R> transform) {
+        return ifSelect(asList(array), condition, transform);
+    }
+    public static <K, V, T> List<T> ifSelect(Map<K, V> map,
+            JFunc1<Map.Entry<K, V>, Boolean> condition, JFunc1<V, T> transform) {
+        try {
+            List<T> result = new ArrayList<>();
+            for (Map.Entry<K,V> el : map.entrySet())
+                if (condition.invoke(el))
+                    result.add(transform.invoke(el.getValue()));
+            return result;
+        } catch (Exception ex) {
+            throw new RuntimeException("Can't perform ifSelect. Exception: " + ex.getMessage());
+        }
+    }
+
     public static <T> void foreach(Collection<T> list, JAction1<T> action) {
         if (list == null)
             throw new RuntimeException("Can't do foreach. Collection is Null");
