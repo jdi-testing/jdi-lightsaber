@@ -15,7 +15,6 @@ import java.util.*;
 import java.util.concurrent.CopyOnWriteArrayList;
 import java.util.stream.Collectors;
 
-import static com.epam.jdi.tools.TryCatchUtil.throwRuntimeException;
 import static java.lang.String.format;
 import static java.util.Arrays.asList;
 import static java.util.stream.IntStream.rangeClosed;
@@ -186,11 +185,11 @@ public final class LinqUtils {
         return ifSelect(asList(array), condition, transform);
     }
     public static <K, V, T> List<T> ifSelect(Map<K, V> map,
-            JFunc1<Map.Entry<K, V>, Boolean> condition, JFunc1<V, T> transform) {
+            JFunc2<K, V, Boolean> condition, JFunc1<V, T> transform) {
         try {
             List<T> result = new ArrayList<>();
             for (Map.Entry<K,V> el : map.entrySet())
-                if (condition.invoke(el))
+                if (condition.invoke(el.getKey(), el.getValue()))
                     result.add(transform.invoke(el.getValue()));
             return result;
         } catch (Exception ex) {

@@ -6,6 +6,8 @@ package com.epam.jdi.tools;
  */
 
 import com.epam.jdi.tools.func.JFunc1;
+import com.epam.jdi.tools.map.MapArray;
+import com.epam.jdi.tools.pairs.Pair;
 
 import java.text.MessageFormat;
 import java.util.ArrayList;
@@ -109,5 +111,11 @@ public final class PrintUtils {
     public static <T> String print(Collection<T> list,
            JFunc1<T, String> func, String separator, String format) {
         return print(map(list, func), separator, format);
+    }
+    public static String formatParams(String template, MapArray<String, String> params) {
+        String result = template;
+        for (Pair<String, String> param : params)
+            result = result.replaceAll("\\{" + param.key + "}", param.value);
+        return result;
     }
 }
