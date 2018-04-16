@@ -5,6 +5,8 @@ package com.epam.jdi.tools;
  * Email: roman.iovlev.jdi@gmail.com; Skype: roman.iovlev
  */
 
+import com.epam.jdi.tools.map.MapArray;
+
 import java.lang.reflect.Field;
 import java.util.ArrayList;
 import java.util.List;
@@ -54,6 +56,11 @@ public final class ReflectionUtils {
         return LinqUtils.any(interfaces, i -> isInterface(i, expected)) || isInterface(type.getSuperclass(), expected);
     }
 
+    public static MapArray<String, Object> getAllFields(Object obj) {
+        return new MapArray<>(getFields(obj, Object.class),
+                Field::getName,
+                f -> getValueField(f, obj));
+    }
     public static List<Field> getFields(Object obj, Class<?>... types) {
         return getFields(obj, types, Object.class);
     }

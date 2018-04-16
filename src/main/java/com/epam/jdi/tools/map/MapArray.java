@@ -11,6 +11,7 @@ import com.epam.jdi.tools.func.JAction2;
 import com.epam.jdi.tools.func.JFunc1;
 import com.epam.jdi.tools.func.JFunc2;
 import com.epam.jdi.tools.pairs.Pair;
+import com.epam.jdi.tools.pairs.Pairs;
 
 import java.util.*;
 import java.util.Map.Entry;
@@ -24,7 +25,7 @@ import static java.util.Arrays.asList;
 public class MapArray<K, V> implements Collection<Pair<K, V>>, Cloneable {
     public List<Pair<K, V>> pairs;
 
-    public static <T, TV> MapArray<T, TV> pairs(Object[][] pairs) {
+    public static <K, V> MapArray<K, V> map(Pair<K, V>... pairs) {
         return new MapArray<>(pairs);
     }
     public MapArray() {
@@ -35,14 +36,17 @@ public class MapArray<K, V> implements Collection<Pair<K, V>>, Cloneable {
         this();
         add(key, value);
     }
-
-    public MapArray(Collection<K> collection, JFunc1<K, V> value) {
+    public MapArray(Pair<K, V>... pairs) {
         this();
         try {
-            for (K k : collection)
-                addUnique(k, value.invoke(k));
+            for (Pair<K, V> pair : pairs)
+                addUnique(pair.key, pair.value);
         } catch (Exception ex) {
             throw new RuntimeException("Can't create MapArray"); }
+    }
+
+    public MapArray(Collection<K> collection, JFunc1<K, V> value) {
+        this(collection, k -> k, value::execute);
     }
     public <T> MapArray(Collection<T> collection, JFunc1<T, K> keyFunc, JFunc1<T, V> valueFunc) {
         this();

@@ -15,6 +15,7 @@ public class CacheValue<T> {
     public long elementCache = 0;
     private T value;
     private JFunc<T> getRule;
+    public CacheValue() { }
     public CacheValue(JFunc<T> getRule) { this.getRule = getRule; }
     public T get() {
         return get(() -> null);

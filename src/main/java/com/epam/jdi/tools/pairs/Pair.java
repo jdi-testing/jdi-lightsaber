@@ -8,6 +8,10 @@ package com.epam.jdi.tools.pairs;
 import com.epam.jdi.tools.DataClass;
 
 public class Pair<TFirst, TSecond> extends DataClass {
+
+    public static Pair<String, Object> $(String value1, Object value2) {
+        return new Pair<>(value1, value2);
+    }
     public TFirst key;
     public TSecond value;
 

@@ -11,6 +11,7 @@ import java.util.List;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
+import static com.epam.jdi.tools.ReflectionUtils.getAllFields;
 import static java.lang.Character.toLowerCase;
 import static java.util.Arrays.asList;
 import static java.util.regex.Matcher.quoteReplacement;
@@ -28,6 +29,10 @@ public final class StringUtils {
             if (template.contains("{"+i+"}"))
                 result = result.replaceAll("\\{"+i+"}", args.get(i).toString());
         return result;
+    }
+
+    public static String msgFormat(String template, Object obj) {
+        return msgFormat(template, getAllFields(obj));
     }
     public static String msgFormat(String template, MapArray<String, Object> args) {
         final Matcher matcher = Pattern.compile("\\{([^}]*)}").matcher(template);
