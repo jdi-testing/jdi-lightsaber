@@ -59,7 +59,7 @@ public final class ReflectionUtils {
     public static MapArray<String, Object> getAllFields(Object obj) {
         return new MapArray<>(getFields(obj, Object.class),
                 Field::getName,
-                f -> getValueField(f, obj));
+                f -> getValueField(f, obj), false);
     }
     public static List<Field> getFields(Object obj, Class<?>... types) {
         return getFields(obj, types, Object.class);

@@ -71,7 +71,7 @@ public final class StringUtils {
         return result + camel.charAt(camel.length() - 1);
     }
     private static boolean isCapital(char ch) {
-        return 'A' < ch && ch < 'Z';
+        return 'A' <= ch && ch <= 'Z';
     }
     public static String format(String s, Object... args) {
         return args.length > 0 ? String.format(s, args) : s;

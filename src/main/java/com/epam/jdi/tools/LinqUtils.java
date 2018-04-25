@@ -229,6 +229,21 @@ public final class LinqUtils {
     public static <T> boolean any(T[] list, JFunc1<T, Boolean> func) {
         return first(list, func) != null;
     }
+    public static <T> boolean all(Collection<T> list, JFunc1<T, Boolean> func) {
+        if (list == null)
+            return true;
+        try {
+            for (T el : list)
+                if (!func.invoke(el))
+                    return false;
+        } catch (Exception ex) {
+            return false;
+        }
+        return true;
+    }
+    public static <T> boolean all(T[] array, JFunc1<T, Boolean> func) {
+        return all(asList(array), func);
+    }
     public static <T> int firstIndex(List<T> list, JFunc1<T, Boolean> func) {
         if (list == null || list.size() == 0)
             throw new RuntimeException("Can't get firstIndex. Collection is Null or empty");

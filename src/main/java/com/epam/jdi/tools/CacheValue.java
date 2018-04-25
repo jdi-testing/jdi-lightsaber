@@ -10,8 +10,8 @@ import com.epam.jdi.tools.func.JFunc;
 import static java.lang.System.currentTimeMillis;
 
 public class CacheValue<T> {
-    private static long globalCache;
-    public static void reset() { globalCache = currentTimeMillis(); }
+    private static ThreadLocal<Long> globalCache = new ThreadLocal<>();
+    public static void reset() { globalCache.set(currentTimeMillis()); }
     public long elementCache = 0;
     private T value;
     private JFunc<T> getRule;
@@ -22,15 +22,15 @@ public class CacheValue<T> {
     }
     public T get(JFunc<T> defaultResult) {
         if (!isUseCache()) return defaultResult.execute();
-        if (elementCache < globalCache || value == null) {
+        if (elementCache < globalCache.get() || value == null) {
             this.value = getRule.execute();
-            elementCache = globalCache;
+            elementCache = globalCache.get();
         }
         return value;
     }
     public void useCache(boolean value) { elementCache = value ? 0 : -1; }
     public T setForce(T value) {
-        elementCache = globalCache;
+        elementCache = globalCache.get();
         this.value = value;
         return value;
     }
@@ -41,6 +41,6 @@ public class CacheValue<T> {
     }
     public void setRule(JFunc<T> getRule) { this.getRule = getRule; }
     public void clear() { value = null; }
-    public boolean hasValue() { return isUseCache() && value != null && elementCache == globalCache;}
+    public boolean hasValue() { return isUseCache() && value != null && elementCache == globalCache.get(); }
     public boolean isUseCache() { return elementCache > -1; }
 }

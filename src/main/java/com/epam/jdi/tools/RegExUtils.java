@@ -17,9 +17,17 @@ public final class RegExUtils {
     public static List<String> matches(String str, String regEx) {
         List<String> result = new ArrayList<>();
         Pattern pattern = compile(regEx);
-        Matcher matcher = pattern.matcher(str);
-        while (matcher.find())
-            result.add(matcher.group());
+        Matcher m = pattern.matcher(str);
+        if (m.matches()) {
+            for (int i = 1; i <= m.groupCount(); i++)
+                result.add(m.group(i));
+        }
         return result;
+    }
+    public static Matcher matchGroups(String str, String regEx) {
+        Pattern pattern = compile(regEx);
+        Matcher matcher = pattern.matcher(str);
+        matcher.matches();
+        return matcher;
     }
 }

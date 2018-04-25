@@ -20,8 +20,10 @@ public class Switch<T> {
             p -> p.action.execute(value));
     }
     public <R> R get(CaseR<T, R>... pairs) {
-        return LinqUtils.first(pairs, p -> p.condition.execute(value))
-                .result.execute(value);
+        CaseR<T,R> result = LinqUtils.first(pairs, p -> p.condition.execute(value));
+        return result != null
+            ? result.result.execute(value)
+            : null;
     }
     public static <T,R> CaseR<T,R> Case(JFunc1<T, Boolean> value, JFunc1<T, R> result) {
         return new CaseR<>(value, result);
