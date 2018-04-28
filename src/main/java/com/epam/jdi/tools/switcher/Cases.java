@@ -1,14 +1,12 @@
-package com.epam.jdi.tools;
-
-/**
- * Created by Roman Iovlev on 14.02.2018
- * Email: roman.iovlev.jdi@gmail.com; Skype: roman.iovlev
- */
+package com.epam.jdi.tools.switcher;
 
 import com.epam.jdi.tools.func.JAction1;
 import com.epam.jdi.tools.func.JFunc1;
 
-public class SwitchActions {
+/**
+ * Created by Roman_Iovlev on 4/28/2018.
+ */
+public class Cases {
     public static <T> Case<T> Case(JFunc1<T, Boolean> value, JAction1<T> action) {
         return new Case<>(value, action);
     }
@@ -24,4 +22,5 @@ public class SwitchActions {
     public static <T> Case<T> Else(JAction1<T> action) {
         return new Case<>(t -> true, action);
     }
+
 }

@@ -482,12 +482,6 @@ public final class LinqUtils {
         return asList(array).get(i);
     }
 
-    public static <T> Switch<T> Switch() {
-        return new Switch<>();
-    }
-    public static <T> Switch<T> Switch(T value) {
-        return new Switch<>(value);
-    }
     public static <T> boolean contains(List<T> list, T t) {
         return first(list, el -> el.equals(t)) != null;
     }

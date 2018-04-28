@@ -15,7 +15,7 @@ public interface JAction9<T1, T2, T3, T4, T5, T6, T7, T8, T9> {
         try {
             invoke(val1, val2, val3, val4, val5, val6, val7, val8, val9);
         } catch (Exception ex) {
-            throw new RuntimeException();
+            throw new RuntimeException(ex);
         }
     }
 }

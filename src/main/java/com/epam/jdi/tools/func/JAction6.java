@@ -14,7 +14,7 @@ public interface JAction6<T1, T2, T3, T4, T5, T6> {
         try {
             invoke(val1, val2, val3, val4, val5, val6);
         } catch (Exception ex) {
-            throw new RuntimeException();
+            throw new RuntimeException(ex);
         }
     }
 }

@@ -13,7 +13,7 @@ public interface JAction1<T> {
         try {
             invoke(val);
         } catch (Exception ex) {
-            throw new RuntimeException();
+            throw new RuntimeException(ex);
         }
     }
 }
