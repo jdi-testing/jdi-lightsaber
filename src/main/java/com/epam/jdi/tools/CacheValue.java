@@ -14,11 +14,11 @@ public class CacheValue<T> {
     public static void reset() { globalCache.set(currentTimeMillis()); }
     public long elementCache = 0;
     private T value;
-    private JFunc<T> getRule;
+    private JFunc<T> getRule = () -> null;
     public CacheValue() { }
     public CacheValue(JFunc<T> getRule) { this.getRule = getRule; }
     public T get() {
-        return get(() -> null);
+        return get(getRule);
     }
     public T get(JFunc<T> defaultResult) {
         if (!isUseCache()) return defaultResult.execute();
