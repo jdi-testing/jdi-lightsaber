@@ -31,6 +31,13 @@ public final class StringUtils {
         return result;
     }
 
+    public static String charSequenceToString(CharSequence... value) {
+        String result = "";
+        for (CharSequence c : value)
+            result += c;
+        return result;
+
+    }
     public static String msgFormat(String template, Object obj) {
         return msgFormat(template, getAllFields(obj));
     }
