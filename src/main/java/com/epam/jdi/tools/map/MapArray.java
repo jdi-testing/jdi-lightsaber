@@ -39,7 +39,7 @@ public class MapArray<K, V> implements Collection<Pair<K, V>>, Cloneable {
         this();
         try {
             for (Pair<K, V> pair : pairs)
-                addUnique(pair.key, pair.value);
+                add(pair.key, pair.value);
         } catch (Exception ex) {
             throw new RuntimeException("Can't create MapArray"); }
     }
@@ -51,20 +51,7 @@ public class MapArray<K, V> implements Collection<Pair<K, V>>, Cloneable {
         this();
         try {
             for (T t : collection)
-                addUnique(keyFunc.invoke(t), valueFunc.invoke(t));
-        } catch (Exception ex) {
-            throw new RuntimeException("Can't create MapArray"); }
-    }
-
-    public <T> MapArray(Collection<T> collection, JFunc1<T, K> keyFunc, JFunc1<T, V> valueFunc, boolean uniqueException) {
-        this();
-        try {
-            for (T t : collection) {
-                if (uniqueException)
-                    addUnique(keyFunc.invoke(t), valueFunc.invoke(t));
-                else
-                    add(keyFunc.invoke(t), valueFunc.invoke(t));
-            }
+                add(keyFunc.invoke(t), valueFunc.invoke(t));
         } catch (Exception ex) {
             throw new RuntimeException("Can't create MapArray"); }
     }
@@ -80,7 +67,7 @@ public class MapArray<K, V> implements Collection<Pair<K, V>>, Cloneable {
         this();
         try {
         for (int i = 0; i < count; i++)
-            addUnique(keyFunc.invoke(i), value.invoke(i));
+            add(keyFunc.invoke(i), value.invoke(i));
         } catch (Exception ex) {
             throw new RuntimeException("Can't create MapArray"); }
     }
@@ -89,7 +76,7 @@ public class MapArray<K, V> implements Collection<Pair<K, V>>, Cloneable {
         try {
         for (int i = 0; i < count; i++) {
             Pair<K, V> pair = pairFunc.invoke(i);
-            addUnique(pair.key, pair.value);
+            add(pair.key, pair.value);
         }
         } catch (Exception ex) {
             throw new RuntimeException("Can't create MapArray"); }
@@ -107,7 +94,7 @@ public class MapArray<K, V> implements Collection<Pair<K, V>>, Cloneable {
     public MapArray(Map<K, V> map) {
         this();
         for (Entry<K, V> entry : map.entrySet())
-            addUnique(entry.getKey(), entry.getValue());
+            add(entry.getKey(), entry.getValue());
     }
 
     public MapArray(Object[][] objects) {
@@ -120,7 +107,7 @@ public class MapArray<K, V> implements Collection<Pair<K, V>>, Cloneable {
         if (values == null || keys.size() != values.size())
             throw new RuntimeException("keys and values null or has not equal count ");
         for (int i = 0; i < keys.size(); i++)
-            addUnique(keys.get(i), values.get(i));
+            add(keys.get(i), values.get(i));
     }
     public MapArray(K[] keys, V[] values) {
         this(asList(keys), asList(values));
@@ -150,7 +137,7 @@ public class MapArray<K, V> implements Collection<Pair<K, V>>, Cloneable {
     public static <Key, Value> MapArray<Key, Value> toMapArray(Map<Key, Value> map) {
         MapArray<Key, Value> mapArray = new MapArray<>();
         for (Entry<Key, Value> e : map.entrySet())
-            mapArray.addUnique(e.getKey(), e.getValue());
+            mapArray.add(e.getKey(), e.getValue());
         return mapArray;
     }
 
@@ -159,7 +146,7 @@ public class MapArray<K, V> implements Collection<Pair<K, V>>, Cloneable {
         MapArray<KResult, VResult> result = new MapArray<>();
         try {
             for (Pair<K, V> pair : pairs)
-                result.addUnique(key.invoke(pair.key, pair.value), value.invoke(pair.key, pair.value));
+                result.add(key.invoke(pair.key, pair.value), value.invoke(pair.key, pair.value));
         } catch (Exception ex) {
             throw new RuntimeException("Can't convert toMapArray"); }
         return result;
@@ -169,7 +156,7 @@ public class MapArray<K, V> implements Collection<Pair<K, V>>, Cloneable {
         MapArray<K, VResult> result = new MapArray<>();
         try {
         for (Pair<K, V> pair : pairs)
-            result.addUnique(pair.key, value.invoke(pair.value));
+            result.add(pair.key, value.invoke(pair.value));
         return result;
         } catch (Exception ex) {
             throw new RuntimeException("Can't convert toMapArray"); }
@@ -193,8 +180,14 @@ public class MapArray<K, V> implements Collection<Pair<K, V>>, Cloneable {
         return result;
     }
 
+    public static boolean IGNORE_NOT_UNIQUE = false;
+
     public MapArray<K, V> add(K key, V value) {
-        if (!hasKey(key))
+        if (hasKey(key)) {
+            if (!IGNORE_NOT_UNIQUE)
+                throw new RuntimeException("Key "+ key +" already exist");
+        }
+        else
             pairs.add(new Pair<>(key, value));
         return this;
     }

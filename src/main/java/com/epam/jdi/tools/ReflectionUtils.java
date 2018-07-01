@@ -12,6 +12,7 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.function.Function;
 
+import static com.epam.jdi.tools.map.MapArray.IGNORE_NOT_UNIQUE;
 import static java.lang.String.format;
 import static java.lang.reflect.Modifier.isStatic;
 import static java.util.Arrays.asList;
@@ -57,9 +58,11 @@ public final class ReflectionUtils {
     }
 
     public static MapArray<String, Object> getAllFields(Object obj) {
-        return new MapArray<>(getFields(obj, Object.class),
-                Field::getName,
-                f -> getValueField(f, obj), false);
+        IGNORE_NOT_UNIQUE = true;
+        MapArray<String, Object> map = new MapArray<>(getFields(obj, Object.class),
+            Field::getName, f -> getValueField(f, obj));
+        IGNORE_NOT_UNIQUE = false;
+        return map;
     }
     public static List<Field> getFields(Object obj, Class<?>... types) {
         return getFields(obj, types, Object.class);
