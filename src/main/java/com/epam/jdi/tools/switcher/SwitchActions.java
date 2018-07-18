@@ -14,6 +14,9 @@ public class SwitchActions {
     public static <T> Switch<T> Switch(T value) {
         return new Switch<>(value);
     }
+    public static <T, R> Template<T, R> Template(JFunc1<T, Boolean> template, JFunc1<T, R> result) {
+        return new Template<>(template, result);
+    }
     // Functions
     public static <T,R> CaseR<T,R> Value(T value, JFunc1<T, R> result) {
         return new CaseR<>(t -> t.equals(value), result);

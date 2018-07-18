@@ -6,7 +6,6 @@ package com.epam.jdi.tools.switcher;
  */
 
 import com.epam.jdi.tools.LinqUtils;
-import com.epam.jdi.tools.func.JFunc1;
 
 import static com.epam.jdi.tools.LinqUtils.filter;
 import static com.epam.jdi.tools.LinqUtils.foreach;
