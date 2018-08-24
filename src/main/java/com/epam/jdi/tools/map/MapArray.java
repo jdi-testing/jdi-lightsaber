@@ -27,6 +27,9 @@ public class MapArray<K, V> implements Collection<Pair<K, V>>, Cloneable {
     public static <K, V> MapArray<K, V> map(Pair<K, V>... pairs) {
         return new MapArray<>(pairs);
     }
+    public static <V> MapArray<Integer, V> map(List<V> list) {
+        return new MapArray<>(list.size(), i -> i, list::get);
+    }
     public MapArray() {
         pairs = new ArrayList<>();
     }

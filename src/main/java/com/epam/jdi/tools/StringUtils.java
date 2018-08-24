@@ -7,11 +7,14 @@ package com.epam.jdi.tools;
 
 import com.epam.jdi.tools.map.MapArray;
 
+import java.io.File;
 import java.util.List;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
 import static com.epam.jdi.tools.ReflectionUtils.getAllFields;
+import static java.lang.Character.isLowerCase;
+import static java.lang.Character.isUpperCase;
 import static java.lang.Character.toLowerCase;
 import static java.util.Arrays.asList;
 import static java.util.regex.Matcher.quoteReplacement;
@@ -64,7 +67,7 @@ public final class StringUtils {
     public static String splitLowerCase(String text) {
         String result = "";
         for (int i = 0; i < text.length(); i++) {
-            if (isCapital(text.charAt(i)))
+            if (isUpperCase(text.charAt(i)))
                 result += " ";
             result += toLowerCase(text.charAt(i));
         }
@@ -74,11 +77,13 @@ public final class StringUtils {
     public static String splitCamelCase(String camel) {
         String result = (camel.charAt(0) + "").toUpperCase();
         for (int i = 1; i < camel.length() - 1; i++)
-            result += (isCapital(camel.charAt(i)) && !isCapital(camel.charAt(i - 1)) ? " " : "") + camel.charAt(i);
+            result += (isUpperCase(camel.charAt(i)) && (
+                    isLowerCase(camel.charAt(i+1)) || isLowerCase(camel.charAt(i-1)))
+                    ? " " : "") + camel.charAt(i);
         return result + camel.charAt(camel.length() - 1);
     }
-    private static boolean isCapital(char ch) {
-        return 'A' <= ch && ch <= 'Z';
+    public static String correctPath(String path) {
+        return path.replace("\\", File.separator);
     }
     public static String format(String s, Object... args) {
         return args.length > 0 ? String.format(s, args) : s;
