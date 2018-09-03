@@ -186,7 +186,7 @@ public class MapArray<K, V> implements Collection<Pair<K, V>>, Cloneable {
     public static boolean IGNORE_NOT_UNIQUE = false;
 
     public MapArray<K, V> add(K key, V value) {
-        if (hasKey(key)) {
+        if (has(key)) {
             if (!IGNORE_NOT_UNIQUE)
                 throw new RuntimeException("Key "+ key +" already exist");
         }
@@ -195,7 +195,7 @@ public class MapArray<K, V> implements Collection<Pair<K, V>>, Cloneable {
         return this;
     }
     public MapArray<K, V> update(K key, V value) {
-        if (hasKey(key))
+        if (has(key))
             removeByKey(key);
         pairs.add(new Pair<>(key, value));
         return this;
@@ -203,7 +203,7 @@ public class MapArray<K, V> implements Collection<Pair<K, V>>, Cloneable {
 
     public MapArray<K, V> update(K key, JFunc1<V, V> func) {
         V value = null;
-        if (hasKey(key)) {
+        if (has(key)) {
             value = get(key);
             removeByKey(key);
         }
@@ -228,7 +228,7 @@ public class MapArray<K, V> implements Collection<Pair<K, V>>, Cloneable {
     }
 
     public void addOrReplace(K key, V value) {
-        if (hasKey(key))
+        if (has(key))
             removeByKey(key);
         add(key, value);
     }
@@ -239,12 +239,12 @@ public class MapArray<K, V> implements Collection<Pair<K, V>>, Cloneable {
                 addOrReplace((K) pair[0], (V) pair[1]);
     }
 
-    private boolean hasKey(K key) {
+    public boolean has(K key) {
         return keys().contains(key);
     }
 
     public MapArray<K, V> addFirst(K key, V value) {
-        if (hasKey(key))
+        if (has(key))
             throw new RuntimeException(format(
                 "Can't addFirst element for key '%s'. MapArray already element with this key.", key));
         List<Pair<K, V>> result = new CopyOnWriteArrayList<>();
