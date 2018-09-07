@@ -6,6 +6,7 @@ package com.epam.jdi.tools.pairs;
  */
 
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.Collection;
 import java.util.List;
 import java.util.function.Consumer;
@@ -21,9 +22,13 @@ public class Pairs<TValue1, TValue2> extends ArrayList<Pair<TValue1, TValue2>> {
     public Pairs() {
     }
 
+    public Pairs(Pair<TValue1, TValue2>... pairs) {
+        if (pairs == null) return;
+        addAll(Arrays.asList(pairs));
+    }
     public Pairs(List<Pair<TValue1, TValue2>> pairs) {
         if (pairs == null) return;
-        pairs.forEach(this::add);
+        addAll(pairs);
     }
 
     public Pairs(TValue1 value1, TValue2 value2, Collection<Pair<TValue1, TValue2>> pairs) {

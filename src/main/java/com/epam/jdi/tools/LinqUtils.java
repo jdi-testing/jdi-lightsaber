@@ -506,4 +506,12 @@ public final class LinqUtils {
     public static <T> boolean contains(T[] list, T t) {
         return first(list, el -> el.equals(t)) != null;
     }
+
+    public static <T> T valueOrDefault(T value, T defaultValue) {
+        return value != null ? value : defaultValue;
+    }
+
+    public static <T> List<T> list(T... elements) {
+        return select(elements, e -> e);
+    }
 }
