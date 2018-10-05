@@ -14,6 +14,7 @@ import java.util.function.Function;
 
 import static com.epam.jdi.tools.LinqUtils.select;
 import static com.epam.jdi.tools.PrintUtils.print;
+import static com.epam.jdi.tools.pairs.Pair.$;
 
 public class Pairs<TValue1, TValue2> extends ArrayList<Pair<TValue1, TValue2>> {
     // TODO update pairs to MapArray level
@@ -46,10 +47,15 @@ public class Pairs<TValue1, TValue2> extends ArrayList<Pair<TValue1, TValue2>> {
     }
 
     public Pairs<TValue1, TValue2> add(TValue1 value1, TValue2 value2) {
-        this.add(new Pair(value1, value2));
+        this.add($(value1, value2));
         return this;
     }
 
+    public Pairs<TValue1, TValue2> add(Pair<TValue1, TValue2>... pairs) {
+        for (Pair pair : pairs)
+            add(pair);
+        return this;
+    }
     public Pairs<TValue1, TValue2> add(Pairs<TValue1, TValue2> pairs) {
         pairs.foreach(this::add);
         return this;
@@ -57,7 +63,7 @@ public class Pairs<TValue1, TValue2> extends ArrayList<Pair<TValue1, TValue2>> {
 
     public void addNew(TValue1 value1, TValue2 value2) {
         clear();
-        add(new Pair(value1, value2));
+        add($(value1, value2));
     }
 
     public void foreach(Consumer<Pair<TValue1, TValue2>> action) {

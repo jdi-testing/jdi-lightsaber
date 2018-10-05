@@ -6,8 +6,11 @@ package com.epam.jdi.tools;
  */
 
 import java.lang.reflect.Field;
+import java.util.ArrayList;
 import java.util.List;
 
+import static com.epam.jdi.tools.LinqUtils.map;
+import static com.epam.jdi.tools.LinqUtils.toStringArray;
 import static com.epam.jdi.tools.TryCatchUtil.tryGetResult;
 import static java.util.Arrays.asList;
 
@@ -15,6 +18,12 @@ public final class EnumUtils {
     private EnumUtils() {
     }
 
+    public static String[] getEnumValues(Enum... values) {
+        String[] result = new String[values.length];
+        for (int i=0; i < values.length; i++)
+            result[i] = getEnumValue(values[i]);
+        return result;
+    }
     public static String getEnumValue(Enum enumWithValue) {
         Class<?> type = enumWithValue.getClass();
         Field[] fields = type.getDeclaredFields();
