@@ -26,6 +26,10 @@ public class CacheValue<T> {
     public T get() {
         return get(getRule);
     }
+    public T getForce() {
+        reset();
+        return get();
+    }
     public T get(JFunc<T> defaultResult) {
         if (!isUseCache()) return defaultResult.execute();
         if (elementCache < getGlobalCache() || value == null) {
