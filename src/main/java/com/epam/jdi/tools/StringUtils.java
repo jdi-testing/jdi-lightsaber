@@ -64,24 +64,36 @@ public final class StringUtils {
             if (!string.contains(s)) return false;
         return true;
     }
-    public static String splitLowerCase(String text) {
+    //someVariable Name-Field -> some variable name field
+    public static String splitLowerCase(String value) {
         String result = "";
-        for (int i = 0; i < text.length(); i++) {
-            if (isUpperCase(text.charAt(i)))
+        for (int i = 0; i < value.length(); i++) {
+            if (isUpperCase(value.charAt(i)))
                 result += " ";
-            result += toLowerCase(text.charAt(i));
+            result += toLowerCase(value.charAt(i));
         }
         return result;
     }
 
-    public static String splitCamelCase(String camel) {
-        String result = (camel.charAt(0) + "").toUpperCase();
-        for (int i = 1; i < camel.length() - 1; i++)
-            result += (isUpperCase(camel.charAt(i)) && (
-                    isLowerCase(camel.charAt(i+1)) || isLowerCase(camel.charAt(i-1)))
-                    ? " " : "") + camel.charAt(i);
-        return result + camel.charAt(camel.length() - 1);
+    //someVariable IDName-Field -> Some Variable ID Name Field
+    public static String splitCamelCase(String value) {
+        String result = (value.charAt(0) + "").toUpperCase();
+        for (int i = 1; i < value.length() - 1; i++)
+            result += (isUpperCase(value.charAt(i)) && (
+                    isLowerCase(value.charAt(i+1)) || isLowerCase(value.charAt(i-1)))
+                    ? " " : "") + value.charAt(i);
+        return result + value.charAt(value.length() - 1);
     }
+    public static String splitHythen(String value) {
+        String result = "";
+        for (int i = 0; i < value.length(); i++) {
+            if (isUpperCase(value.charAt(i)))
+                result += "-";
+            result += toLowerCase(value.charAt(i));
+        }
+        return result;
+    }
+
     public static String correctPath(String path) {
         return path.replace("\\", File.separator);
     }
