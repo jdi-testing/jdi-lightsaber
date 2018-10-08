@@ -53,7 +53,7 @@ public final class PropertyReader {
     }
 
 
-    public static String getProperty(String propertyName) throws IOException {
+    public static String getProperty(String propertyName) {
         return loadProperties().getProperty(propertyName);
     }
 
