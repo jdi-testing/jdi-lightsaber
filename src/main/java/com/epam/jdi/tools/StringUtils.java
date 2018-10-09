@@ -85,11 +85,13 @@ public final class StringUtils {
         return result + value.charAt(value.length() - 1);
     }
     public static String splitHythen(String value) {
-        String result = "";
-        for (int i = 0; i < value.length(); i++) {
-            if (isUpperCase(value.charAt(i)))
+        String result = Character.toString(toLowerCase(value.charAt(0)));
+        for (int i = 1; i < value.length(); i++) {
+            char symbol = value.charAt(i);
+            if (isUpperCase(symbol))
                 result += "-";
-            result += toLowerCase(value.charAt(i));
+            if (Character.toString(symbol).matches("[a-zA-Z0-9]"))
+                result += toLowerCase(symbol);
         }
         return result;
     }
