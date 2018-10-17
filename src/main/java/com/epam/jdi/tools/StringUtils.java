@@ -7,7 +7,11 @@ package com.epam.jdi.tools;
 
 import com.epam.jdi.tools.map.MapArray;
 
+import java.io.BufferedReader;
 import java.io.File;
+import java.io.InputStream;
+import java.io.InputStreamReader;
+import java.util.ArrayList;
 import java.util.List;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
@@ -99,6 +103,19 @@ public final class StringUtils {
     }
     public static String format(String s, Object... args) {
         return args.length > 0 ? String.format(s, args) : s;
+    }
+
+
+    public static List<String> inputStreamToList(InputStream stream) {
+        List<String> list = new ArrayList<>();
+        try {
+            BufferedReader reader = new BufferedReader(new InputStreamReader(stream));
+            String line;
+            while ((line = reader.readLine()) != null) {
+                list.add(line);
+            }
+        } catch (Exception ex) { throw new RuntimeException("Can't read Input Stream: " + ex.getMessage()); }
+        return list;
     }
 
     private StringUtils() {}
