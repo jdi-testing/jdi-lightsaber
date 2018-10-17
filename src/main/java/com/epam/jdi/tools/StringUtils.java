@@ -13,9 +13,7 @@ import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
 import static com.epam.jdi.tools.ReflectionUtils.getAllFields;
-import static java.lang.Character.isLowerCase;
-import static java.lang.Character.isUpperCase;
-import static java.lang.Character.toLowerCase;
+import static java.lang.Character.*;
 import static java.util.Arrays.asList;
 import static java.util.regex.Matcher.quoteReplacement;
 
