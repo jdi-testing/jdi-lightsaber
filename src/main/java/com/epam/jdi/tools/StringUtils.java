@@ -105,7 +105,6 @@ public final class StringUtils {
         return args.length > 0 ? String.format(s, args) : s;
     }
 
-
     public static List<String> inputStreamToList(InputStream stream) {
         List<String> list = new ArrayList<>();
         try {

@@ -421,6 +421,36 @@ public final class LinqUtils {
         return -1;
     }
 
+    public static List<Integer> toList(int... nums) {
+        List<Integer> result = new ArrayList<>();
+        for (int num : nums) result.add(num);
+        return result;
+    }
+    public static List<Boolean> toList(boolean... nums) {
+        List<Boolean> result = new ArrayList<>();
+        for (boolean num : nums) result.add(num);
+        return result;
+    }
+    public static List<Long> toList(long... nums) {
+        List<Long> result = new ArrayList<>();
+        for (long num : nums) result.add(num);
+        return result;
+    }
+    public static List<Double> toList(double... nums) {
+        List<Double> result = new ArrayList<>();
+        for (double num : nums) result.add(num);
+        return result;
+    }
+    public static List<Float> toList(float... nums) {
+        List<Float> result = new ArrayList<>();
+        for (float num : nums) result.add(num);
+        return result;
+    }
+    public static List<Byte> toList(byte... nums) {
+        List<Byte> result = new ArrayList<>();
+        for (byte num : nums) result.add(num);
+        return result;
+    }
     public static <T> List<T> listCopy(List<T> list, int from) {
         return listCopy(list, from, list.size() - 1);
     }
