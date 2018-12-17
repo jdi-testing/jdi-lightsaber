@@ -374,8 +374,14 @@ public class MapArray<K, V> implements Collection<Pair<K, V>>, Cloneable {
 
     public boolean addAll(Collection<? extends Pair<K, V>> c) {
         for (Pair<K, V> pair : c)
-            add(pair);
+            if (!add(pair))
+                return false;
         return true;
+    }
+    public MapArray<K,V> merge(MapArray<K,V> map) {
+        if (!addAll(map))
+            throw new RuntimeException("Can't merge MapArray");
+        return this;
     }
 
     public boolean removeAll(Collection<?> c) {
