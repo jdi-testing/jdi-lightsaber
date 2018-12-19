@@ -64,22 +64,56 @@ public final class ReflectionUtils {
         IGNORE_NOT_UNIQUE = false;
         return map;
     }
-    public static List<Field> getFields(Object obj, Class<?>... types) {
-        return getFields(obj, types, Object.class);
+    public static List<Field> getFields(Object obj) {
+        return getFields(obj, new Class<?>[] {}, null);
     }
-    public static List<Field> getFields(Object obj, Class<?>[] types, Class<?>... stopTypes) {
-        return getFields(getFieldsDeep(obj.getClass(), stopTypes), types, f -> !isStatic(f.getModifiers()));
+    public static List<Field> getFieldsDeep(Object obj) {
+        return getFields(obj, new Class<?>[] { }, Object.class);
     }
-    public static List<Field> getFields(List<Field> fields, Class<?>[] types, Function<Field, Boolean> filter) {
-        return LinqUtils.where(fields,
-                field -> filter.apply(field) && isExpectedClass(field, types));
+    public static List<Field> getFields(Object obj, Class<?>... stopTypes) {
+        return getFields(obj, stopTypes, Object.class);
+    }
+    public static List<Field> getFields(Object obj, Class<?>[] filterTypes, Class<?>... stopTypes) {
+        return getFields(obj, getFieldsDeep(obj.getClass(), stopTypes), filterTypes, f -> !isStatic(f.getModifiers()));
+    }
+    public static List<Field> getFields(Object obj, List<Field> fields, Class<?>[] filterTypes, Function<Field, Boolean> filter) {
+        List<Field> result = new ArrayList<>();
+        for (Field field : fields) {
+            if (filter.apply(field)) {
+                Object value = getValueField(field, obj);
+                if (value != null) {
+                    if (isExpectedClass(value, filterTypes))
+                        result.add(field);
+                } else if (isExpectedClass(field, filterTypes))
+                    result.add(field);
+            }
+        }
+        return result;
+        /*return LinqUtils.where(fields,
+                field -> filter.apply(field) &&
+                    (isExpectedClass(getValueField(field, obj), filterTypes)
+                    || isExpectedClass(getValueField(field, obj), filterTypes)));*/
     }
 
-    private static List<Field> getFieldsDeep(Class<?> type, Class<?>... types) {
-        if (asList(types).contains(type))
+    private static List<Field> getFieldsDeep(Class<?> type, Class<?>... stopTypes) {
+        if (stopTypes == null || stopTypes.length == 0)
+            return asList(type.getDeclaredFields());
+        return stopTypes.length == 1 && stopTypes[0] == Object.class
+            ? getFieldsDeep3(type)
+            : getFieldsDeep2(type, stopTypes);
+    }
+    private static List<Field> getFieldsDeep3(Class<?> type) {
+        if (type == Object.class)
             return new ArrayList<>();
         List<Field> result = new ArrayList<>(asList(type.getDeclaredFields()));
-        result.addAll(getFieldsDeep(type.getSuperclass(), types));
+        result.addAll(getFieldsDeep3(type.getSuperclass()));
+        return result;
+    }
+    private static List<Field> getFieldsDeep2(Class<?> type, Class<?>[] stopTypes) {
+        if (asList(stopTypes).contains(type) || type == Object.class)
+            return new ArrayList<>();
+        List<Field> result = new ArrayList<>(asList(type.getDeclaredFields()));
+        result.addAll(getFieldsDeep2(type.getSuperclass(), stopTypes));
         return result;
     }
 
@@ -91,6 +125,16 @@ public final class ReflectionUtils {
             return true;
         for (Class<?> type : types)
             if (isClass(field, type) || isInterface(field, type))
+                return true;
+        return false;
+    }
+    private static boolean isExpectedClass(Object obj, Class<?>... types) {
+        if (obj == null)
+            return false;
+        if (types == null || types.length == 0)
+            return true;
+        for (Class<?> type : types)
+            if (isClass(obj.getClass(), type) || isInterface(obj.getClass(), type))
                 return true;
         return false;
     }
