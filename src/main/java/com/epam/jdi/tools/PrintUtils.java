@@ -16,8 +16,7 @@ import java.util.List;
 import java.util.Map;
 
 import static com.epam.jdi.tools.LinqUtils.*;
-import static com.epam.jdi.tools.ReflectionUtils.getFields;
-import static com.epam.jdi.tools.ReflectionUtils.getValueField;
+import static com.epam.jdi.tools.ReflectionUtils.*;
 import static java.lang.String.format;
 import static java.util.Arrays.asList;
 
@@ -98,7 +97,7 @@ public final class PrintUtils {
 
     public static String printFields(Object obj, String separator) {
         String className = obj.getClass().getSimpleName();
-        String params = print(select(where(getFields(obj), field -> getValueField(field, obj) != null),
+        String params = print(select(where(getFieldsDeep(obj), field -> getValueField(field, obj) != null),
                 field -> format("%s:%s", field.getName(), getValueField(field, obj))), separator, "%s");
         return format("%s(%s)", className, params);
     }

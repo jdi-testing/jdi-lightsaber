@@ -106,6 +106,20 @@ public class Timer {
         return timePassedInMSec() > timeoutInMSec;
     }
 
+    public boolean wait(JAction waitCase) {
+        Throwable exception = null;
+        while (!timeoutPassed())
+            try {
+                waitCase.invoke();
+                return true;
+            } catch (Exception | Error ex) {
+                exception = ex;
+                sleep(retryTimeoutInMSec);
+            }
+        if (exception != null)
+            throw new RuntimeException(exception);
+        return false;
+    }
     public boolean wait(JFunc<Boolean> waitCase) {
         Throwable exception = null;
         while (!timeoutPassed())

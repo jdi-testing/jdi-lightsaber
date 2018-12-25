@@ -12,6 +12,7 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.function.Function;
 
+import static com.epam.jdi.tools.LinqUtils.*;
 import static com.epam.jdi.tools.map.MapArray.IGNORE_NOT_UNIQUE;
 import static java.lang.String.format;
 import static java.lang.reflect.Modifier.isStatic;
@@ -54,7 +55,7 @@ public final class ReflectionUtils {
         if (type == expected)
             return true;
         List<Class> interfaces = asList(type.getInterfaces());
-        return LinqUtils.any(interfaces, i -> isInterface(i, expected)) || isInterface(type.getSuperclass(), expected);
+        return any(interfaces, i -> isInterface(i, expected)) || isInterface(type.getSuperclass(), expected);
     }
 
     public static MapArray<String, Object> getAllFields(Object obj) {
@@ -76,6 +77,10 @@ public final class ReflectionUtils {
     public static List<Field> getFields(Object obj, Class<?>[] filterTypes, Class<?>... stopTypes) {
         return getFields(obj, getFieldsDeep(obj.getClass(), stopTypes), filterTypes, f -> !isStatic(f.getModifiers()));
     }
+    public static List<Field> getFieldsExact(Object obj, Class<?> stopType) {
+        List<Field> fields = getFieldsDeep(obj.getClass(), null);
+        return filter(fields, f -> f.getType() == stopType);
+    }
     public static List<Field> getFields(Object obj, List<Field> fields, Class<?>[] filterTypes, Function<Field, Boolean> filter) {
         List<Field> result = new ArrayList<>();
         for (Field field : fields) {
@@ -95,7 +100,7 @@ public final class ReflectionUtils {
                     || isExpectedClass(getValueField(field, obj), filterTypes)));*/
     }
 
-    private static List<Field> getFieldsDeep(Class<?> type, Class<?>... stopTypes) {
+    public static List<Field> getFieldsDeep(Class<?> type, Class<?>... stopTypes) {
         if (stopTypes == null || stopTypes.length == 0)
             return asList(type.getDeclaredFields());
         return stopTypes.length == 1 && stopTypes[0] == Object.class
@@ -118,7 +123,7 @@ public final class ReflectionUtils {
     }
 
     public static <T> T getFirstField(Object obj, Class<?>... types) {
-        return (T) getValueField(LinqUtils.first(obj.getClass().getDeclaredFields(), field -> isExpectedClass(field, types)), obj);
+        return (T) getValueField(first(obj.getClass().getDeclaredFields(), field -> isExpectedClass(field, types)), obj);
     }
     private static boolean isExpectedClass(Field field, Class<?>... types) {
         if (types == null || types.length == 0)
