@@ -16,7 +16,8 @@ import java.util.List;
 import java.util.Map;
 
 import static com.epam.jdi.tools.LinqUtils.*;
-import static com.epam.jdi.tools.ReflectionUtils.*;
+import static com.epam.jdi.tools.ReflectionUtils.getFieldsDeep;
+import static com.epam.jdi.tools.ReflectionUtils.getValueField;
 import static java.lang.String.format;
 import static java.util.Arrays.asList;
 

@@ -77,15 +77,23 @@ public final class ReflectionUtils {
     public static List<Field> getFields(Object obj, Class<?>[] filterTypes, Class<?>... stopTypes) {
         return getFields(obj, getFieldsDeep(obj.getClass(), stopTypes), filterTypes, f -> !isStatic(f.getModifiers()));
     }
+    public static List<Field> fieldsForInit(Object obj, Class<?>[] filterTypes, Class<?>... stopTypes) {
+        return getFields(obj, asList(obj.getClass().getDeclaredFields()), filterTypes, f -> !isStatic(f.getModifiers()));
+    }
     public static List<Field> getFieldsExact(Object obj, Class<?> stopType) {
         List<Field> fields = getFieldsDeep(obj.getClass(), null);
         return filter(fields, f -> f.getType() == stopType);
+    }
+    public static List<Field> getFields(List<Field> fields, Class<?>[] filterTypes, Function<Field, Boolean> filter) {
+        return getFields(null, fields, filterTypes, filter);
     }
     public static List<Field> getFields(Object obj, List<Field> fields, Class<?>[] filterTypes, Function<Field, Boolean> filter) {
         List<Field> result = new ArrayList<>();
         for (Field field : fields) {
             if (filter.apply(field)) {
-                Object value = getValueField(field, obj);
+                Object value = null;
+                if (obj != null)
+                     value = getValueField(field, obj);
                 if (value != null) {
                     if (isExpectedClass(value, filterTypes))
                         result.add(field);
@@ -94,10 +102,6 @@ public final class ReflectionUtils {
             }
         }
         return result;
-        /*return LinqUtils.where(fields,
-                field -> filter.apply(field) &&
-                    (isExpectedClass(getValueField(field, obj), filterTypes)
-                    || isExpectedClass(getValueField(field, obj), filterTypes)));*/
     }
 
     public static List<Field> getFieldsDeep(Class<?> type, Class<?>... stopTypes) {
