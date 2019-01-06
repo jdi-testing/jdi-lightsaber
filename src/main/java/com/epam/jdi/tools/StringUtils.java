@@ -35,7 +35,13 @@ public final class StringUtils {
                 result = result.replaceAll("\\{"+i+"}", args.get(i).toString());
         return result;
     }
-
+    public static String msgFormat(String template, Object... args) {
+        String result = template;
+        for (int i=0;i<args.length;i++)
+            if (template.contains("{"+i+"}"))
+                result = result.replaceAll("\\{"+i+"}", args[i].toString());
+        return result;
+    }
     public static String charSequenceToString(CharSequence... value) {
         String result = "";
         for (CharSequence c : value)
