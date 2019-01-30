@@ -20,6 +20,7 @@ import static com.epam.jdi.tools.ReflectionUtils.getAllFields;
 import static java.lang.Character.*;
 import static java.util.Arrays.asList;
 import static java.util.regex.Matcher.quoteReplacement;
+import static org.apache.commons.lang3.StringUtils.isEmpty;
 
 public final class StringUtils {
     public static final String LINE_BREAK = System.getProperty("line.separator");
@@ -93,6 +94,7 @@ public final class StringUtils {
         return result + value.charAt(value.length() - 1);
     }
     public static String splitHythen(String value) {
+        if (isEmpty(value)) return "";
         String result = Character.toString(toLowerCase(value.charAt(0)));
         for (int i = 1; i < value.length(); i++) {
             char symbol = value.charAt(i);

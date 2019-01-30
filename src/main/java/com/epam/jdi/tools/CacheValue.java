@@ -17,7 +17,9 @@ public class CacheValue<T> {
         }
         return globalCache.get();
     }
-    public static void reset() { globalCache.set(currentTimeMillis()); }
+    public static void reset() {
+        globalCache.set(currentTimeMillis());
+    }
     public long elementCache = 0;
     private T value;
     private JFunc<T> getRule = () -> null;

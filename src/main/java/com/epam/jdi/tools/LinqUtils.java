@@ -240,7 +240,7 @@ public final class LinqUtils {
                     else found = el;
                 }
         } catch (Exception ex) {
-            throw new RuntimeException("Can't do first. Exception: " + ex.getMessage());
+            throw new RuntimeException("Can't do single. Exception: " + ex.getMessage());
         }
         return found;
     }
