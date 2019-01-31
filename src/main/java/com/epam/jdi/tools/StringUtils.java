@@ -93,7 +93,7 @@ public final class StringUtils {
                     ? " " : "") + value.charAt(i);
         return result + value.charAt(value.length() - 1);
     }
-    public static String splitHythen(String value) {
+    public static String splitHyphen(String value) {
         if (isEmpty(value)) return "";
         String result = Character.toString(toLowerCase(value.charAt(0)));
         for (int i = 1; i < value.length(); i++) {

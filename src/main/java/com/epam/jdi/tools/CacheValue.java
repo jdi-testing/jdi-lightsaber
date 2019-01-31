@@ -20,8 +20,9 @@ public class CacheValue<T> {
     public static void reset() {
         globalCache.set(currentTimeMillis());
     }
-    public long elementCache = 0;
+    private long elementCache = 0;
     private T value;
+    private boolean isFinal = false;
     private JFunc<T> getRule = () -> null;
     public CacheValue() { }
     public CacheValue(JFunc<T> getRule) { this.getRule = getRule; }
@@ -33,6 +34,7 @@ public class CacheValue<T> {
         return get();
     }
     public T get(JFunc<T> defaultResult) {
+        if (isFinal) return value;
         if (!isUseCache()) return defaultResult.execute();
         if (elementCache < getGlobalCache() || value == null) {
             this.value = getRule.execute();
@@ -46,13 +48,18 @@ public class CacheValue<T> {
         this.value = value;
         return value;
     }
+    public T setFinal(T value) {
+        this.value = value;
+        isFinal = true;
+        return value;
+    }
     public T set(T value) {
-        return isUseCache()
-            ? setForce(value)
-            : value;
+        return isFinal || !isUseCache()
+            ? value
+            : setForce(value);
     }
     public void setRule(JFunc<T> getRule) { this.getRule = getRule; }
     public void clear() { value = null; }
-    public boolean hasValue() { return isUseCache() && value != null && elementCache == getGlobalCache(); }
+    public boolean hasValue() { return isFinal || isUseCache() && value != null && elementCache == getGlobalCache(); }
     public boolean isUseCache() { return elementCache > -1; }
 }

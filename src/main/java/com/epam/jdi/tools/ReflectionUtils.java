@@ -5,6 +5,7 @@ package com.epam.jdi.tools;
  * Email: roman.iovlev.jdi@gmail.com; Skype: roman.iovlev
  */
 
+import com.epam.jdi.tools.func.JFunc1;
 import com.epam.jdi.tools.map.MapArray;
 
 import java.lang.reflect.Field;
@@ -77,12 +78,18 @@ public final class ReflectionUtils {
     public static List<Field> getFields(Object obj, Class<?>[] filterTypes, Class<?>... stopTypes) {
         return getFields(obj, getFieldsDeep(obj.getClass(), stopTypes), filterTypes, f -> !isStatic(f.getModifiers()));
     }
-    public static List<Field> fieldsForInit(Object obj, Class<?>[] filterTypes, Class<?>... stopTypes) {
-        return getFields(obj, asList(obj.getClass().getDeclaredFields()), filterTypes, f -> !isStatic(f.getModifiers()));
+
+    public static List<Field> getFieldsExact(Class cl) {
+        return asList(cl.getDeclaredFields());
+    }
+    public static List<Field> getFieldsExact(Class cl, JFunc1<Field, Boolean> filter) {
+        return filter(getFieldsExact(cl), filter);
+    }
+    public static List<Field> getFieldsExact(Class cl, Class<?> stopType) {
+        return getFieldsExact(cl, f -> f.getType() == stopType);
     }
     public static List<Field> getFieldsExact(Object obj, Class<?> stopType) {
-        List<Field> fields = getFieldsDeep(obj.getClass(), null);
-        return filter(fields, f -> f.getType() == stopType);
+        return getFieldsExact(obj.getClass(), stopType);
     }
     public static List<Field> getFields(List<Field> fields, Class<?>[] filterTypes, Function<Field, Boolean> filter) {
         return getFields(null, fields, filterTypes, filter);
