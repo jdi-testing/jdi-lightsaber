@@ -94,6 +94,9 @@ public final class ReflectionUtils {
     public static List<Field> getFields(List<Field> fields, Class<?>[] filterTypes, Function<Field, Boolean> filter) {
         return getFields(null, fields, filterTypes, filter);
     }
+    public static List<Field> getFieldsInterfaceOf(Object obj, Class<?>... filterTypes) {
+        return getFields(obj, asList(obj.getClass().getDeclaredFields()), filterTypes, f -> true);
+    }
     public static List<Field> getFields(Object obj, List<Field> fields, Class<?>[] filterTypes, Function<Field, Boolean> filter) {
         List<Field> result = new ArrayList<>();
         for (Field field : fields) {
