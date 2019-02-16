@@ -93,15 +93,25 @@ public final class StringUtils {
                     ? " " : "") + value.charAt(i);
         return result + value.charAt(value.length() - 1);
     }
+    private static String cleanupString(String text) {
+        if (isEmpty(text)) return "";
+        return text.replaceAll("[^a-zA-Z0-9]", "");
+    }
+    private static String toPascalCase(String value) {
+        String result = cleanupString(value);
+        if (isEmpty(result)) return "";
+        return Character.toString(toUpperCase(result.charAt(0)))
+                + result.substring(1);
+    }
     public static String splitHyphen(String value) {
-        if (isEmpty(value)) return "";
-        String result = Character.toString(toLowerCase(value.charAt(0)));
-        for (int i = 1; i < value.length(); i++) {
-            char symbol = value.charAt(i);
+        String text = cleanupString(value);
+        if (isEmpty(text)) return "";
+        String result = Character.toString(toLowerCase(text.charAt(0)));
+        for (int i = 1; i < text.length(); i++) {
+            char symbol = text.charAt(i);
             if (isUpperCase(symbol))
                 result += "-";
-            if (Character.toString(symbol).matches("[a-zA-Z0-9]"))
-                result += toLowerCase(symbol);
+            result += toLowerCase(symbol);
         }
         return result;
     }
