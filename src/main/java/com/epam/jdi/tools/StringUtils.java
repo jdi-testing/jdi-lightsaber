@@ -97,7 +97,7 @@ public final class StringUtils {
         if (isEmpty(text)) return "";
         return text.replaceAll("[^a-zA-Z0-9]", "");
     }
-    private static String toPascalCase(String value) {
+    public static String toPascalCase(String value) {
         String result = cleanupString(value);
         if (isEmpty(result)) return "";
         return Character.toString(toUpperCase(result.charAt(0)))
