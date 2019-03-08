@@ -12,6 +12,7 @@ import java.io.File;
 import java.io.InputStream;
 import java.io.InputStreamReader;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.List;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
@@ -135,5 +136,16 @@ public final class StringUtils {
         return list;
     }
 
+
+    public static String arrayToString(Object array) {
+        String result = "";
+        boolean first = true;
+        for(Object a : (Object[])array) {
+            if (first) first = false;
+            else result += ",";
+            result += a.toString();
+        }
+        return result;
+    }
     private StringUtils() {}
 }

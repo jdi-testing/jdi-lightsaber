@@ -44,6 +44,7 @@ public class CacheValue<T> {
     }
     public void useCache(boolean value) { elementCache = value ? 0 : -1; }
     public T setForce(T value) {
+        if (isFinal) return value;
         elementCache = getGlobalCache();
         this.value = value;
         return value;
@@ -59,7 +60,7 @@ public class CacheValue<T> {
             : setForce(value);
     }
     public void setRule(JFunc<T> getRule) { this.getRule = getRule; }
-    public void clear() { value = null; }
+    public void clear() { if (!isFinal) value = null; }
     public boolean hasValue() { return isFinal || isUseCache() && value != null && elementCache == getGlobalCache(); }
     public boolean isUseCache() { return elementCache > -1; }
 }

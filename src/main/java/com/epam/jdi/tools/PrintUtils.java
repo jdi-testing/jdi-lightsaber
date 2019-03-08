@@ -10,10 +10,7 @@ import com.epam.jdi.tools.map.MapArray;
 import com.epam.jdi.tools.pairs.Pair;
 
 import java.text.MessageFormat;
-import java.util.ArrayList;
-import java.util.Collection;
-import java.util.List;
-import java.util.Map;
+import java.util.*;
 
 import static com.epam.jdi.tools.LinqUtils.*;
 import static com.epam.jdi.tools.ReflectionUtils.getFieldsDeep;
@@ -117,5 +114,58 @@ public final class PrintUtils {
         for (Pair<String, String> param : params)
             result = result.replaceAll("\\{" + param.key + "}", param.value);
         return result;
+    }
+
+    public static String printList(Object obj) {
+        List<?> list = (List<?>)obj;
+        String result = "[";
+        for (int i=0; i<list.size()-1;i++)
+            result += list.get(i)+", ";
+        return result + list.get(list.size()-1) + "]";
+    }
+    public static String printArray(Object array) {
+        try {
+            Object[] a = (Object[])array;
+            if (a.length == 1)
+                return a[0].toString();
+            return Arrays.toString(a);
+        } catch (Exception ex) {}
+        try {
+            int[] a = (int[])array;
+            if (a.length == 1)
+                return String.valueOf(a[0]);
+            return Arrays.toString(a);
+        } catch (Exception ex) {}
+        try {
+            boolean[] a = (boolean[])array;
+            if (a.length == 1)
+                return String.valueOf(a[0]);
+            return Arrays.toString(a);
+        } catch (Exception ex) {}
+        try {
+            float[] a = (float[])array;
+            if (a.length == 1)
+                return String.valueOf(a[0]);
+            return Arrays.toString(a);
+        } catch (Exception ex) {}
+        try {
+            double[] a = (double[])array;
+            if (a.length == 1)
+                return String.valueOf(a[0]);
+            return Arrays.toString(a);
+        } catch (Exception ex) {}
+        try {
+            char[] a = (char[])array;
+            if (a.length == 1)
+                return String.valueOf(a[0]);
+            return Arrays.toString(a);
+        } catch (Exception ex) {}
+        try {
+            byte[] a = (byte[])array;
+            if (a.length == 1)
+                return String.valueOf(a[0]);
+            return Arrays.toString(a);
+        } catch (Exception ex) {}
+        return "Unsupported array";
     }
 }
