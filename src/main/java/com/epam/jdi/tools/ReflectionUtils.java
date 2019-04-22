@@ -67,7 +67,7 @@ public final class ReflectionUtils {
         return map;
     }
     public static List<Field> getFields(Object obj) {
-        return getFields(obj, new Class<?>[] {}, null);
+        return getFields(obj, new Class<?>[] {}, (Class<?>) null);
     }
     public static List<Field> getFieldsDeep(Object obj) {
         return getFields(obj, new Class<?>[] { }, Object.class);
@@ -85,11 +85,14 @@ public final class ReflectionUtils {
     public static List<Field> getFieldsExact(Class cl, JFunc1<Field, Boolean> filter) {
         return filter(getFieldsExact(cl), filter);
     }
+    public static List<Field> getFieldsExact(Class cl, Class<?>... stopTypes) {
+        return getFieldsExact(cl, f -> any(stopTypes, stopType -> f.getType() == stopType));
+    }
     public static List<Field> getFieldsExact(Class cl, Class<?> stopType) {
         return getFieldsExact(cl, f -> f.getType() == stopType);
     }
-    public static List<Field> getFieldsExact(Object obj, Class<?> stopType) {
-        return getFieldsExact(obj.getClass(), stopType);
+    public static List<Field> getFieldsExact(Object obj, Class<?>... stopTypes) {
+        return getFieldsExact(obj.getClass(), stopTypes);
     }
     public static List<Field> getFields(List<Field> fields, Class<?>[] filterTypes, Function<Field, Boolean> filter) {
         return getFields(null, fields, filterTypes, filter);
