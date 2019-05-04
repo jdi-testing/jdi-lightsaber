@@ -544,4 +544,5 @@ public final class LinqUtils {
     public static <T> List<T> list(T... elements) {
         return select(elements, e -> e);
     }
+
 }

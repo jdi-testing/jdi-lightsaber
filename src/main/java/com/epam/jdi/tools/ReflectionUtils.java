@@ -135,7 +135,7 @@ public final class ReflectionUtils {
         if (asList(stopTypes).contains(type) || type == Object.class)
             return new ArrayList<>();
         List<Field> result = new ArrayList<>(asList(type.getDeclaredFields()));
-        result.addAll(getFieldsDeep2(type.getSuperclass(), stopTypes));
+        //result.addAll(getFieldsDeep2(type.getSuperclass(), stopTypes));
         return result;
     }
 
