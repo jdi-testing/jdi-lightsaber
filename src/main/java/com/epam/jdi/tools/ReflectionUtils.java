@@ -120,23 +120,22 @@ public final class ReflectionUtils {
     public static List<Field> getFieldsDeep(Class<?> type, Class<?>... stopTypes) {
         if (stopTypes == null || stopTypes.length == 0)
             return asList(type.getDeclaredFields());
-        return stopTypes.length == 1 && stopTypes[0] == Object.class
+        List<Field> fields = stopTypes.length == 1 && stopTypes[0] == Object.class
             ? getFieldsDeep3(type)
             : getFieldsDeep2(type, stopTypes);
+        return fields;
+
     }
     private static List<Field> getFieldsDeep3(Class<?> type) {
         if (type == Object.class)
             return new ArrayList<>();
-        List<Field> result = new ArrayList<>(asList(type.getDeclaredFields()));
-        result.addAll(getFieldsDeep3(type.getSuperclass()));
-        return result;
+        return new ArrayList<>(asList(type.getDeclaredFields()));
     }
+
     private static List<Field> getFieldsDeep2(Class<?> type, Class<?>[] stopTypes) {
         if (asList(stopTypes).contains(type) || type == Object.class)
             return new ArrayList<>();
-        List<Field> result = new ArrayList<>(asList(type.getDeclaredFields()));
-        //result.addAll(getFieldsDeep2(type.getSuperclass(), stopTypes));
-        return result;
+        return new ArrayList<>(asList(type.getDeclaredFields()));
     }
 
     public static <T> T getFirstField(Object obj, Class<?>... types) {
