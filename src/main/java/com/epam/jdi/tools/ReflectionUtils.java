@@ -5,6 +5,7 @@ package com.epam.jdi.tools;
  * Email: roman.iovlev.jdi@gmail.com; Skype: roman.iovlev
  */
 
+import com.epam.jdi.tools.func.JFunc;
 import com.epam.jdi.tools.func.JFunc1;
 import com.epam.jdi.tools.map.MapArray;
 
@@ -70,15 +71,17 @@ public final class ReflectionUtils {
         return getFields(obj, new Class<?>[] {}, (Class<?>) null);
     }
     public static List<Field> getFieldsDeep(Object obj) {
-        return getFields(obj, new Class<?>[] { }, Object.class);
+        return getFieldsRegress(obj, new Class<?>[] { }, Object.class);
     }
     public static List<Field> getFields(Object obj, Class<?>... stopTypes) {
-        return getFields(obj, stopTypes, Object.class);
+        return getFieldsRegress(obj, stopTypes, Object.class);
     }
     public static List<Field> getFields(Object obj, Class<?>[] filterTypes, Class<?>... stopTypes) {
         return getFields(obj, getFieldsDeep(obj.getClass(), stopTypes), filterTypes, f -> !isStatic(f.getModifiers()));
     }
-
+    public static List<Field> getFieldsRegress(Object obj, Class<?>[] filterTypes, Class<?>... stopTypes) {
+        return getFields(obj, getFieldsRegress(obj.getClass(), stopTypes), filterTypes, f -> !isStatic(f.getModifiers()));
+    }
     public static List<Field> getFieldsExact(Class cl) {
         return asList(cl.getDeclaredFields());
     }
@@ -116,15 +119,29 @@ public final class ReflectionUtils {
         }
         return result;
     }
-
+    public static List<Field> getFieldsRegress(Class<?> type, Class<?>... stopTypes) {
+        if (stopTypes == null || stopTypes.length == 0)
+            return asList(type.getDeclaredFields());
+        return recursion(t -> !t.equals(Object.class), type, stopTypes.length == 1 && stopTypes[0] == Object.class
+            ? ReflectionUtils::getFieldsDeep3
+            : t -> getFieldsDeep2(t, stopTypes));
+    }
+    public static List<Field> recursion(JFunc1<Class<?>, Boolean> condition, Class<?> objType, JFunc1<Class<?>, List<Field>> func) {
+        List<Field> fields = new ArrayList<>();
+        while (condition.execute(objType)) {
+            List<Field> fList = func.execute(objType);
+            fList = filter(fList, f -> !any(fields, f2 -> f2.getName().equals(f.getName())));
+            fields.addAll(fList);
+            objType = objType.getSuperclass();
+        }
+        return fields;
+    }
     public static List<Field> getFieldsDeep(Class<?> type, Class<?>... stopTypes) {
         if (stopTypes == null || stopTypes.length == 0)
             return asList(type.getDeclaredFields());
-        List<Field> fields = stopTypes.length == 1 && stopTypes[0] == Object.class
+        return stopTypes.length == 1 && stopTypes[0] == Object.class
             ? getFieldsDeep3(type)
             : getFieldsDeep2(type, stopTypes);
-        return fields;
-
     }
     private static List<Field> getFieldsDeep3(Class<?> type) {
         if (type == Object.class)
