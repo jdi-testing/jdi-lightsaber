@@ -469,23 +469,29 @@ public class MapArray<K, V> implements Collection<Pair<K, V>>, Cloneable {
         }
     }
 
-    public V first(JFunc2<K, V, Boolean> func) {
+    public V firstValue(JFunc2<K, V, Boolean> func) {
+        return first(func).value;
+    }
+    public Pair<K, V> first(JFunc2<K, V, Boolean> func) {
         try {
             for (Pair<K, V> pair : pairs)
                 if (func.invoke(pair.key, pair.value))
-                    return pair.value;
+                    return pair;
             return null;
         } catch (Exception ignore) {
             throwRuntimeException(ignore);
             return null;
         }
     }
-    public V last(JFunc2<K, V, Boolean> func) {
-        V result = null;
+    public V lastValue(JFunc2<K, V, Boolean> func) {
+        return last(func).value;
+    }
+    public Pair<K, V> last(JFunc2<K, V, Boolean> func) {
+        Pair<K, V> result = null;
         try {
             for (Pair<K, V> pair : pairs)
                 if (func.invoke(pair.key, pair.value))
-                    result = pair.value;
+                    result = pair;
             return result;
         } catch (Exception ignore) {
             throwRuntimeException(ignore);
