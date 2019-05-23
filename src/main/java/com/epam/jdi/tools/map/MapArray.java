@@ -470,7 +470,8 @@ public class MapArray<K, V> implements Collection<Pair<K, V>>, Cloneable {
     }
 
     public V firstValue(JFunc2<K, V, Boolean> func) {
-        return first(func).value;
+        Pair<K, V> first = first(func);
+        return first == null ? null : first.value;
     }
     public Pair<K, V> first(JFunc2<K, V, Boolean> func) {
         try {
@@ -484,7 +485,8 @@ public class MapArray<K, V> implements Collection<Pair<K, V>>, Cloneable {
         }
     }
     public V lastValue(JFunc2<K, V, Boolean> func) {
-        return last(func).value;
+        Pair<K, V> last = last(func);
+        return last == null ? null : last.value;
     }
     public Pair<K, V> last(JFunc2<K, V, Boolean> func) {
         Pair<K, V> result = null;
