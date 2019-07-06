@@ -122,11 +122,12 @@ public final class ReflectionUtils {
     public static List<Field> getFieldsRegress(Class<?> type, Class<?>... stopTypes) {
         if (stopTypes == null || stopTypes.length == 0)
             return asList(type.getDeclaredFields());
-        return recursion(t -> !t.equals(Object.class), type, stopTypes.length == 1 && stopTypes[0] == Object.class
+        return recursion(type, t -> !t.equals(Object.class), stopTypes.length == 1 && stopTypes[0] == Object.class
             ? ReflectionUtils::getFieldsDeep3
             : t -> getFieldsDeep2(t, stopTypes));
     }
-    public static List<Field> recursion(JFunc1<Class<?>, Boolean> condition, Class<?> objType, JFunc1<Class<?>, List<Field>> func) {
+    public static List<Field> recursion(Class<?> objType,
+            JFunc1<Class<?>, Boolean> condition, JFunc1<Class<?>, List<Field>> func) {
         List<Field> fields = new ArrayList<>();
         while (condition.execute(objType)) {
             List<Field> fList = func.execute(objType);
