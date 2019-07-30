@@ -5,7 +5,6 @@ package com.epam.jdi.tools;
  * Email: roman.iovlev.jdi@gmail.com; Skype: roman.iovlev
  */
 
-import com.epam.jdi.tools.func.JFunc;
 import com.epam.jdi.tools.func.JFunc1;
 import com.epam.jdi.tools.map.MapArray;
 
@@ -83,7 +82,7 @@ public final class ReflectionUtils {
         return getFields(obj, getFieldsRegress(obj.getClass(), stopTypes), filterTypes, f -> !isStatic(f.getModifiers()));
     }
     public static List<Field> getFieldsExact(Class cl) {
-        return asList(cl.getDeclaredFields());
+        return getTypeFields(cl);
     }
     public static List<Field> getFieldsExact(Class cl, JFunc1<Field, Boolean> filter) {
         return filter(getFieldsExact(cl), filter);
@@ -101,7 +100,7 @@ public final class ReflectionUtils {
         return getFields(null, fields, filterTypes, filter);
     }
     public static List<Field> getFieldsInterfaceOf(Object obj, Class<?>... filterTypes) {
-        return getFields(obj, asList(obj.getClass().getDeclaredFields()), filterTypes, f -> true);
+        return getFields(obj, getTypeFields(obj.getClass()), filterTypes, f -> true);
     }
     public static List<Field> getFields(Object obj, List<Field> fields, Class<?>[] filterTypes, Function<Field, Boolean> filter) {
         List<Field> result = new ArrayList<>();
@@ -121,7 +120,7 @@ public final class ReflectionUtils {
     }
     public static List<Field> getFieldsRegress(Class<?> type, Class<?>... stopTypes) {
         if (stopTypes == null || stopTypes.length == 0)
-            return asList(type.getDeclaredFields());
+            return getTypeFields(type);
         return recursion(type, t -> !t.equals(Object.class), stopTypes.length == 1 && stopTypes[0] == Object.class
             ? ReflectionUtils::getFieldsDeep3
             : t -> getFieldsDeep2(t, stopTypes));
@@ -131,15 +130,19 @@ public final class ReflectionUtils {
         List<Field> fields = new ArrayList<>();
         while (condition.execute(objType)) {
             List<Field> fList = func.execute(objType);
-            fList = filter(fList, f -> !any(fields, f2 -> f2.getName().equals(f.getName())));
-            fields.addAll(fList);
+            for (Field field : fList) {
+                Field notUnique = first(fields, f -> f.getName().equals(field.getName()));
+                if (notUnique != null)
+                    fields.remove(notUnique);
+                fields.add(field);
+            }
             objType = objType.getSuperclass();
         }
         return fields;
     }
     public static List<Field> getFieldsDeep(Class<?> type, Class<?>... stopTypes) {
         if (stopTypes == null || stopTypes.length == 0)
-            return asList(type.getDeclaredFields());
+            return getTypeFields(type);
         return stopTypes.length == 1 && stopTypes[0] == Object.class
             ? getFieldsDeep3(type)
             : getFieldsDeep2(type, stopTypes);
@@ -147,17 +150,17 @@ public final class ReflectionUtils {
     private static List<Field> getFieldsDeep3(Class<?> type) {
         if (type == Object.class)
             return new ArrayList<>();
-        return new ArrayList<>(asList(type.getDeclaredFields()));
+        return new ArrayList<>(getTypeFields(type));
     }
 
     private static List<Field> getFieldsDeep2(Class<?> type, Class<?>[] stopTypes) {
         if (asList(stopTypes).contains(type) || type == Object.class)
             return new ArrayList<>();
-        return new ArrayList<>(asList(type.getDeclaredFields()));
+        return new ArrayList<>(getTypeFields(type));
     }
 
     public static <T> T getFirstField(Object obj, Class<?>... types) {
-        return (T) getValueField(first(obj.getClass().getDeclaredFields(), field -> isExpectedClass(field, types)), obj);
+        return (T) getValueField(first(getTypeFields(obj.getClass()), field -> isExpectedClass(field, types)), obj);
     }
     private static boolean isExpectedClass(Field field, Class<?>... types) {
         if (types == null || types.length == 0)
@@ -223,5 +226,9 @@ public final class ReflectionUtils {
             throw new RuntimeException("Can't instantiate " + entityClass.getSimpleName() +
                     ". You must have empty constructor to do this");
         }
+    }
+    private static List<Field> getTypeFields(Class<?> type) {
+        Field[] fields = type.getDeclaredFields();
+        return filter(fields, f -> !f.getName().contains("$"));
     }
 }
