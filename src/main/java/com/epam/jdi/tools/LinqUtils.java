@@ -38,7 +38,7 @@ public final class LinqUtils {
                 result.add(func.invoke(el));
             return result;
         } catch (Exception ex) {
-            throw new RuntimeException("Can't do select. Exception: " + ex.getMessage());
+            throw new RuntimeException("Can't do select." + ex.getMessage());
         }
     }
     public static <T, TR> List<TR> map(Collection<T> list, JFunc1<T, TR> func) { return select(list, func); }
@@ -56,7 +56,7 @@ public final class LinqUtils {
                 result.add(func.invoke(el));
             return result;
         } catch (Exception ex) {
-            throw new RuntimeException("Can't do select. Exception: " + ex.getMessage());
+            throw new RuntimeException("Can't do select." + ex.getMessage());
         }
     }
 
@@ -69,7 +69,7 @@ public final class LinqUtils {
                 result.put(el.getKey(), func.invoke(el.getValue()));
             return result;
         } catch (Exception ex) {
-            throw new RuntimeException("Can't do select. Exception: " + ex.getMessage());
+            throw new RuntimeException("Can't do select." + ex.getMessage());
         }
     }
     public static <K, V, TR> Map<K, TR> map(Map<K, V> map, JFunc1<V, TR> func) {
@@ -102,7 +102,7 @@ public final class LinqUtils {
                 result.add(func.invoke(el.getKey(), el.getValue()));
             return result;
         } catch (Exception ex) {
-            throw new RuntimeException("Can't do select. Exception: " + ex.getMessage());
+            throw new RuntimeException("Can't do select." + ex.getMessage());
         }
     }
 
@@ -116,7 +116,7 @@ public final class LinqUtils {
                     result.add(el);
             return result;
         } catch (Exception ex) {
-            throw new RuntimeException("Can't do where. Exception: " + ex.getMessage());
+            throw new RuntimeException("Can't do where." + ex.getMessage());
         }
     }
     public static <T> List<T> filter(Collection<T> list, JFunc1<T, Boolean> func) {
@@ -138,7 +138,7 @@ public final class LinqUtils {
                     result.put(el.getKey(), el.getValue());
             return result;
         } catch (Exception ex) {
-            throw new RuntimeException("Can't do where. Exception: " + ex.getMessage());
+            throw new RuntimeException("Can't do where." + ex.getMessage());
         }
     }
     public static <K, V> Map<K, V> filter(Map<K, V> map, JFunc1<Map.Entry<K, V>, Boolean> func) {
@@ -151,7 +151,7 @@ public final class LinqUtils {
                 if (condition.invoke(el))
                     action.invoke(el);
         } catch (Exception ex) {
-            throw new RuntimeException("Can't perform ifDo. Exception: " + ex.getMessage());
+            throw new RuntimeException("Can't perform ifDo." + ex.getMessage());
         }
     }
     public static <T> void ifDo(T[] array, JFunc1<T, Boolean> condition, JAction1<T> action) {
@@ -164,7 +164,7 @@ public final class LinqUtils {
             if (condition.invoke(el))
                 action.invoke(el.getValue());
         } catch (Exception ex) {
-            throw new RuntimeException("Can't perform ifDo. Exception: " + ex.getMessage());
+            throw new RuntimeException("Can't perform ifDo." + ex.getMessage());
         }
     }
 
@@ -177,7 +177,7 @@ public final class LinqUtils {
                     result.add(transform.invoke(el));
             return result;
         } catch (Exception ex) {
-            throw new RuntimeException("Can't perform ifSelect. Exception: " + ex.getMessage());
+            throw new RuntimeException("Can't perform ifSelect." + ex.getMessage());
         }
     }
     public static <T, R> List<R> ifSelect(T[] array,
@@ -193,7 +193,7 @@ public final class LinqUtils {
                     result.add(transform.invoke(el.getValue()));
             return result;
         } catch (Exception ex) {
-            throw new RuntimeException("Can't perform ifSelect. Exception: " + ex.getMessage());
+            throw new RuntimeException("Can't perform ifSelect." + ex.getMessage());
         }
     }
 
@@ -204,7 +204,7 @@ public final class LinqUtils {
             for (T el : list)
                 action.invoke(el);
         } catch (Exception ex) {
-            throw new RuntimeException("Can't do foreach. Exception: " + ex.getMessage());
+            throw new RuntimeException("Can't do foreach." + ex.getMessage());
         }
     }
 
@@ -219,7 +219,7 @@ public final class LinqUtils {
             for (Map.Entry e : map.entrySet())
                 action.invoke(e);
         } catch (Exception ex) {
-            throw new RuntimeException("Can't do foreach. Exception: " + ex.getMessage());
+            throw new RuntimeException("Can't do foreach." + ex.getMessage());
         }
     }
 
@@ -240,7 +240,7 @@ public final class LinqUtils {
                     else found = el;
                 }
         } catch (Exception ex) {
-            throw new RuntimeException("Can't do single. Exception: " + ex.getMessage());
+            throw new RuntimeException("Can't do single." + ex.getMessage());
         }
         return found;
     }
@@ -270,7 +270,7 @@ public final class LinqUtils {
                 if (func.invoke(list.get(i)))
                     return i;
         } catch (Exception ex) {
-            throw new RuntimeException("Can't get firstIndex. Exception: " + ex.getMessage());
+            throw new RuntimeException("Can't get firstIndex." + ex.getMessage());
         }
         return -1;
     }
@@ -284,7 +284,7 @@ public final class LinqUtils {
                     return i;
             return -1;
         } catch (Exception ex) {
-            throw new RuntimeException("Can't get firstIndex. Exception: " + ex.getMessage());
+            throw new RuntimeException("Can't get firstIndex." + ex.getMessage());
         }
     }
 
@@ -312,7 +312,7 @@ public final class LinqUtils {
                 if (func.invoke(el))
                     return el;
         } catch (Exception ex) {
-            throw new RuntimeException("Can't do first. Exception: " + ex.getMessage());
+            throw new RuntimeException("Can't do first." + ex.getMessage());
         }
         return null;
     }
@@ -329,7 +329,7 @@ public final class LinqUtils {
                 if (func.invoke(el.getKey()))
                     return el.getValue();
         } catch (Exception ex) {
-            throw new RuntimeException("Can't do first. Exception: " + ex.getMessage());
+            throw new RuntimeException("Can't do first." + ex.getMessage());
         }
         return null;
     }
@@ -342,7 +342,7 @@ public final class LinqUtils {
                 if (func.invoke(pair.key))
                     return pair.value;
         } catch (Exception ex) {
-            throw new RuntimeException("Can't do first. Exception: " + ex.getMessage());
+            throw new RuntimeException("Can't do first." + ex.getMessage());
         }
         return null;
     }
@@ -369,7 +369,7 @@ public final class LinqUtils {
                 if (func.invoke(el))
                     result = el;
         } catch (Exception ex) {
-            throw new RuntimeException("Can't do last. Exception: " + ex.getMessage());
+            throw new RuntimeException("Can't do last." + ex.getMessage());
         }
         return result;
     }
@@ -482,7 +482,7 @@ public final class LinqUtils {
                 result.addAll(func.invoke(el));
             return result;
         } catch (Exception ex) {
-            throw new RuntimeException("Can't do selectMany. Exception: " + ex.getMessage());
+            throw new RuntimeException("Can't do selectMany." + ex.getMessage());
         }
     }
 
@@ -493,7 +493,7 @@ public final class LinqUtils {
                 result.addAll(Arrays.asList(func.invoke(el)));
             return result;
         } catch (Exception ex) {
-            throw new RuntimeException("Can't do selectMany. Exception: " + ex.getMessage());
+            throw new RuntimeException("Can't do selectMany." + ex.getMessage());
         }
     }
 

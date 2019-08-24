@@ -20,6 +20,14 @@ public class CacheValue<T> {
     private boolean isFinal = false;
     private JFunc<T> getRule = () -> null;
     public CacheValue() { }
+    public CacheValue<T> copy() {
+        CacheValue<T> cv = new CacheValue<>();
+        cv.elementCache = elementCache;
+        cv.value = value;
+        cv.isFinal = isFinal;
+        cv.getRule = getRule;
+        return cv;
+    }
     public CacheValue(JFunc<T> getRule) { this.getRule = getRule; }
     public T get() {
         return get(getRule);
