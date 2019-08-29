@@ -5,6 +5,7 @@ import com.epam.jdi.tools.func.JFunc1;
 
 public class Safe<T> extends ThreadLocal<T> {
     private JFunc<T> defult;
+    public Safe() { }
     public Safe(JFunc<T> func) { defult = func; }
     public Safe(T value) { defult = () -> value; }
     @Override
