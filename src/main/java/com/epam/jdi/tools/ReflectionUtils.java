@@ -35,21 +35,45 @@ public final class ReflectionUtils {
         return false;
     }
 
-    public static boolean isClass(Class<?> type, Class<?>... expected) {
+    public static boolean isClassOr(Class<?> type, Class<?>... expected) {
         for (Class<?> expectedType : expected) {
+            if (isClass(type, expectedType))
+                return true;
+/*
             Class<?> actualType = type;
             if (expectedType == Object.class) return true;
             while (actualType != null && actualType != Object.class)
                 if (actualType == expectedType) return true;
-                else actualType = actualType.getSuperclass();
+                else actualType = actualType.getSuperclass();*/
         }
         return false;
     }
 
+    public static boolean isClassAnd(Class<?> type, Class<?>... expected) {
+        for (Class<?> expectedType : expected) {
+            if (!isClass(type, expectedType))
+                return false;
+        }
+        return true;
+    }
     public static boolean isInterface(Field field, Class<?> expected) {
         return isInterface(field.getType(), expected);
     }
 
+    public static boolean isInterfaceAnd(Class<?> type, Class<?>... interfaces) {
+        for (Class<?> i : interfaces) {
+            if (!isInterface(type, i))
+                return false;
+        }
+        return true;
+    }
+    public static boolean isInterfaceAOr(Class<?> type, Class<?>... interfaces) {
+        for (Class<?> i : interfaces) {
+            if (isInterface(type, i))
+                return true;
+        }
+        return false;
+    }
     public static boolean isInterface(Class<?> type, Class<?> expected) {
         if (type == null || expected == null || type == Object.class)
             return false;

@@ -40,15 +40,8 @@ public final class StringUtils {
         String result = template;
         for (int i=0;i<args.length;i++)
             if (template.contains("{"+i+"}"))
-                result = result.replaceAll("\\{"+i+"}", args[i].toString());
+                result = result.replaceAll("\\{"+i+"}", args[i].toString().replace("$", "\\$"));
         return result;
-    }
-    public static String charSequenceToString(CharSequence... value) {
-        String result = "";
-        for (CharSequence c : value)
-            result += c;
-        return result;
-
     }
     public static String msgFormat(String template, Object obj) {
         return msgFormat(template, getAllFields(obj));
@@ -95,7 +88,9 @@ public final class StringUtils {
     }
     private static String cleanupString(String text) {
         if (isEmpty(text)) return "";
-        return text.replaceAll("[^a-zA-Z0-9]", "");
+        return text.replaceAll("[^a-zA-Z0-9 ]", "")
+            .trim()
+            .replaceAll(" +", " ");
     }
     public static String toPascalCase(String value) {
         String result = cleanupString(value);
@@ -106,14 +101,7 @@ public final class StringUtils {
     public static String splitHyphen(String value) {
         String text = cleanupString(value);
         if (isEmpty(text)) return "";
-        String result = Character.toString(toLowerCase(text.charAt(0)));
-        for (int i = 1; i < text.length(); i++) {
-            char symbol = text.charAt(i);
-            if (isUpperCase(symbol))
-                result += "-";
-            result += toLowerCase(symbol);
-        }
-        return result;
+        return text.toLowerCase().replace(" ", "-");
     }
 
     public static String correctPath(String path) {

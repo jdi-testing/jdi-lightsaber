@@ -45,7 +45,8 @@ public class MapArray<K, V> implements Collection<Pair<K, V>>, Cloneable {
             for (Pair<K, V> pair : pairs)
                 add(pair.key, pair.value);
         } catch (Exception ex) {
-            throw new RuntimeException("Can't create MapArray"); }
+            throw new RuntimeException(format("Can't create MapArray. Exception: %s", ex.getMessage()));
+        }
     }
 
     public MapArray(Collection<K> collection, JFunc1<K, V> value) {
@@ -57,7 +58,8 @@ public class MapArray<K, V> implements Collection<Pair<K, V>>, Cloneable {
             for (T t : collection)
                 add(keyFunc.invoke(t), valueFunc.invoke(t));
         } catch (Exception ex) {
-            throw new RuntimeException("Can't create MapArray"); }
+            throw new RuntimeException(format("Can't create MapArray. Exception: %s", ex.getMessage()));
+        }
     }
 
     public MapArray(K[] array, JFunc1<K, V> value) {
@@ -73,7 +75,8 @@ public class MapArray<K, V> implements Collection<Pair<K, V>>, Cloneable {
         for (int i = 0; i < count; i++)
             add(keyFunc.invoke(i), value.invoke(i));
         } catch (Exception ex) {
-            throw new RuntimeException("Can't create MapArray"); }
+            throw new RuntimeException(format("Can't create MapArray. Exception: %s", ex.getMessage()));
+        }
     }
     public MapArray(int count, JFunc1<Integer, Pair<K, V>> pairFunc) {
         this();
@@ -83,7 +86,8 @@ public class MapArray<K, V> implements Collection<Pair<K, V>>, Cloneable {
             add(pair.key, pair.value);
         }
         } catch (Exception ex) {
-            throw new RuntimeException("Can't create MapArray"); }
+            throw new RuntimeException(format("Can't create MapArray. Exception: %s", ex.getMessage()));
+        }
     }
     public void addUnique(K key, V value) {
         if (keys().contains(key))
@@ -131,7 +135,7 @@ public class MapArray<K, V> implements Collection<Pair<K, V>>, Cloneable {
             for (int i = 0; i < count; i++)
                 mapArray.add(i, valueFunc.invoke(i));
         } catch (Exception ex) {
-            throw new RuntimeException("Can't get MapArray"); }
+            throw new RuntimeException(format("Can't get MapArray. Exception: %s", ex.getMessage())); }
         return mapArray;
     }
     public static <T> MapArray<Integer, T> toMapArray(T[] array) {
@@ -152,7 +156,7 @@ public class MapArray<K, V> implements Collection<Pair<K, V>>, Cloneable {
             for (Pair<K, V> pair : pairs)
                 result.add(key.invoke(pair.key, pair.value), value.invoke(pair.key, pair.value));
         } catch (Exception ex) {
-            throw new RuntimeException("Can't convert toMapArray"); }
+            throw new RuntimeException(format("Can't convert toMap. Exception: %s", ex.getMessage())); }
         return result;
     }
 
@@ -163,7 +167,7 @@ public class MapArray<K, V> implements Collection<Pair<K, V>>, Cloneable {
             result.add(pair.key, value.invoke(pair.value));
         return result;
         } catch (Exception ex) {
-            throw new RuntimeException("Can't convert toMapArray"); }
+            throw new RuntimeException(format("Can't convert toMap. Exception: %s", ex.getMessage())); }
     }
 
     public Map<K, V> toMap() {
@@ -180,7 +184,8 @@ public class MapArray<K, V> implements Collection<Pair<K, V>>, Cloneable {
                 result.put(key.invoke(pair.key, pair.value),
                         value.invoke(pair.key, pair.value));
         } catch (Exception ex) {
-            throw new RuntimeException("Can't convert toMap"); }
+            throw new RuntimeException(format("Can't convert toMap. Exception: %s", ex.getMessage()));
+        }
         return result;
     }
 
@@ -211,7 +216,8 @@ public class MapArray<K, V> implements Collection<Pair<K, V>>, Cloneable {
         try {
             pairs.add(new Pair<>(key, func.invoke(value)));
         } catch (Exception ex) {
-            throw new RuntimeException("Can't do update"); }
+            throw new RuntimeException(format("Can't do update. Exception: %s", ex.getMessage()));
+        }
         return this;
     }
 
@@ -224,7 +230,7 @@ public class MapArray<K, V> implements Collection<Pair<K, V>>, Cloneable {
         try {
             return (R) obj;
         } catch (ClassCastException ex) {
-            throw new ClassCastException(format("Can't cast element '%s' in MapArray", obj));
+            throw new ClassCastException(format("Can't cast element '%s' in MapArray. Exception: %s", obj, ex.getMessage()));
         }
     }
 

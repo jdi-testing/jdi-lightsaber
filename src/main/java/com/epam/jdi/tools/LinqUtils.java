@@ -34,8 +34,12 @@ public final class LinqUtils {
             throw new RuntimeException("Can't do select. Collection is Null");
         try {
             List<TR> result = new CopyOnWriteArrayList<>();
-            for (T el : list)
-                result.add(func.invoke(el));
+            if (list instanceof List)
+                for (int i = 0; i< list.size(); i++)
+                    result.add(func.invoke(((List<T>)list).get(i)));
+            else
+                for (T el : list)
+                    result.add(func.invoke(el));
             return result;
         } catch (Exception ex) {
             throw new RuntimeException("Can't do select." + ex.getMessage());
