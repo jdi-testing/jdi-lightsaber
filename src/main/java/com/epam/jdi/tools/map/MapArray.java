@@ -385,6 +385,11 @@ public class MapArray<K, V> implements Collection<Pair<K, V>>, Cloneable {
                 return false;
         return true;
     }
+    public MapArray<K,V> addAll(Map<K, V> map) {
+        for (Entry<K, V> entry : map.entrySet())
+            add(entry.getKey(), entry.getValue());
+        return this;
+    }
     public MapArray<K,V> merge(MapArray<K,V> map) {
         if (!addAll(map))
             throw new RuntimeException("Can't merge MapArray");

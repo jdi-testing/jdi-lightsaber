@@ -39,12 +39,6 @@ public final class ReflectionUtils {
         for (Class<?> expectedType : expected) {
             if (isClass(type, expectedType))
                 return true;
-/*
-            Class<?> actualType = type;
-            if (expectedType == Object.class) return true;
-            while (actualType != null && actualType != Object.class)
-                if (actualType == expectedType) return true;
-                else actualType = actualType.getSuperclass();*/
         }
         return false;
     }
