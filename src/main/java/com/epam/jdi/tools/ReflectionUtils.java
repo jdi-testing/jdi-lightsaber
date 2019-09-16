@@ -32,7 +32,7 @@ public final class ReflectionUtils {
         while (type != null && type != Object.class)
             if (type == expected) return true;
             else type = type.getSuperclass();
-        return false;
+        return isInterface(t, expected);
     }
 
     public static boolean isClassOr(Class<?> type, Class<?>... expected) {
