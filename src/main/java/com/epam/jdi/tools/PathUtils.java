@@ -12,14 +12,30 @@ public class PathUtils {
         return Paths.get(first, more).toAbsolutePath().toString();
     }
     public static String mergePath(String root, String... suffix) {
-        if (suffix.length == 1 && suffix[0].contains("/")) {
+        root = toStandardSlash(root);
+        suffix = toStandardSlash(suffix);
+        if (suffix.length == 1 && suffix[0].contains(separator)) {
             String path = suffix[0];
-            if (path.charAt(0) == '/')
+            if (path.charAt(0) == separator.charAt(0))
                 path = path.substring(1);
-            suffix = path.split("/");
+            suffix = path.split(encodedSeparator());
         }
-        if (root.charAt(root.length() - 1) == '/')
+        if (root.charAt(root.length() - 1) == separator.charAt(0))
             root = root.substring(0, root.length()-1);
         return root + separator + String.join(separator, suffix);
+    }
+    public static String encodedSeparator() {
+        return "\\"+separator;
+    }
+    private static String toStandardSlash(String s) {
+        return separator.equals("\\")
+            ? s.replaceAll("/", encodedSeparator())
+            : s.replaceAll("\\\\", separator);
+    }
+    private static String[] toStandardSlash(String... strings) {
+        String[] result = new String[strings.length];
+        for (int i=0; i<strings.length; i++)
+            result[i] = toStandardSlash(strings[i]);
+        return result;
     }
 }
