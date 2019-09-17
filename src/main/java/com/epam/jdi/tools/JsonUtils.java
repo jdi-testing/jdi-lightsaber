@@ -1,9 +1,9 @@
 package com.epam.jdi.tools;
 
 import com.epam.jdi.tools.map.MapArray;
+import com.fasterxml.jackson.databind.ObjectMapper;
 import com.google.gson.Gson;
 import com.google.gson.GsonBuilder;
-import com.fasterxml.jackson.databind.ObjectMapper;
 
 import java.io.*;
 import java.nio.file.Files;
