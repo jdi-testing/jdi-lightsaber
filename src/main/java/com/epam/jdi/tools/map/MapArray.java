@@ -203,7 +203,7 @@ public class MapArray<K, V> implements Collection<Pair<K, V>>, Cloneable {
     public MapArray<K, V> update(K key, V value) {
         if (has(key))
             removeByKey(key);
-        pairs.add(new Pair<>(key, value));
+        add(key, value);
         return this;
     }
 
@@ -226,6 +226,13 @@ public class MapArray<K, V> implements Collection<Pair<K, V>>, Cloneable {
             if (pair.length == 2)
                 add(cast(pair[0]), cast(pair[1]));
     }
+
+    public void update(Object[][] pairs) {
+        for (Object[] pair : pairs)
+            if (pair.length == 2)
+                update(cast(pair[0]), (V)cast(pair[1]));
+    }
+
     private <R> R cast(Object obj) {
         try {
             return (R) obj;
