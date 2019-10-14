@@ -22,7 +22,7 @@ public final class PropertyReader {
 
     private PropertyReader() {
     }
-    private static String getCorrectPath() {
+    public static String getCorrectPath() {
         if (propertiesPath.charAt(0) != '/')
             propertiesPath = "/" + propertiesPath;
         return propertiesPath;
