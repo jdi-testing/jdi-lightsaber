@@ -45,7 +45,7 @@ public final class PropertyReader {
         return properties;
     }
 
-    private static Properties loadProperties() {
+    public static Properties loadProperties() {
         return properties != null ? properties : readProperties();
     }
 
