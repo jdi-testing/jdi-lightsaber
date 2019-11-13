@@ -44,7 +44,7 @@ public class DataClass<T> {
         if (this == o) return true;
         if (o == null || getClass() != o.getClass()) return false;
         try {
-            Field[] otherFields = getClass().getDeclaredFields();
+            Field[] otherFields = o.getClass().getDeclaredFields();
             for (Field f : getClass().getDeclaredFields()) {
                 Field fOther = LinqUtils.first(otherFields, fo -> fo.getName().equals(f.getName()));
                 if (f.get(this) == null && fOther.get(o) == null)

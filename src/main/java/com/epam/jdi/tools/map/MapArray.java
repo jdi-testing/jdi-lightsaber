@@ -278,7 +278,7 @@ public class MapArray<K, V> implements Collection<Pair<K, V>>, Cloneable {
         try {
             first = LinqUtils.first(pairs, pair -> pair.key.equals(key));
         } catch (Exception ignore) { }
-        return (first != null) ? first.value : null;
+        return first != null ? first.value : null;
     }
 
     public Pair<K, V> get(int i) {
