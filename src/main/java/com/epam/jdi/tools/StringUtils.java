@@ -11,6 +11,7 @@ import java.io.BufferedReader;
 import java.io.File;
 import java.io.InputStream;
 import java.io.InputStreamReader;
+import java.lang.reflect.Field;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.regex.Matcher;
@@ -18,8 +19,10 @@ import java.util.regex.Pattern;
 
 import static com.epam.jdi.tools.ReflectionUtils.getAllFields;
 import static java.lang.Character.*;
+import static java.lang.Integer.parseInt;
 import static java.util.Arrays.asList;
 import static java.util.regex.Matcher.quoteReplacement;
+import static javax.xml.bind.DatatypeConverter.*;
 import static org.apache.commons.lang3.StringUtils.isEmpty;
 
 public final class StringUtils {
@@ -92,11 +95,30 @@ public final class StringUtils {
             .trim()
             .replaceAll(" +", " ");
     }
+    public static String toCamelCase(String value) {
+        String result = cleanupString(value);
+        if (isEmpty(result)) return "";
+        return toLowerCase(result.charAt(0)) + result.substring(1);
+    }
     public static String toPascalCase(String value) {
         String result = cleanupString(value);
         if (isEmpty(result)) return "";
-        return Character.toString(toUpperCase(result.charAt(0)))
-                + result.substring(1);
+        return toUpperCase(result.charAt(0)) + result.substring(1);
+    }
+    public static String toSnakeCase(String value) {
+        String result = cleanupString(value).toLowerCase();
+        if (isEmpty(result)) return "";
+        return result.replaceAll(" ", "_");
+    }
+    public static String toKebabCase(String value) {
+        String result = cleanupString(value).toLowerCase();
+        if (isEmpty(result)) return "";
+        return result.replaceAll(" ", "-");
+    }
+    public static String toUpperSnakeCase(String value) {
+        String result = cleanupString(value).toUpperCase();
+        if (isEmpty(result)) return "";
+        return result.replaceAll(" ", "_");
     }
     public static String splitHyphen(String value) {
         String text = cleanupString(value);
@@ -134,5 +156,111 @@ public final class StringUtils {
         }
         return result;
     }
+    public static void setPrimitiveField(Field field, Object obj, String value) {
+        field.setAccessible(true);
+        try {
+            if (String.class.isAssignableFrom(field.getType())) {
+                field.set(obj, value);
+                return;
+            }
+        } catch (Exception ignore) { }
+        try {
+            if (boolean.class.isAssignableFrom(field.getType())) {
+                field.set(obj, Boolean.parseBoolean(value));
+                return;
+            }
+        } catch (Exception ignore) { }
+        try {
+            if (char.class.isAssignableFrom(field.getType())) {
+                field.set(obj, value.charAt(0));
+                return;
+            }
+        } catch (Exception ignore) { }
+        try {
+            if (byte.class.isAssignableFrom(field.getType())) {
+                field.set(obj, parseByte(value));
+                return;
+            }
+        } catch (Exception ignore) { }
+        try {
+            if (short.class.isAssignableFrom(field.getType())) {
+                field.set(obj, parseShort(value));
+                return;
+            }
+        } catch (Exception ignore) { }
+        try {
+            if (int.class.isAssignableFrom(field.getType())) {
+                field.set(obj, parseInt(value));
+                return;
+            }
+        } catch (Exception ignore) { }
+        try {
+            if (long.class.isAssignableFrom(field.getType())) {
+                field.set(obj, parseLong(value));
+                return;
+            }
+        } catch (Exception ignore) { }
+        try {
+            if (float.class.isAssignableFrom(field.getType())) {
+                field.set(obj, parseFloat(value));
+                return;
+            }
+        } catch (Exception ignore) { }
+        try {
+            if (double.class.isAssignableFrom(field.getType())) {
+                field.set(obj, parseDouble(value));
+                return;
+            }
+        } catch (Exception ignore) { }
+        try {
+            if (Boolean.class.isAssignableFrom(field.getType())) {
+                field.set(obj, Boolean.parseBoolean(value));
+                return;
+            }
+        } catch (Exception ignore) { }
+        try {
+            if (Character.class.isAssignableFrom(field.getType())) {
+                field.set(obj, value.charAt(0));
+                return;
+            }
+        } catch (Exception ignore) { }
+        try {
+            if (Byte.class.isAssignableFrom(field.getType())) {
+                field.set(obj, parseByte(value));
+                return;
+            }
+        } catch (Exception ignore) { }
+        try {
+            if (Short.class.isAssignableFrom(field.getType())) {
+                field.set(obj, parseShort(value));
+                return;
+            }
+        } catch (Exception ignore) { }
+        try {
+            if (Integer.class.isAssignableFrom(field.getType())) {
+                field.set(obj, parseInt(value));
+                return;
+            }
+        } catch (Exception ignore) { }
+        try {
+            if (Long.class.isAssignableFrom(field.getType())) {
+                field.set(obj, parseLong(value));
+                return;
+            }
+        } catch (Exception ignore) { }
+        try {
+            if (Float.class.isAssignableFrom(field.getType())) {
+                field.set(obj, parseFloat(value));
+                return;
+            }
+        } catch (Exception ignore) { }
+        try {
+            if (Double.class.isAssignableFrom(field.getType())) {
+                field.set(obj, parseDouble(value));
+                return;
+            }
+        } catch (Exception ignore) { }
+    }
+
     private StringUtils() {}
 }
