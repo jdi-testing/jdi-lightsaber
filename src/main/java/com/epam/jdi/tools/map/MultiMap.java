@@ -152,6 +152,7 @@ public class MultiMap<K, V> implements Collection<Pair<K, V>>, Cloneable {
     public <KResult, VResult> MultiMap<KResult, VResult> toMultiMap(
             JFunc2<K, V, KResult> key, JFunc2<K, V, VResult> value) {
         MultiMap<KResult, VResult> result = new MultiMap<>();
+        result.ignoreKeyCase = ignoreKeyCase;
         try {
             for (Pair<K, V> pair : pairs)
                 result.add(key.invoke(pair.key, pair.value), value.invoke(pair.key, pair.value));
@@ -162,6 +163,7 @@ public class MultiMap<K, V> implements Collection<Pair<K, V>>, Cloneable {
 
     public <VResult> MultiMap<K, VResult> toMultiMap(JFunc1<V, VResult> value) {
         MultiMap<K, VResult> result = new MultiMap<>();
+        result.ignoreKeyCase = ignoreKeyCase;
         try {
         for (Pair<K, V> pair : pairs)
             result.add(pair.key, value.invoke(pair.value));
@@ -219,11 +221,23 @@ public class MultiMap<K, V> implements Collection<Pair<K, V>>, Cloneable {
         pairs = result;
         return this;
     }
-
+    private boolean ignoreKeyCase = false;
+    public MultiMap<K, V> ignoreKeyCase() { ignoreKeyCase = true; return this; }
+    protected boolean keysEqual(K key1, K key2) {
+        return key1.getClass() == String.class && ignoreKeyCase
+            ? ((String) key1).equalsIgnoreCase((String) key2)
+            : key1.equals(key2);
+    }
+    public int getIndex(K key) {
+        for (int i = 0; i < keys().size(); i++)
+            if (keysEqual(keys().get(i), key))
+                return i;
+        return -1;
+    }
     public V get(K key) {
         Pair<K, V> first = null;
         try {
-            first = LinqUtils.first(pairs, pair -> pair.key.equals(key));
+            first = LinqUtils.first(pairs, pair -> keysEqual(pair.key, key));
         } catch (Exception ignore) { }
         return (first != null) ? first.value : null;
     }
@@ -231,7 +245,7 @@ public class MultiMap<K, V> implements Collection<Pair<K, V>>, Cloneable {
         List<V> result = null;
         try {
             result = LinqUtils.ifSelect(pairs,
-                pair -> pair.key.equals(key),
+                pair -> keysEqual(pair.key, key),
                 pair -> pair.value);
         } catch (Exception ignore) { }
         return (result != null) ? result : new ArrayList<>();
@@ -349,7 +363,7 @@ public class MultiMap<K, V> implements Collection<Pair<K, V>>, Cloneable {
 
     public void removeByKey(K key) {
         pairs.removeAll(LinqUtils.where(pairs,
-            p -> p.key.equals(key)));
+            p -> keysEqual(p.key, key)));
     }
     public void removeByValue(V value) {
         pairs.removeAll(LinqUtils.where(pairs,
