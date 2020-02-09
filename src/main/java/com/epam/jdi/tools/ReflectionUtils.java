@@ -208,10 +208,29 @@ public final class ReflectionUtils {
         }
     }
 
-    public static Object convertStringToType(String value, Field field)
-    {
-        Class<?> clazz = field.getType();
-        if (clazz.isAssignableFrom(String.class)|| value == null)
+    public static Object stringToPrimitive(String str) {
+        if (str.equalsIgnoreCase("true"))
+            return true;
+        if (str.equalsIgnoreCase("false"))
+            return false;
+        try { return Byte.parseByte(str); }
+        catch (Exception ignore) { }
+        try { return Short.parseShort(str); }
+        catch (Exception ignore) { }
+        try { return Byte.parseByte(str); }
+        catch (Exception ignore) { }
+        try { return Integer.parseInt(str); }
+        catch (Exception ignore) { }
+        try { return Long.parseLong(str); }
+        catch (Exception ignore) { }
+        try { return Float.parseFloat(str); }
+        catch (Exception ignore) { }
+        try { return Double.parseDouble(str); }
+        catch (Exception ignore) { }
+        return str;
+    }
+    public static Object convertStringToType(String value, Class<?> clazz) {
+        if (clazz.isAssignableFrom(String.class) || value == null)
             return value;
         if (clazz.isAssignableFrom(Byte.class))
             return Byte.parseByte(value);
@@ -227,8 +246,15 @@ public final class ReflectionUtils {
             return Float.parseFloat(value);
         if (clazz.isAssignableFrom(Boolean.class))
             return Boolean.parseBoolean(value);
-
-        throw new IllegalArgumentException("Can't parse field " + field.getName() + ". Type [" + clazz + "] is unsupported");
+        throw new IllegalArgumentException("Can't parse field string " + value + ". Type [" + clazz + "] is unsupported");
+    }
+    public static Object convertStringToType(String value, Field field) {
+        Class<?> clazz = field.getType();
+        try {
+            return convertStringToType(value, clazz);
+        } catch (Exception ex) {
+            throw new IllegalArgumentException("Can't parse field " + field.getName() + ". Type [" + clazz + "] is unsupported");
+        }
     }
 
     public static <T> Class<T> checkEntityIsNotNull(Class<T> entityClass) {

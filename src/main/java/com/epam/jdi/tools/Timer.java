@@ -12,6 +12,7 @@ import com.epam.jdi.tools.func.JFunc1;
 import java.text.SimpleDateFormat;
 import java.util.Date;
 
+import static com.epam.jdi.tools.ReflectionUtils.isClass;
 import static java.lang.System.currentTimeMillis;
 
 public class Timer {
@@ -106,6 +107,12 @@ public class Timer {
         return timePassedInMSec() > timeoutInMSec;
     }
 
+    private void throwException(Throwable ex) {
+        if (isClass(AssertionError.class, ex.getClass()))
+            throw new AssertionError(ex.getMessage());
+        else
+            throw new RuntimeException(ex.getMessage());
+    }
     public boolean wait(JAction waitCase) {
         Throwable exception = null;
         while (!timeoutPassed())
@@ -117,7 +124,7 @@ public class Timer {
                 sleep(retryTimeoutInMSec);
             }
         if (exception != null)
-            throw new RuntimeException(exception);
+            throwException(exception);
         return false;
     }
     public boolean wait(JFunc<Boolean> waitCase) {
@@ -129,7 +136,7 @@ public class Timer {
                 sleep(retryTimeoutInMSec);
             } catch (Exception | Error ex) { exception = ex; }
         if (exception != null)
-            throw new RuntimeException(exception);
+            throwException(exception);
         return false;
     }
 
@@ -148,7 +155,7 @@ public class Timer {
             sleep(retryTimeoutInMSec);
         } while (!timeoutPassed());
         if (exception != null)
-            throw new RuntimeException(exception);
+            throwException(exception);
         return null;
     }
 

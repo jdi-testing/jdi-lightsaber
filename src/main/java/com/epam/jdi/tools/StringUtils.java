@@ -156,6 +156,7 @@ public final class StringUtils {
         }
         return result;
     }
+
     public static void setPrimitiveField(Field field, Object obj, String value) {
         field.setAccessible(true);
         try {
