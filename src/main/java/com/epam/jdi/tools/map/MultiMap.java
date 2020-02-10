@@ -99,6 +99,10 @@ public class MultiMap<K, V> implements Collection<Pair<K, V>>, Cloneable {
         this();
         addAll(new ArrayList<>(mapArray));
     }
+    public MultiMap(MapArray<K, V> mapArray) {
+        this();
+        addAll(new ArrayList<>(mapArray));
+    }
     public MultiMap(Map<K, V> map) {
         this();
         for (Entry<K, V> entry : map.entrySet())
@@ -149,6 +153,12 @@ public class MultiMap<K, V> implements Collection<Pair<K, V>>, Cloneable {
         return mapArray;
     }
 
+    public static <Key, Value> MultiMap<Key, Value> toMultiMap(MapArray<Key, Value> map) {
+        MultiMap<Key, Value> mapArray = new MultiMap<>();
+        for (Pair<Key, Value> e : map)
+            mapArray.add(e.key, e.value);
+        return mapArray;
+    }
     public <KResult, VResult> MultiMap<KResult, VResult> toMultiMap(
             JFunc2<K, V, KResult> key, JFunc2<K, V, VResult> value) {
         MultiMap<KResult, VResult> result = new MultiMap<>();
