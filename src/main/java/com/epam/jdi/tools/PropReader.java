@@ -15,25 +15,24 @@ import static com.epam.jdi.tools.StringUtils.LINE_BREAK;
 import static java.lang.String.format;
 import static org.apache.commons.lang3.StringUtils.isBlank;
 
-public final class PropertyReader {
-    private static String propertiesPath;
-    private static volatile Properties properties;
-    private static InputStream inputStream;
+public class PropReader {
+    private String propertiesPath;
+    private volatile Properties properties;
+    private InputStream inputStream;
 
-    private PropertyReader() {
+    public PropReader(String path) {
+        propertiesPath = path;
     }
-    public static String getPath() {
-        if (isBlank(propertiesPath))
-            return "";
+    public String getPath() {
         if (propertiesPath.charAt(0) != '/')
             propertiesPath = "/" + propertiesPath;
         return propertiesPath;
     }
 
-    public static Properties readProperties() {
+    public Properties readProperties() {
         properties = new Properties();
         try {
-            inputStream = PropertyReader.class.getResourceAsStream(getPath());
+            inputStream = PropReader.class.getResourceAsStream(getPath());
             if (inputStream != null)
                 properties.load(inputStream);
         } catch (Exception ex) {
@@ -47,21 +46,20 @@ public final class PropertyReader {
         return properties;
     }
 
-    public static Properties loadProperties() {
+    public Properties loadProperties() {
         return properties != null ? properties : readProperties();
     }
 
-    public static Properties getProperties(String path) {
-        propertiesPath = path;
+    public Properties getProperties() {
         return readProperties();
     }
 
 
-    public static String getProperty(String propertyName) {
+    public String getProperty(String propertyName) {
         return loadProperties().getProperty(propertyName);
     }
 
-    public static void fillAction(JAction1<String> action, String name) {
+    public void fillAction(JAction1<String> action, String name) {
         String prop = null;
         try {
             prop = getProperty(name);
@@ -74,7 +72,7 @@ public final class PropertyReader {
                     name, prop));
         action.execute(prop);
     }
-    private static boolean isMvnProperty(String prop) {
+    private boolean isMvnProperty(String prop) {
         return prop.matches("^\\$\\{.+}");
     }
 

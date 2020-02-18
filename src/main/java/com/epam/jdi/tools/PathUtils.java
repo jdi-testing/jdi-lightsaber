@@ -3,6 +3,7 @@ package com.epam.jdi.tools;
 import java.nio.file.Paths;
 
 import static java.io.File.separator;
+import static org.apache.commons.lang3.StringUtils.isBlank;
 
 /**
  * Created by Roman_Iovlev on 4/17/2018.
@@ -28,6 +29,7 @@ public class PathUtils {
         return "\\"+separator;
     }
     private static String toStandardSlash(String s) {
+        if (isBlank(s)) return "";
         return separator.equals("\\")
             ? s.replaceAll("/", encodedSeparator())
             : s.replaceAll("\\\\", separator);

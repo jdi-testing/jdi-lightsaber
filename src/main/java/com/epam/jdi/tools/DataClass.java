@@ -31,7 +31,7 @@ public class DataClass<T> {
     }
     public MapArray<String, Object> getFields() {
         Field[] fields = getClass().getDeclaredFields();
-        return new MapArray<>(fields, f -> f.getName(), f -> f.get(this));
+        return new MapArray<>(fields, Field::getName, f -> f.get(this));
     }
 
     @Override

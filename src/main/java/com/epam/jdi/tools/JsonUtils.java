@@ -4,6 +4,7 @@ import com.epam.jdi.tools.map.MapArray;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.google.gson.Gson;
 import com.google.gson.GsonBuilder;
+import com.google.gson.JsonParser;
 
 import java.io.*;
 import java.nio.file.Files;
@@ -14,8 +15,10 @@ import java.util.Map;
 import java.util.stream.Collectors;
 
 import static com.epam.jdi.tools.PathUtils.mergePath;
-import static com.epam.jdi.tools.PropertyReader.getProperty;
+import static com.epam.jdi.tools.PropertyReader.*;
+import static com.epam.jdi.tools.map.MapArray.toMapArray;
 import static java.lang.String.format;
+import static org.apache.commons.lang3.StringUtils.isBlank;
 
 public class JsonUtils {
     public static String readFileData(String filePath) {
@@ -43,12 +46,18 @@ public class JsonUtils {
     public static Map<String, String> deserializeJsonToMap(String jsonName, String propertyName) {
         Gson gson = (new GsonBuilder()).create();
         Map<String, String> map = new HashMap<String, String>();
-        String json = readFileData(mergePath(getProperty(propertyName), jsonName + ".json"));
+        String property = getProperty(propertyName);
+        if (isBlank(property))
+            throw new RuntimeException(format("Can't get property: '%s'. Properties file path: '%s'", propertyName, getPath()));
+        String json = readFileData(mergePath(property, jsonName + ".json"));
         map = gson.fromJson(json, map.getClass());
         return map;
     }
     public static MapArray<String, String> getMapFromJson(String jsonName, String propertyName) {
-        return MapArray.toMapArray(deserializeJsonToMap(jsonName, propertyName));
+        return toMapArray(deserializeJsonToMap(jsonName, propertyName));
+    }
+    public static String beautifyJson(String json) {
+        return new GsonBuilder().setPrettyPrinting().create().toJson(new JsonParser().parse(json).getAsJsonObject());
     }
     public static List<String> scanFolder(String folderName) {
         try {
