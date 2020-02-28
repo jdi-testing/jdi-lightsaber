@@ -549,4 +549,36 @@ public final class LinqUtils {
         return select(elements, e -> e);
     }
 
+    public static boolean isSorted(Object first, Object second, boolean asc, boolean strict) {
+        return asc ? isAscending(first, second, strict) : isAscending(second, first, strict);
+    }
+
+    public static boolean isAscending(Object first, Object second, boolean strict) {
+        try {
+            byte a = (byte) first;
+            byte b = (byte) second;
+            return strict ? a < b : a <= b;
+        } catch (Exception ex) {}
+        try {
+            int a = (int) first;
+            int b = (int) second;
+            return strict ? a < b : a <= b;
+        } catch (Exception ex) {}
+        try {
+            long a = (long) first;
+            long b = (long) second;
+            return strict ? a < b : a <= b;
+        } catch (Exception ex) {}
+        try {
+            float a = (float) first;
+            float b = (float) second;
+            return strict ? a < b : a <= b;
+        } catch (Exception ex) {}
+        try {
+            double a = (double) first;
+            double b = (double) second;
+            return strict ? a < b : a <= b;
+        } catch (Exception ex) {}
+        throw new RuntimeException(format("isAscending failed because values first='%s' second = '%s' are not comparable", first, second));
+    }
 }
