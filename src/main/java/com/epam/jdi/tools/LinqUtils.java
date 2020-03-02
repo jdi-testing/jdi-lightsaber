@@ -579,6 +579,12 @@ public final class LinqUtils {
             double b = (double) second;
             return strict ? a < b : a <= b;
         } catch (Exception ex) {}
+        try {
+            String a = first.toString();
+            String b = second.toString();
+            int compare = a.compareTo(b);
+            return strict ? compare < 0 : compare <= 0;
+        } catch (Exception ex) {}
         throw new RuntimeException(format("isAscending failed because values first='%s' second = '%s' are not comparable", first, second));
     }
 }
