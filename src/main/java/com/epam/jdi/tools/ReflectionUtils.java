@@ -8,9 +8,7 @@ package com.epam.jdi.tools;
 import com.epam.jdi.tools.func.JFunc1;
 import com.epam.jdi.tools.map.MapArray;
 
-import java.lang.reflect.Constructor;
-import java.lang.reflect.Field;
-import java.lang.reflect.InvocationTargetException;
+import java.lang.reflect.*;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.function.Function;
@@ -304,5 +302,43 @@ public final class ReflectionUtils {
             } catch (Exception ignore) { }
         }
         throw new RuntimeException(format("%s has no appropriate constructors", cs.getSimpleName()));
+    }
+
+    public static boolean isList(Field f, JFunc1<Class<?>, Boolean> func) {
+        try {
+            return f.getType() == List.class && func.execute(getGenericType(f));
+        } catch (Exception ex) { return false; }
+    }
+    public static boolean isList(Class<?> clazz, JFunc1<Class<?>, Boolean> func) {
+        try {
+            return clazz == List.class && func.execute(getGenericType(clazz));
+        } catch (Exception ex) { return false; }
+    }
+    public static boolean isList(Field f, Class<?> type) {
+        return isList(f, g -> g == type);
+    }
+    public static boolean isListOf(Field field, Class<?> type) {
+        return isList(field, g -> isClass(g, type) || isInterface(g, type));
+    }
+    public static Type[] getGenericTypes(Field field) {
+        try {
+            return ((ParameterizedType) field.getGenericType()).getActualTypeArguments();
+        } catch (Exception ex) {
+            throw new RuntimeException(format("'%s' is List but has no Generic types", field.getName()), ex);
+        }
+    }
+    public static Class<?> getGenericType(Field field) {
+        try {
+            return (Class<?>)getGenericTypes(field)[0];
+        } catch (Exception ex) {
+            throw new RuntimeException(format("'%s' is List but has no Generic types", field.getName()), ex);
+        }
+    }
+    public static Class<?> getGenericType(Class<?> clazz) {
+        try {
+            return (Class<?>) ((ParameterizedType) clazz.getGenericSuperclass()).getActualTypeArguments()[0];
+        } catch (Exception ex) {
+            throw new RuntimeException(format("'%s' is List but has no Generic type", clazz.getName()), ex);
+        }
     }
 }
