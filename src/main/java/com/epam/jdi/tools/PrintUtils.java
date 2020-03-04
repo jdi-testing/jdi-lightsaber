@@ -16,6 +16,8 @@ import static com.epam.jdi.tools.LinqUtils.*;
 import static com.epam.jdi.tools.ReflectionUtils.getFieldsDeep;
 import static com.epam.jdi.tools.ReflectionUtils.getValueField;
 import static java.lang.String.format;
+import static java.lang.reflect.Array.get;
+import static java.lang.reflect.Array.getLength;
 import static java.util.Arrays.asList;
 
 public final class PrintUtils {
@@ -168,4 +170,5 @@ public final class PrintUtils {
         } catch (Exception ex) {}
         return "Unsupported array";
     }
+
 }

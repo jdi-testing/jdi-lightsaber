@@ -8,7 +8,9 @@ package com.epam.jdi.tools;
 import com.epam.jdi.tools.func.JFunc1;
 import com.epam.jdi.tools.map.MapArray;
 
+import java.lang.reflect.Constructor;
 import java.lang.reflect.Field;
+import java.lang.reflect.InvocationTargetException;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.function.Function;
@@ -274,5 +276,33 @@ public final class ReflectionUtils {
     private static List<Field> getTypeFields(Class<?> type) {
         Field[] fields = type.getDeclaredFields();
         return filter(fields, f -> !f.getName().contains("$"));
+    }
+
+    private static <T> T csInit(Constructor<?> cs, Object... params) throws IllegalAccessException, InvocationTargetException, InstantiationException {
+        cs.setAccessible(true);
+        return (T) cs.newInstance(params);
+    }
+    public static <T> T create(Class<?> cs) throws IllegalAccessException, InvocationTargetException, InstantiationException {
+        if (cs == null)
+            throw new RuntimeException("Can't init class. Class Type is null.");
+        Constructor<?>[] constructors = cs.getDeclaredConstructors();
+        Constructor<?> constructor = first(constructors, c -> c.getParameterCount() == 0);
+        if (constructor != null)
+            return csInit(constructor);
+        throw new RuntimeException(format("%s has no empty constructors", cs.getSimpleName()));
+    }
+    public static <T> T create(Class<?> cs, Object... params) {
+        if (cs == null)
+            throw new RuntimeException("Can't init class. Class Type is null.");
+        Constructor<?>[] constructors = cs.getDeclaredConstructors();
+        List<Constructor<?>> listConst = filter(constructors, c -> c.getParameterCount() == params.length);
+        if (listConst.size() == 0)
+            throw new RuntimeException(format("%s has no constructor with %s params", cs.getSimpleName(), params.length));
+        for(Constructor<?> cnst : listConst) {
+            try {
+                return csInit(cnst, params);
+            } catch (Exception ignore) { }
+        }
+        throw new RuntimeException(format("%s has no appropriate constructors", cs.getSimpleName()));
     }
 }

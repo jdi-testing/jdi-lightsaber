@@ -45,7 +45,7 @@ public class JsonUtils {
     }
     public static Map<String, String> deserializeJsonToMap(String jsonName, String propertyName) {
         Gson gson = (new GsonBuilder()).create();
-        Map<String, String> map = new HashMap<String, String>();
+        Map<String, String> map = new HashMap<>();
         String property = getProperty(propertyName);
         if (isBlank(property))
             throw new RuntimeException(format("Can't get property: '%s'. Properties file path: '%s'", propertyName, getPath()));
@@ -78,5 +78,29 @@ public class JsonUtils {
                 throw new RuntimeException("Can't read elements from json");
             }
         return result;
+    }
+
+    public static int getInt(Object value) {
+        try {
+            return (int)value;
+        } catch (Exception ignore) { }
+        try {
+            return ((Double)value).intValue();
+        } catch (Exception ignore) { }
+        try {
+            return ((Long)value).intValue();
+        } catch (Exception ignore) { }
+        try {
+            return ((Float)value).intValue();
+        } catch (Exception ignore) { }
+        return -1;
+    }
+    public static double getDouble(Object obj) {
+        if (obj == null) return 0.0;
+        try {
+            return (double) obj;
+        } catch (Exception ex) {
+            return ((Long) obj).doubleValue();
+        }
     }
 }
