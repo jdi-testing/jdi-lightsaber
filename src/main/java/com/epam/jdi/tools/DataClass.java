@@ -18,7 +18,7 @@ public class DataClass<T> {
         valueFunc.execute(thisObj);
         return thisObj;
     }
-    public Map<String, Object> getFieldsAsMap() {
+    public Map<String, Object> fieldsAsMap() {
         Map<String, Object> map = new HashMap<>();
         Field[] fields = getClass().getDeclaredFields();
         for (Field field : fields)
@@ -29,7 +29,7 @@ public class DataClass<T> {
             }
         return map;
     }
-    public MapArray<String, Object> getFields() {
+    public MapArray<String, Object> fields() {
         Field[] fields = getClass().getDeclaredFields();
         return new MapArray<>(fields, Field::getName, f -> f.get(this));
     }
