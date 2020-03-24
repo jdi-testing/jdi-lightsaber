@@ -34,9 +34,11 @@ public final class LinqUtils {
             throw new RuntimeException("Can't do select. Collection is Null");
         try {
             List<TR> result = new CopyOnWriteArrayList<>();
-            if (list instanceof List)
-                for (int i = 0; i< list.size(); i++)
-                    result.add(func.invoke(((List<T>)list).get(i)));
+            if (list instanceof List) {
+                int startIndex = getStartIndex((List)list);
+                for (int i = startIndex; i < list.size() + startIndex; i++)
+                    result.add(func.invoke(((List<T>) list).get(i)));
+            }
             else
                 for (T el : list)
                     result.add(func.invoke(el));
@@ -266,11 +268,18 @@ public final class LinqUtils {
     public static <T> boolean all(T[] array, JFunc1<T, Boolean> func) {
         return all(asList(array), func);
     }
+    private static <T> int getStartIndex(List<T> list) {
+        try {
+            list.get(0);
+            return 0;
+        } catch (Exception ex) { return 1; }
+    }
     public static <T> int firstIndex(List<T> list, JFunc1<T, Boolean> func) {
         if (list == null || list.size() == 0)
             throw new RuntimeException("Can't get firstIndex. Collection is Null or empty");
         try {
-            for (int i = 0; i < list.size(); i++)
+            int startIndex = getStartIndex(list);
+            for (int i = startIndex; i < list.size() + startIndex; i++)
                 if (func.invoke(list.get(i)))
                     return i;
         } catch (Exception ex) {
@@ -283,7 +292,8 @@ public final class LinqUtils {
         try {
             if (array == null || array.length == 0)
                 return -1;
-            for (int i = 0; i < array.length; i++)
+            int startIndex = getStartIndex(asList(array));
+            for (int i = startIndex; i < array.length + startIndex; i++)
                 if (func.invoke(array[i]))
                     return i;
             return -1;
