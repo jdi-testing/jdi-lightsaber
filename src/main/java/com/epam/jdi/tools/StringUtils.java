@@ -6,6 +6,7 @@ package com.epam.jdi.tools;
  */
 
 import com.epam.jdi.tools.map.MapArray;
+import com.epam.jdi.tools.pairs.Pair;
 
 import java.io.BufferedReader;
 import java.io.File;
@@ -18,12 +19,13 @@ import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
 import static com.epam.jdi.tools.ReflectionUtils.getAllFields;
+import static com.epam.jdi.tools.map.MapArray.*;
 import static java.lang.Character.*;
 import static java.lang.Integer.parseInt;
 import static java.util.Arrays.asList;
 import static java.util.regex.Matcher.quoteReplacement;
 import static javax.xml.bind.DatatypeConverter.*;
-import static org.apache.commons.lang3.StringUtils.isEmpty;
+import static org.apache.commons.lang3.StringUtils.*;
 
 public final class StringUtils {
     public static final String LINE_BREAK = System.getProperty("line.separator");
@@ -61,6 +63,9 @@ public final class StringUtils {
         matcher.appendTail(sb);
         return sb.toString();
     }
+    public static String msgFormat(String template, Pair<String, Object>... pairs) {
+        return msgFormat(template, map(pairs));
+    }
     public static boolean contains(String string, String[] strings) {
         return contains(string, asList(strings));
     }
@@ -97,28 +102,45 @@ public final class StringUtils {
     }
     public static String toCamelCase(String value) {
         String result = cleanupString(value);
+        result.replaceAll(" ", "");
         if (isEmpty(result)) return "";
         return toLowerCase(result.charAt(0)) + result.substring(1);
     }
     public static String toPascalCase(String value) {
         String result = cleanupString(value);
+        result.replaceAll(" ", "");
         if (isEmpty(result)) return "";
         return toUpperCase(result.charAt(0)) + result.substring(1);
     }
     public static String toSnakeCase(String value) {
-        String result = cleanupString(value).toLowerCase();
-        if (isEmpty(result)) return "";
-        return result.replaceAll(" ", "_");
+        String clean = cleanupString(value);
+        if (isEmpty(clean)) return "";
+        return processString(clean, "_").toLowerCase();
     }
     public static String toKebabCase(String value) {
-        String result = cleanupString(value).toLowerCase();
-        if (isEmpty(result)) return "";
-        return result.replaceAll(" ", "-");
+        String clean = cleanupString(value);
+        if (isEmpty(clean)) return "";
+        return processString(clean, "-").toLowerCase();
     }
     public static String toUpperSnakeCase(String value) {
-        String result = cleanupString(value).toUpperCase();
-        if (isEmpty(result)) return "";
-        return result.replaceAll(" ", "_");
+        String clean = cleanupString(value).toUpperCase();
+        if (isEmpty(clean)) return "";
+        return processString(clean, "_").toUpperCase();
+    }
+    private static String processString(String str, String splitter) {
+        String result = "";
+        for (int i = 0; i < str.length()-1; i++) {
+            if (str.charAt(i) == ' ') {
+                if (isLetter(str.charAt(i+1))) {
+                    result += splitter;
+                }
+            } else  {
+                result += str.charAt(i);
+                if (isLowerCase(str.charAt(i)) && isUpperCase(str.charAt(i+1)))
+                    result += splitter;
+            }
+        }
+        return result + str.charAt(str.length()-1);
     }
     public static String splitHyphen(String value) {
         String text = cleanupString(value);
