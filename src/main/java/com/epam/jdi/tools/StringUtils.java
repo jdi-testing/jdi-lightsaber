@@ -128,16 +128,18 @@ public final class StringUtils {
         return processString(clean, "_").toUpperCase();
     }
     private static String processString(String str, String splitter) {
-        String result = "";
-        for (int i = 0; i < str.length()-1; i++) {
+        if (isBlank(str) || str.length() < 3)
+            return str;
+        String result = "" + str.charAt(0);
+        for (int i = 1; i < str.length()-1; i++) {
             if (str.charAt(i) == ' ') {
                 if (isLetter(str.charAt(i+1))) {
                     result += splitter;
                 }
             } else  {
-                result += str.charAt(i);
-                if (isLowerCase(str.charAt(i)) && isUpperCase(str.charAt(i+1)))
+                if (isUpperCase(str.charAt(i)) && isLetter(str.charAt(i-1)) && isLetter(str.charAt(i+1)) && (isLowerCase(str.charAt(i-1)) || isLowerCase(str.charAt(i+1))))
                     result += splitter;
+                result += str.charAt(i);
             }
         }
         return result + str.charAt(str.length()-1);
