@@ -366,6 +366,9 @@ public class MapArray<K, V> implements Collection<Pair<K, V>>, Cloneable {
     public boolean add(Pair<K, V> kv) {
         return pairs.add(kv);
     }
+    public MapArray<K, V> update(Pair<K, V> kv) {
+        return update(kv.key, kv.value);
+    }
 
     public boolean remove(Object o) {
         boolean isRemoved = false;
