@@ -58,7 +58,11 @@ public class MapArray<K, V> implements Collection<Pair<K, V>>, Cloneable {
         this(collection, k -> k, value::execute);
     }
     public <T> MapArray(Collection<T> collection, JFunc1<T, K> keyFunc, JFunc1<T, V> valueFunc) {
+        this(collection, keyFunc, valueFunc, false);
+    }
+    public <T> MapArray(Collection<T> collection, JFunc1<T, K> keyFunc, JFunc1<T, V> valueFunc, boolean ignoreNotUnique) {
         this();
+        IGNORE_NOT_UNIQUE = ignoreNotUnique;
         try {
             for (T t : collection)
                 add(keyFunc.invoke(t), valueFunc.invoke(t));
@@ -71,7 +75,10 @@ public class MapArray<K, V> implements Collection<Pair<K, V>>, Cloneable {
         this(asList(array), value);
     }
     public <T> MapArray(T[] array, JFunc1<T, K> key, JFunc1<T, V> value) {
-        this(asList(array), key, value);
+        this(array, key, value, false);
+    }
+    public <T> MapArray(T[] array, JFunc1<T, K> key, JFunc1<T, V> value, boolean ignoreNotUnique) {
+        this(asList(array), key, value, ignoreNotUnique);
     }
 
     public MapArray(int count, JFunc1<Integer, K> keyFunc, JFunc1<Integer, V> value) {

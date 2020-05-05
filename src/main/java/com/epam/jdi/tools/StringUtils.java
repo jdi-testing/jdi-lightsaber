@@ -5,6 +5,7 @@ package com.epam.jdi.tools;
  * Email: roman.iovlev.jdi@gmail.com; Skype: roman.iovlev
  */
 
+import com.epam.jdi.tools.func.JFunc;
 import com.epam.jdi.tools.map.MapArray;
 import com.epam.jdi.tools.pairs.Pair;
 
@@ -13,12 +14,13 @@ import java.io.File;
 import java.io.InputStream;
 import java.io.InputStreamReader;
 import java.lang.reflect.Field;
+import java.lang.reflect.Method;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
-import static com.epam.jdi.tools.ReflectionUtils.getAllFields;
+import static com.epam.jdi.tools.ReflectionUtils.*;
 import static com.epam.jdi.tools.map.MapArray.*;
 import static java.lang.Character.*;
 import static java.lang.Integer.parseInt;
@@ -58,10 +60,13 @@ public final class StringUtils {
             final String pattern = matcher.group(1);
             Object replacement = args.get(pattern);
             if (replacement == null) replacement = matcher.group();
-            matcher.appendReplacement(sb, quoteReplacement(replacement.toString()));
+            matcher.appendReplacement(sb, quoteReplacement(getValue(replacement)));
         }
         matcher.appendTail(sb);
         return sb.toString();
+    }
+    private static String getValue(Object obj) {
+        return isClass(obj.getClass(), JFunc.class) ? ((JFunc<String>) obj).execute() : obj.toString();
     }
     public static String msgFormat(String template, Pair<String, Object>... pairs) {
         return msgFormat(template, map(pairs));
