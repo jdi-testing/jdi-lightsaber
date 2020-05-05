@@ -10,9 +10,8 @@ import com.epam.jdi.tools.func.JFunc1;
 
 import java.util.List;
 
-import static com.epam.jdi.tools.LinqUtils.filter;
-import static com.epam.jdi.tools.LinqUtils.foreach;
-import static java.util.Arrays.asList;
+import static com.epam.jdi.tools.LinqUtils.*;
+import static java.util.Arrays.*;
 
 public class Template<T, R> {
     private final JFunc1<T, Boolean> template;

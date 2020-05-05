@@ -11,9 +11,9 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.util.Properties;
 
-import static com.epam.jdi.tools.StringUtils.LINE_BREAK;
+import static com.epam.jdi.tools.StringUtils.*;
 import static java.lang.String.format;
-import static org.apache.commons.lang3.StringUtils.isBlank;
+import static org.apache.commons.lang3.StringUtils.*;
 
 public class PropReader {
     private String propertiesPath;

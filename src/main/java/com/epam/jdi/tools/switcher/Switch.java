@@ -7,8 +7,7 @@ package com.epam.jdi.tools.switcher;
 
 import com.epam.jdi.tools.LinqUtils;
 
-import static com.epam.jdi.tools.LinqUtils.filter;
-import static com.epam.jdi.tools.LinqUtils.foreach;
+import static com.epam.jdi.tools.LinqUtils.*;
 
 public class Switch<T> {
 

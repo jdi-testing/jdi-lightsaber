@@ -7,7 +7,7 @@ package com.epam.jdi.tools;
 
 import com.epam.jdi.tools.func.JFunc;
 
-import static java.lang.System.currentTimeMillis;
+import static java.lang.System.*;
 
 public class CacheValue<T> {
     private static Safe<Long> globalCache = new Safe<>(0L);

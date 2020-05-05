@@ -9,12 +9,8 @@ import com.epam.jdi.tools.func.JFunc;
 import com.epam.jdi.tools.map.MapArray;
 import com.epam.jdi.tools.pairs.Pair;
 
-import java.io.BufferedReader;
-import java.io.File;
-import java.io.InputStream;
-import java.io.InputStreamReader;
+import java.io.*;
 import java.lang.reflect.Field;
-import java.lang.reflect.Method;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.regex.Matcher;
@@ -24,8 +20,8 @@ import static com.epam.jdi.tools.ReflectionUtils.*;
 import static com.epam.jdi.tools.map.MapArray.*;
 import static java.lang.Character.*;
 import static java.lang.Integer.parseInt;
-import static java.util.Arrays.asList;
-import static java.util.regex.Matcher.quoteReplacement;
+import static java.util.Arrays.*;
+import static java.util.regex.Matcher.*;
 import static javax.xml.bind.DatatypeConverter.*;
 import static org.apache.commons.lang3.StringUtils.*;
 

@@ -10,15 +10,13 @@ import com.epam.jdi.tools.map.MapArray;
 import com.epam.jdi.tools.pairs.Pair;
 
 import java.text.MessageFormat;
+import java.util.ArrayList;
 import java.util.*;
 
 import static com.epam.jdi.tools.LinqUtils.*;
-import static com.epam.jdi.tools.ReflectionUtils.getFieldsDeep;
-import static com.epam.jdi.tools.ReflectionUtils.getValueField;
-import static java.lang.String.format;
-import static java.lang.reflect.Array.get;
-import static java.lang.reflect.Array.getLength;
-import static java.util.Arrays.asList;
+import static com.epam.jdi.tools.ReflectionUtils.*;
+import static java.lang.String.*;
+import static java.util.Arrays.*;
 
 public final class PrintUtils {
     private PrintUtils() {
