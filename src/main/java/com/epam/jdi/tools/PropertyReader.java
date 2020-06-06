@@ -6,13 +6,17 @@ package com.epam.jdi.tools;
  */
 
 import com.epam.jdi.tools.func.JAction1;
+import com.epam.jdi.tools.map.MapArray;
 
 import java.io.IOException;
 import java.io.InputStream;
 import java.util.Properties;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
 
 import static com.epam.jdi.tools.StringUtils.*;
 import static java.lang.String.format;
+import static java.util.regex.Matcher.*;
 import static org.apache.commons.lang3.StringUtils.*;
 
 public final class PropertyReader {
@@ -56,26 +60,39 @@ public final class PropertyReader {
         return readProperties();
     }
 
-
     public static String getProperty(String propertyName) {
-        return loadProperties().getProperty(propertyName);
+        String prop = null;
+        try {
+            prop = loadProperties().getProperty(propertyName);
+        } catch (Throwable ignore) {}
+        if (isBlank(prop)) return "";
+        if (isMvnProperty(prop)) {
+            prop = replaceProperty(prop);
+        }
+        return prop;
     }
 
     public static void fillAction(JAction1<String> action, String name) {
-        String prop = null;
-        try {
-            prop = getProperty(name);
-        } catch (Exception ignore) {}
-        if (isBlank(prop)) return;
-        if (isMvnProperty(prop))
-            throw new RuntimeException(format("Can't read Maven property '%s'. Get value '%s'" + LINE_BREAK +
-                "You need to add property in pom.xml and add <resources> block in <build>. " +
-                "See example: https://github.com/jdi-templates/jdi-light-testng-template/blob/master/pom.xml",
-                    name, prop));
-        action.execute(prop);
+        String property = getProperty(name);
+        if (isBlank(property)) return;
+        action.execute(property);
     }
     private static boolean isMvnProperty(String prop) {
         return prop.matches("^\\$\\{.+}");
+    }
+    private static String replaceProperty(String property) {
+        final Matcher matcher = Pattern.compile("\\$\\{([^}]*)}").matcher(property);
+        final StringBuffer sb = new StringBuffer();
+        while (matcher.find()) {
+            final String pattern = matcher.group(1);
+            String replacement = System.getProperty(pattern);
+            if (replacement == null) {
+                replacement = property;
+            }
+            matcher.appendReplacement(sb, quoteReplacement(replacement));
+        }
+        matcher.appendTail(sb);
+        return sb.toString();
     }
 
 }
