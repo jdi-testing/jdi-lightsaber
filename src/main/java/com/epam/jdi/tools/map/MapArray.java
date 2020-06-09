@@ -123,7 +123,8 @@ public class MapArray<K, V> implements Collection<Pair<K, V>>, Cloneable {
         this();
         assert keys != null && values != null;
         if (keys.size() != values.size())
-            throw new RuntimeException("keys and values has different count ");
+            throw new RuntimeException(format("keys and values has different count (keys:[%s]; values:[%s])",
+                    print(keys, Object::toString), print(values, Objects::toString)));
         for (int i = 0; i < keys.size(); i++)
             add(keys.get(i), values.get(i));
     }
