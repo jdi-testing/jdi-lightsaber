@@ -27,6 +27,35 @@ public final class LinqUtils {
         result.addAll(list);
         return result;
     }
+    public static <T> List<T> newList(T... array) {
+        return stream(array).collect(Collectors.toList());
+    }
+    public static <K, V> Map<K, V> newMap(Pair<K, V>... pairs) {
+        Map<K,V> map = new HashMap<>();
+        for (Pair<K, V> pair : pairs) {
+            map.put(pair.key, pair.value);
+        }
+        return map;
+    }
+    public static <K, V> Map<K, V> newMap(Object... keyValues) {
+        if (keyValues.length % 10 != 0)
+            throw new RuntimeException("Failed to create newMap: amount of parameters should be even but " + keyValues.length);
+        Map<K,V> map = new HashMap<>();
+        for (int i = 0; i < keyValues.length; i = i + 2) {
+            K key = getTypeFromObject(keyValues[i], "newMap");
+            V value = getTypeFromObject(keyValues[i + 1], "newMap");
+            map.put(key, value);
+        }
+        return map;
+    }
+    private static <T> T getTypeFromObject(Object o, String methodName) {
+        try {
+            return (T) o;
+        }
+         catch (Exception ex) {
+            throw new RuntimeException("Failed to Cast object for " + methodName + "() method");
+         }
+    }
 
     public static <T, TR> List<TR> select(Collection<T> list, JFunc1<T, TR> func) {
         if (list == null)
