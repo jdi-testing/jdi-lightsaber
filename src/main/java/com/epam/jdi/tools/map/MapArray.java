@@ -455,6 +455,12 @@ public class MapArray<K, V> implements Collection<Pair<K, V>>, Cloneable {
         return clone();
     }
 
+    public <T1> List<T1> map(JFunc2<K, V, T1> func) {
+        return select(func);
+    }
+    public <T1> List<T1> map(JFunc1<V, T1> func) {
+        return select(func);
+    }
     public <T1> List<T1> select(JFunc2<K, V, T1> func) {
         try {
             List<T1> result = new ArrayList<>();
@@ -466,11 +472,22 @@ public class MapArray<K, V> implements Collection<Pair<K, V>>, Cloneable {
             return new ArrayList<>();
         }
     }
-    public <T1> List<T1> map(JFunc2<K, V, T1> func) {
-        return select(func);
+    public <T1> List<T1> select(JFunc1<V, T1> func) {
+        try {
+            List<T1> result = new ArrayList<>();
+            for (Pair<K,V> pair : pairs)
+                result.add(func.invoke(pair.value));
+            return result;
+        } catch (Exception ignore) {
+            throwRuntimeException(ignore);
+            return new ArrayList<>();
+        }
     }
 
     public MapArray<K, V> filter(JFunc2<K, V, Boolean> func) {
+        return where(func);
+    }
+    public MapArray<K, V> filter(JFunc1<V, Boolean> func) {
         return where(func);
     }
     public MapArray<K, V> where(JFunc2<K, V, Boolean> func) {
@@ -485,10 +502,31 @@ public class MapArray<K, V> implements Collection<Pair<K, V>>, Cloneable {
             return null;
         }
     }
-    public void ifDo(JFunc1<Pair<K, V>, Boolean> condition, JAction1<V> action) {
+    public MapArray<K, V> where(JFunc1<V, Boolean> func) {
+        try {
+            MapArray<K, V> result = new MapArray<>();
+            for (Pair<K,V> pair : pairs)
+                if (func.invoke(pair.value))
+                    result.add(pair);
+            return result;
+        } catch (Exception ignore) {
+            throwRuntimeException(ignore);
+            return null;
+        }
+    }
+    public void ifDo(JFunc2<K, V, Boolean> condition, JAction1<V> action) {
         try {
             for (Pair<K,V> el : pairs)
-                if (condition.invoke(el))
+                if (condition.invoke(el.key, el.value))
+                    action.invoke(el.value);
+        } catch (Exception ignore) {
+            throwRuntimeException(ignore);
+        }
+    }
+    public void ifDo(JFunc1<V, Boolean> condition, JAction1<V> action) {
+        try {
+            for (Pair<K,V> el : pairs)
+                if (condition.invoke(el.value))
                     action.invoke(el.value);
         } catch (Exception ignore) {
             throwRuntimeException(ignore);
@@ -506,8 +544,24 @@ public class MapArray<K, V> implements Collection<Pair<K, V>>, Cloneable {
             return null;
         }
     }
+    public <T> List<T> ifSelect(JFunc1<V, Boolean> condition, JFunc1<V, T> transform) {
+        try {
+            List<T> result = new ArrayList<>();
+            for (Pair<K,V> el : pairs)
+                if (condition.invoke(el.value))
+                    result.add(transform.invoke(el.value));
+            return result;
+        } catch (Exception ignore) {
+            throwRuntimeException(ignore);
+            return null;
+        }
+    }
 
     public V firstValue(JFunc2<K, V, Boolean> func) {
+        Pair<K, V> first = first(func);
+        return first == null ? null : first.value;
+    }
+    public V firstValue(JFunc1<V, Boolean> func) {
         Pair<K, V> first = first(func);
         return first == null ? null : first.value;
     }
@@ -522,7 +576,22 @@ public class MapArray<K, V> implements Collection<Pair<K, V>>, Cloneable {
             return null;
         }
     }
+    public Pair<K, V> first(JFunc1<V, Boolean> func) {
+        try {
+            for (Pair<K, V> pair : pairs)
+                if (func.invoke(pair.value))
+                    return pair;
+            return null;
+        } catch (Exception ignore) {
+            throwRuntimeException(ignore);
+            return null;
+        }
+    }
     public V lastValue(JFunc2<K, V, Boolean> func) {
+        Pair<K, V> last = last(func);
+        return last == null ? null : last.value;
+    }
+    public V lastValue(JFunc1<V, Boolean> func) {
         Pair<K, V> last = last(func);
         return last == null ? null : last.value;
     }
@@ -531,6 +600,18 @@ public class MapArray<K, V> implements Collection<Pair<K, V>>, Cloneable {
         try {
             for (Pair<K, V> pair : pairs)
                 if (func.invoke(pair.key, pair.value))
+                    result = pair;
+            return result;
+        } catch (Exception ignore) {
+            throwRuntimeException(ignore);
+            return null;
+        }
+    }
+    public Pair<K, V> last(JFunc1<V, Boolean> func) {
+        Pair<K, V> result = null;
+        try {
+            for (Pair<K, V> pair : pairs)
+                if (func.invoke(pair.value))
                     result = pair;
             return result;
         } catch (Exception ignore) {
@@ -556,6 +637,17 @@ public class MapArray<K, V> implements Collection<Pair<K, V>>, Cloneable {
             List<R> result = new ArrayList<>();
             for (Pair<K, V> pair : pairs)
                 result.addAll(func.invoke(pair.key, pair.value));
+            return result;
+        } catch (Exception ignore) {
+            throwRuntimeException(ignore);
+            return null;
+        }
+    }
+    public <R> List<R> selectMany(JFunc1<V, List<R>> func) {
+        try {
+            List<R> result = new ArrayList<>();
+            for (Pair<K, V> pair : pairs)
+                result.addAll(func.invoke(pair.value));
             return result;
         } catch (Exception ignore) {
             throwRuntimeException(ignore);
