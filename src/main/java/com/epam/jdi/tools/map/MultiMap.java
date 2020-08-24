@@ -6,20 +6,22 @@ package com.epam.jdi.tools.map;
  */
 
 import com.epam.jdi.tools.LinqUtils;
-import com.epam.jdi.tools.PrintUtils;
-import com.epam.jdi.tools.func.*;
+import com.epam.jdi.tools.func.JAction1;
+import com.epam.jdi.tools.func.JAction2;
+import com.epam.jdi.tools.func.JFunc1;
+import com.epam.jdi.tools.func.JFunc2;
 import com.epam.jdi.tools.pairs.Pair;
 
-import java.util.ArrayList;
 import java.util.*;
 import java.util.Map.Entry;
 import java.util.concurrent.CopyOnWriteArrayList;
 
-import static com.epam.jdi.tools.LinqUtils.*;
-import static com.epam.jdi.tools.PrintUtils.*;
-import static com.epam.jdi.tools.TryCatchUtil.*;
-import static java.lang.String.*;
-import static java.util.Arrays.*;
+import static com.epam.jdi.tools.LinqUtils.listCopy;
+import static com.epam.jdi.tools.LinqUtils.listCopyUntil;
+import static com.epam.jdi.tools.PrintUtils.print;
+import static com.epam.jdi.tools.TryCatchUtil.throwRuntimeException;
+import static java.lang.String.format;
+import static java.util.Arrays.asList;
 
 public class MultiMap<K, V> implements Collection<Pair<K, V>>, Cloneable {
     public List<Pair<K, V>> pairs;

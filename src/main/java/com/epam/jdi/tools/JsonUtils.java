@@ -2,19 +2,24 @@ package com.epam.jdi.tools;
 
 import com.epam.jdi.tools.map.MapArray;
 import com.fasterxml.jackson.databind.ObjectMapper;
-import com.google.gson.*;
+import com.google.gson.Gson;
+import com.google.gson.GsonBuilder;
+import com.google.gson.JsonParser;
 
 import java.io.*;
 import java.nio.file.Files;
 import java.nio.file.Paths;
-import java.util.*;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
 import java.util.stream.Collectors;
 
-import static com.epam.jdi.tools.PathUtils.*;
-import static com.epam.jdi.tools.PropertyReader.*;
-import static com.epam.jdi.tools.map.MapArray.*;
-import static java.lang.String.*;
-import static org.apache.commons.lang3.StringUtils.*;
+import static com.epam.jdi.tools.PathUtils.mergePath;
+import static com.epam.jdi.tools.PropertyReader.getPath;
+import static com.epam.jdi.tools.PropertyReader.getProperty;
+import static com.epam.jdi.tools.map.MapArray.toMapArray;
+import static java.lang.String.format;
+import static org.apache.commons.lang3.StringUtils.isBlank;
 
 public class JsonUtils {
     public static String readFileData(String filePath) {

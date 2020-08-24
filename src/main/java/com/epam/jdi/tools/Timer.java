@@ -5,13 +5,15 @@ package com.epam.jdi.tools;
  * Email: roman.iovlev.jdi@gmail.com; Skype: roman.iovlev
  */
 
-import com.epam.jdi.tools.func.*;
+import com.epam.jdi.tools.func.JAction;
+import com.epam.jdi.tools.func.JFunc;
+import com.epam.jdi.tools.func.JFunc1;
 
 import java.text.SimpleDateFormat;
 import java.util.Date;
 
-import static com.epam.jdi.tools.ReflectionUtils.*;
-import static java.lang.System.*;
+import static com.epam.jdi.tools.ReflectionUtils.isClass;
+import static java.lang.System.currentTimeMillis;
 
 public class Timer {
     private Long start = currentTimeMillis();

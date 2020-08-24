@@ -2,8 +2,8 @@ package com.epam.jdi.tools;
 
 import java.nio.file.Paths;
 
-import static java.io.File.*;
-import static org.apache.commons.lang3.StringUtils.*;
+import static java.io.File.separator;
+import static org.apache.commons.lang3.StringUtils.isBlank;
 
 /**
  * Created by Roman_Iovlev on 4/17/2018.

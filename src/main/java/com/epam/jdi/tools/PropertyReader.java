@@ -6,7 +6,6 @@ package com.epam.jdi.tools;
  */
 
 import com.epam.jdi.tools.func.JAction1;
-import com.epam.jdi.tools.map.MapArray;
 
 import java.io.IOException;
 import java.io.InputStream;
@@ -14,10 +13,8 @@ import java.util.Properties;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
-import static com.epam.jdi.tools.StringUtils.*;
-import static java.lang.String.format;
-import static java.util.regex.Matcher.*;
-import static org.apache.commons.lang3.StringUtils.*;
+import static java.util.regex.Matcher.quoteReplacement;
+import static org.apache.commons.lang3.StringUtils.isBlank;
 
 public final class PropertyReader {
     private static String propertiesPath;

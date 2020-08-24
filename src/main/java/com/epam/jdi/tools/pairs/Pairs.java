@@ -5,13 +5,16 @@ package com.epam.jdi.tools.pairs;
  * Email: roman.iovlev.jdi@gmail.com; Skype: roman.iovlev
  */
 
-import java.util.*;
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.Collection;
+import java.util.List;
 import java.util.function.Consumer;
 import java.util.function.Function;
 
-import static com.epam.jdi.tools.LinqUtils.*;
-import static com.epam.jdi.tools.PrintUtils.*;
-import static com.epam.jdi.tools.pairs.Pair.*;
+import static com.epam.jdi.tools.LinqUtils.select;
+import static com.epam.jdi.tools.PrintUtils.print;
+import static com.epam.jdi.tools.pairs.Pair.$;
 
 public class Pairs<TValue1, TValue2> extends ArrayList<Pair<TValue1, TValue2>> {
     // TODO update pairs to MapArray level

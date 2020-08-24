@@ -8,8 +8,8 @@ package com.epam.jdi.tools;
 import java.lang.reflect.Field;
 import java.util.List;
 
-import static com.epam.jdi.tools.TryCatchUtil.*;
-import static java.util.Arrays.*;
+import static com.epam.jdi.tools.TryCatchUtil.tryGetResult;
+import static java.util.Arrays.asList;
 
 public final class EnumUtils {
     private EnumUtils() {

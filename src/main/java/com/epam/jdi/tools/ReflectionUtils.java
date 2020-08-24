@@ -14,10 +14,10 @@ import java.util.List;
 import java.util.function.Function;
 
 import static com.epam.jdi.tools.LinqUtils.*;
-import static com.epam.jdi.tools.map.MapArray.*;
-import static java.lang.String.*;
-import static java.lang.reflect.Modifier.*;
-import static java.util.Arrays.*;
+import static com.epam.jdi.tools.map.MapArray.IGNORE_NOT_UNIQUE;
+import static java.lang.String.format;
+import static java.lang.reflect.Modifier.isStatic;
+import static java.util.Arrays.asList;
 
 public final class ReflectionUtils {
     private ReflectionUtils() { }
