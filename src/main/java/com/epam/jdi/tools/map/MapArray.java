@@ -119,14 +119,14 @@ public class MapArray<K, V> implements Collection<Pair<K, V>>, Cloneable {
         this();
         add(objects);
     }
-    public MapArray(List<K> keys, List<V> values) {
+    public MapArray(Collection<K> keys, Collection<V> values) {
         this();
         assert keys != null && values != null;
         if (keys.size() != values.size())
             throw new RuntimeException(format("keys and values has different count (keys:[%s]; values:[%s])",
                     print(keys, Object::toString), print(values, Objects::toString)));
         for (int i = 0; i < keys.size(); i++)
-            add(keys.get(i), values.get(i));
+            add(keys.iterator().next(), values.iterator().next());
     }
     public MapArray(K[] keys, V[] values) {
         this(asList(keys), asList(values));
