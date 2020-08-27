@@ -74,7 +74,7 @@ public final class LinqUtils {
                     result.add(func.invoke(el));
             return result;
         } catch (Exception ex) {
-            throw new RuntimeException("Can't do select." + ex.getMessage());
+            throw new RuntimeException("Can't do select: " + ex.getMessage());
         }
     }
     public static <T, TR> List<TR> map(Collection<T> list, JFunc1<T, TR> func) { return select(list, func); }
@@ -92,7 +92,7 @@ public final class LinqUtils {
                 result.add(func.invoke(el));
             return result;
         } catch (Exception ex) {
-            throw new RuntimeException("Can't do select." + ex.getMessage());
+            throw new RuntimeException("Can't do select: " + ex.getMessage());
         }
     }
 
@@ -105,7 +105,7 @@ public final class LinqUtils {
                 result.put(el.getKey(), func.invoke(el.getValue()));
             return result;
         } catch (Exception ex) {
-            throw new RuntimeException("Can't do select." + ex.getMessage());
+            throw new RuntimeException("Can't do select: " + ex.getMessage());
         }
     }
     public static <K, V, TR> Map<K, TR> map(Map<K, V> map, JFunc1<V, TR> func) {
@@ -138,7 +138,7 @@ public final class LinqUtils {
                 result.add(func.invoke(el.getKey(), el.getValue()));
             return result;
         } catch (Exception ex) {
-            throw new RuntimeException("Can't do select." + ex.getMessage());
+            throw new RuntimeException("Can't do select: " + ex.getMessage());
         }
     }
 
