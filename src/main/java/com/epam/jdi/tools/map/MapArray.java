@@ -307,6 +307,17 @@ public class MapArray<K, V> implements Collection<Pair<K, V>>, Cloneable {
         return get(index).value;
     }
 
+    public int indexOf(K key) {
+        int index = 0;
+        for (Pair<K, V> pair : pairs) {
+            if (pair.key.equals(key))
+                return index;
+            else
+                index++;
+        }
+        return -1;
+    }
+
     public List<K> keys() {
         return LinqUtils.map(pairs, pair -> pair.key);
     }
