@@ -62,10 +62,13 @@ public class MapArray<K, V> implements Collection<Pair<K, V>>, Cloneable {
     }
     public <T> MapArray(Collection<T> collection, JFunc1<T, K> keyFunc, JFunc1<T, V> valueFunc, boolean ignoreNotUnique) {
         this();
-        IGNORE_NOT_UNIQUE = ignoreNotUnique;
         try {
-            for (T t : collection)
-                add(keyFunc.invoke(t), valueFunc.invoke(t));
+            for (T t : collection) {
+                if (ignoreNotUnique)
+                    addNew(keyFunc.invoke(t), valueFunc.invoke(t));
+                else
+                    add(keyFunc.invoke(t), valueFunc.invoke(t));
+            }
         } catch (Exception ex) {
             throw new RuntimeException(format("Can't create MapArray. Exception: %s", ex.getMessage()));
         }
@@ -126,7 +129,7 @@ public class MapArray<K, V> implements Collection<Pair<K, V>>, Cloneable {
         assert keys != null && values != null;
         if (keys.size() != values.size())
             throw new RuntimeException(format("keys and values has different count (keys:[%s]; values:[%s])",
-                    print(keys, Object::toString), print(values, Objects::toString)));
+                print(keys, Object::toString), print(values, Objects::toString)));
         Iterator<K> ik = keys.iterator();
         Iterator<V> vk = values.iterator();
         for (int i = 0; i < keys.size(); i++) {
@@ -205,14 +208,22 @@ public class MapArray<K, V> implements Collection<Pair<K, V>>, Cloneable {
         return result;
     }
 
-    public static boolean IGNORE_NOT_UNIQUE = false;
+    public boolean ignoreNotUnique = false;
 
+    public void ignoreNotUnique() {
+        ignoreNotUnique = true;
+    }
     public MapArray<K, V> add(K key, V value) {
         if (has(key)) {
-            if (!IGNORE_NOT_UNIQUE)
+            if (!ignoreNotUnique)
                 throw new RuntimeException("Key "+ key +" already exist");
         }
         else
+            pairs.add(new Pair<>(key, value));
+        return this;
+    }
+    public MapArray<K, V> addNew(K key, V value) {
+        if (!has(key))
             pairs.add(new Pair<>(key, value));
         return this;
     }
