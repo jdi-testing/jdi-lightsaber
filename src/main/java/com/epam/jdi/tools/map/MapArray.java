@@ -11,11 +11,13 @@ import com.epam.jdi.tools.func.JAction2;
 import com.epam.jdi.tools.func.JFunc1;
 import com.epam.jdi.tools.func.JFunc2;
 import com.epam.jdi.tools.pairs.Pair;
+import org.apache.commons.lang3.ObjectUtils;
 
 import java.util.*;
 import java.util.Map.Entry;
 import java.util.concurrent.CopyOnWriteArrayList;
 
+import static com.epam.jdi.tools.LinqUtils.firstIndex;
 import static com.epam.jdi.tools.LinqUtils.listCopy;
 import static com.epam.jdi.tools.PrintUtils.print;
 import static com.epam.jdi.tools.TryCatchUtil.throwRuntimeException;
@@ -414,12 +416,16 @@ public class MapArray<K, V> implements Collection<Pair<K, V>>, Cloneable {
     }
 
     public void removeByKey(K key) {
-        pairs.remove(
-            LinqUtils.firstIndex(pairs, pair -> pair.key.equals(key)));
+        int index = firstIndex(pairs, pair -> pair.key.equals(key));
+        if (index > -1) {
+            pairs.remove(index);
+        }
     }
     public void removeAllValues(V value) {
-        pairs.removeAll(LinqUtils.where(pairs,
-                p -> p.value.equals(value)));
+        List<Pair<K,V>> values = LinqUtils.where(pairs, p -> p.value.equals(value));
+        if (ObjectUtils.isNotEmpty(value)) {
+            pairs.removeAll(values);
+        }
     }
     public Pair<K, V> removeByIndex(int index) {
         return pairs.remove(index);
