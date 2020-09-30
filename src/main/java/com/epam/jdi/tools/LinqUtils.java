@@ -15,6 +15,7 @@ import java.util.*;
 import java.util.concurrent.CopyOnWriteArrayList;
 import java.util.stream.Collectors;
 
+import static com.epam.jdi.tools.ReflectionUtils.isInterface;
 import static java.lang.String.format;
 import static java.util.Arrays.asList;
 import static java.util.Arrays.stream;
@@ -64,14 +65,8 @@ public final class LinqUtils {
             throw new RuntimeException("Can't do select. Collection is Null");
         try {
             List<TR> result = new CopyOnWriteArrayList<>();
-            if (list instanceof List) {
-                int startIndex = getStartIndex((List)list);
-                for (int i = startIndex; i < list.size() + startIndex; i++)
-                    result.add(func.invoke(((List<T>) list).get(i)));
-            }
-            else
-                for (T el : list)
-                    result.add(func.invoke(el));
+            for (T el : list)
+                result.add(func.invoke(el));
             return result;
         } catch (Exception ex) {
             throw new RuntimeException("Can't do select: " + ex.getMessage());
@@ -300,21 +295,21 @@ public final class LinqUtils {
     }
     private static <T> int getStartIndex(List<T> list) {
         try {
-            list.get(0);
-            return 0;
+            return isInterface(list.getClass(), HasStartIndex.class)
+                ? ((HasStartIndex) list).getStartIndex()
+                : 0;
         } catch (Exception ex) { return 1; }
     }
     public static <T> int firstIndex(List<T> list, JFunc1<T, Boolean> func) {
         if (list == null || list.size() == 0)
-            throw new RuntimeException("Can't get firstIndex. Collection is Null or empty");
+            return -1;
         try {
-            int startIndex = getStartIndex(list);
-            for (int i = startIndex; i < list.size() + startIndex; i++)
-                if (func.invoke(list.get(i)))
+            int i = getStartIndex(list);
+            for (T element : list) {
+                if (func.invoke(element))
                     return i;
-        } catch (Exception ex) {
-            throw new RuntimeException("Can't get firstIndex." + ex.getMessage());
-        }
+            }
+        } catch (Exception ignore) { }
         return -1;
     }
 
@@ -322,14 +317,11 @@ public final class LinqUtils {
         try {
             if (array == null || array.length == 0)
                 return -1;
-            int startIndex = getStartIndex(asList(array));
-            for (int i = startIndex; i < array.length + startIndex; i++)
+            for (int i = 0; i < array.length; i++)
                 if (func.invoke(array[i]))
                     return i;
-            return -1;
-        } catch (Exception ex) {
-            throw new RuntimeException("Can't get firstIndex." + ex.getMessage());
-        }
+        } catch (Exception ignore) { }
+        return -1;
     }
 
     public static <T> T first(Collection<T> list) {
@@ -448,8 +440,8 @@ public final class LinqUtils {
     }
 
     public static int getIndex(String[] array, String value) {
-        if (array == null)
-            throw new RuntimeException("Can't do index. Collection is Null");
+        if (array == null || array.length == 0)
+            return -1;
         for (int i = 0; i < array.length; i++)
             if (array[i].equals(value))
                 return i;
@@ -458,10 +450,13 @@ public final class LinqUtils {
 
     public static int getIndex(List<String> list, String value) {
         if (list == null)
-            throw new RuntimeException("Can't do index. Collection is Null");
-        for (int i = 0; i < list.size(); i++)
-            if (list.get(i).equals(value))
+            return -1;
+        int i = getStartIndex(list);
+        for (String element : list) {
+            if (element.equals(value))
                 return i;
+            i++;
+        }
         return -1;
     }
 

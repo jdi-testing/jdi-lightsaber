@@ -4,7 +4,7 @@ import com.epam.jdi.tools.func.JFunc;
 import com.epam.jdi.tools.func.JFunc1;
 import com.epam.jdi.tools.map.MapArray;
 
-import static java.lang.Thread.*;
+import static java.lang.Thread.currentThread;
 
 public class Safe<T> extends ThreadLocal<T> {
     private JFunc<T> defult;
@@ -19,7 +19,7 @@ public class Safe<T> extends ThreadLocal<T> {
             return threadValues.get(threadId);
         }
         T value = defult.execute();
-        threadValues.add(threadId, value);
+        threadValues.update(threadId, value);
         return value;
     }
     @Override

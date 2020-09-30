@@ -277,7 +277,7 @@ public final class ReflectionUtils {
         cs.setAccessible(true);
         return (T) cs.newInstance(params);
     }
-    public static <T> T create(Class<?> cs) throws IllegalAccessException, InvocationTargetException, InstantiationException {
+    public static <T> T create(Class<T> cs) throws IllegalAccessException, InvocationTargetException, InstantiationException {
         if (cs == null)
             throw new RuntimeException("Can't init class. Class Type is null.");
         Constructor<?>[] constructors = cs.getDeclaredConstructors();
@@ -286,7 +286,7 @@ public final class ReflectionUtils {
             return csInit(constructor);
         throw new RuntimeException(format("%s has no empty constructors", cs.getSimpleName()));
     }
-    public static <T> T create(Class<?> cs, Object... params) {
+    public static <T> T create(Class<T> cs, Object... params) {
         if (cs == null)
             throw new RuntimeException("Can't init class. Class Type is null.");
         Constructor<?>[] constructors = cs.getDeclaredConstructors();

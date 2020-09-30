@@ -14,9 +14,12 @@ public final class CalculationUtils {
             return 0;
         if (collection.size() == 1)
             return collection.get(0);
-        double average = collection.get(0);
-        for (int i = 1; i < collection.size(); i++)
-            average = i * (average + collection.get(i).doubleValue() / i) / (i + 1);
+        double average = 0;
+        int i = 0;
+        for (Long number : collection) {
+            average = i * (average + number.doubleValue() / i) / (i + 1);
+            i++;
+        }
         return average;
     }
 

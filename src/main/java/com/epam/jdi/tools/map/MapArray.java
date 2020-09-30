@@ -118,24 +118,29 @@ public class MapArray<K, V> implements Collection<Pair<K, V>>, Cloneable {
     }
     public MapArray(Map<K, V> map) {
         this();
-        for (Entry<K, V> entry : map.entrySet())
-            add(entry.getKey(), entry.getValue());
+        if (map != null) {
+            for (Entry<K, V> entry : map.entrySet())
+                add(entry.getKey(), entry.getValue());
+        }
     }
 
     public MapArray(Object[][] objects) {
         this();
-        add(objects);
+        if (objects != null) {
+            add(objects);
+        }
     }
     public MapArray(Collection<K> keys, Collection<V> values) {
         this();
-        assert keys != null && values != null;
-        if (keys.size() != values.size())
-            throw new RuntimeException(format("keys and values has different count (keys:[%s]; values:[%s])",
-                print(keys, Object::toString), print(values, Objects::toString)));
-        Iterator<K> ik = keys.iterator();
-        Iterator<V> vk = values.iterator();
-        for (int i = 0; i < keys.size(); i++) {
-            add(ik.next(), vk.next());
+        if (keys != null && values != null) {
+            if (keys.size() != values.size())
+                throw new RuntimeException(format("keys and values has different count (keys:[%s]; values:[%s])",
+                        print(keys, Object::toString), print(values, Objects::toString)));
+            Iterator<K> ik = keys.iterator();
+            Iterator<V> vk = values.iterator();
+            for (int i = 0; i < keys.size(); i++) {
+                add(ik.next(), vk.next());
+            }
         }
     }
     public MapArray(K[] keys, V[] values) {
@@ -144,6 +149,8 @@ public class MapArray<K, V> implements Collection<Pair<K, V>>, Cloneable {
 
     public static <T> MapArray<Integer, T> toMapArray(Collection<T> collection) {
         MapArray<Integer, T> mapArray = new MapArray<>();
+        if (collection == null)
+            return mapArray;
         int i = 0;
         for (T t : collection)
             mapArray.add(i++, t);
@@ -165,6 +172,8 @@ public class MapArray<K, V> implements Collection<Pair<K, V>>, Cloneable {
 
     public static <Key, Value> MapArray<Key, Value> toMapArray(Map<Key, Value> map) {
         MapArray<Key, Value> mapArray = new MapArray<>();
+        if (map == null)
+            return mapArray;
         for (Entry<Key, Value> e : map.entrySet())
             mapArray.add(e.getKey(), e.getValue());
         return mapArray;
@@ -184,9 +193,9 @@ public class MapArray<K, V> implements Collection<Pair<K, V>>, Cloneable {
     public <VResult> MapArray<K, VResult> toMapArray(JFunc1<V, VResult> value) {
         MapArray<K, VResult> result = new MapArray<>();
         try {
-        for (Pair<K, V> pair : pairs)
-            result.add(pair.key, value.invoke(pair.value));
-        return result;
+            for (Pair<K, V> pair : pairs)
+                result.add(pair.key, value.invoke(pair.value));
+            return result;
         } catch (Exception ex) {
             throw new RuntimeException(format("Can't convert toMap. Exception: %s", ex.getMessage())); }
     }
@@ -218,7 +227,7 @@ public class MapArray<K, V> implements Collection<Pair<K, V>>, Cloneable {
     public MapArray<K, V> add(K key, V value) {
         if (has(key)) {
             if (!ignoreNotUnique)
-                throw new RuntimeException("Key "+ key +" already exist");
+                throw new RuntimeException("Key "+ key +" already exist. " + toString());
         }
         else
             pairs.add(new Pair<>(key, value));
@@ -230,20 +239,22 @@ public class MapArray<K, V> implements Collection<Pair<K, V>>, Cloneable {
         return this;
     }
     public MapArray<K, V> update(K key, V value) {
-        if (has(key))
-            removeByKey(key);
-        add(key, value);
+        if (has(key)) {
+            updateByKey(key, value);
+        } else {
+            add(key, value);
+        }
         return this;
     }
 
     public MapArray<K, V> update(K key, JFunc1<V, V> func) {
-        V value = null;
-        if (has(key)) {
-            value = get(key);
-            removeByKey(key);
-        }
         try {
-            pairs.add(new Pair<>(key, func.invoke(value)));
+            if (has(key)) {
+                V value = get(key);
+                updateByKey(key, func.invoke(value));
+            } else {
+                add(key, func.invoke(null));
+            }
         } catch (Exception ex) {
             throw new RuntimeException(format("Can't do update. Exception: %s", ex.getMessage()));
         }
@@ -251,12 +262,16 @@ public class MapArray<K, V> implements Collection<Pair<K, V>>, Cloneable {
     }
 
     public void add(Object[][] pairs) {
+        if (pairs == null)
+            return ;
         for (Object[] pair : pairs)
             if (pair.length == 2)
                 add(cast(pair[0]), cast(pair[1]));
     }
 
     public void update(Object[][] pairs) {
+        if (pairs == null)
+            return ;
         for (Object[] pair : pairs)
             if (pair.length == 2)
                 update(cast(pair[0]), (V)cast(pair[1]));
@@ -277,6 +292,8 @@ public class MapArray<K, V> implements Collection<Pair<K, V>>, Cloneable {
     }
 
     public void addOrReplace(Object[][] pairs) {
+        if (pairs == null)
+            return ;
         for (Object[] pair : pairs)
             if (pair.length == 2)
                 addOrReplace((K) pair[0], (V) pair[1]);
@@ -402,6 +419,8 @@ public class MapArray<K, V> implements Collection<Pair<K, V>>, Cloneable {
         return pairs.add(kv);
     }
     public MapArray<K, V> update(Pair<K, V> kv) {
+        if (kv == null)
+            return this;
         return update(kv.key, kv.value);
     }
 
@@ -416,10 +435,29 @@ public class MapArray<K, V> implements Collection<Pair<K, V>>, Cloneable {
     }
 
     public void removeByKey(K key) {
-        int index = firstIndex(pairs, pair -> pair.key.equals(key));
+        int index = LinqUtils.firstIndex(pairs, pair -> pair.key.equals(key));
         if (index > -1) {
             pairs.remove(index);
         }
+    }
+    private void updateByKey(K key, V value) {
+        int index = LinqUtils.firstIndex(pairs, pair -> pair.key.equals(key));
+        if (index > -1) {
+            pairs.get(index).value = value;
+        }
+    }
+
+    public int firstIndex(JFunc1<V, Boolean> func) {
+        if (pairs == null || pairs.size() == 0)
+            throw new RuntimeException("Can't get firstIndex. Collection is Null or empty");
+        try {
+            for (int i = 0; i < size(); i++)
+                if (func.invoke(pairs.get(i).value))
+                    return i;
+        } catch (Exception ex) {
+            throw new RuntimeException("Can't get firstIndex." + ex.getMessage());
+        }
+        return -1;
     }
     public void removeAllValues(V value) {
         List<Pair<K,V>> values = LinqUtils.where(pairs, p -> p.value.equals(value));
@@ -439,23 +477,31 @@ public class MapArray<K, V> implements Collection<Pair<K, V>>, Cloneable {
     }
 
     public boolean addAll(Collection<? extends Pair<K, V>> c) {
+        if (c == null)
+            return false;
         for (Pair<K, V> pair : c)
             if (!add(pair))
                 return false;
         return true;
     }
     public MapArray<K,V> addAll(Map<K, V> map) {
+        if (map == null)
+            return this;
         for (Entry<K, V> entry : map.entrySet())
             add(entry.getKey(), entry.getValue());
         return this;
     }
     public MapArray<K,V> merge(MapArray<K,V> map) {
+        if (map == null)
+            return this;
         if (!addAll(map))
             throw new RuntimeException("Can't merge MapArray");
         return this;
     }
 
     public boolean removeAll(Collection<?> c) {
+        if (c == null)
+            return false;
         for (Object o : c)
             if (!remove(o))
                 return false;
@@ -463,6 +509,8 @@ public class MapArray<K, V> implements Collection<Pair<K, V>>, Cloneable {
     }
 
     public boolean retainAll(Collection<?> c) {
+        if (c == null)
+            return false;
         for (Pair pair : pairs)
             if (!c.contains(pair))
                 if (!remove(pair))

@@ -15,16 +15,16 @@ public class CacheValue<T> {
     public static void reset() {
         globalCache.set(currentTimeMillis());
     }
-    private long elementCache = 0;
-    private T value;
-    private boolean isFinal = false;
+    private Safe<Long> elementCache = new Safe<>(() -> 0L);
+    private Safe<T> value = new Safe<>(() -> null);
+    private T finalValue = null;
     private JFunc<T> getRule = () -> null;
     public CacheValue() { }
     public CacheValue<T> copy() {
         CacheValue<T> cv = new CacheValue<>();
         cv.elementCache = elementCache;
-        cv.value = value;
-        cv.isFinal = isFinal;
+        cv.value.set(value.get());
+        cv.finalValue = finalValue;
         cv.getRule = getRule;
         return cv;
     }
@@ -37,33 +37,43 @@ public class CacheValue<T> {
         return get();
     }
     public T get(JFunc<T> defaultResult) {
-        if (isFinal) return value;
-        if (!isUseCache()) return defaultResult.execute();
-        if (elementCache < globalCache.get() || value == null) {
-            this.value = getRule.execute();
-            elementCache = globalCache.get();
+        if (finalValue != null)
+            return finalValue;
+        if (!isUseCache())
+            return defaultResult.execute();
+        if (elementCache.get() < globalCache.get() || value.get() == null) {
+            this.value.set(getRule.execute());
+            elementCache.set(globalCache.get());
         }
-        return value;
+        return value.get();
     }
-    public void useCache(boolean value) { elementCache = value ? 0 : -1; }
+    public void useCache(boolean value) { elementCache.set(value ? 0L : -1L); }
     public T setForce(T value) {
-        if (isFinal) return value;
-        elementCache = globalCache.get();
-        this.value = value;
+        if (finalValue != null)
+            return finalValue;
+        elementCache.set(globalCache.get());
+        this.value.set(value);
         return value;
     }
     public T setFinal(T value) {
-        this.value = value;
-        isFinal = true;
+        finalValue = value;
         return value;
     }
     public T set(T value) {
-        return isFinal || !isUseCache()
-            ? value
-            : setForce(value);
+        if (finalValue != null)
+            return finalValue;
+        return !isUseCache() ? value : setForce(value);
     }
-    public void setRule(JFunc<T> getRule) { this.getRule = getRule; }
-    public void clear() { if (!isFinal) value = null; }
-    public boolean hasValue() { return isFinal || isUseCache() && value != null && elementCache == globalCache.get(); }
-    public boolean isUseCache() { return elementCache > -1; }
+    public void setRule(JFunc<T> getRule) {
+        this.getRule = getRule;
+    }
+    public void clear() {
+        value.set(null);
+    }
+    public boolean hasValue() {
+        return finalValue != null || isUseCache() && value.get() != null && elementCache.get() == globalCache.get();
+    }
+    public boolean isUseCache() {
+        return elementCache.get() > -1;
+    }
 }

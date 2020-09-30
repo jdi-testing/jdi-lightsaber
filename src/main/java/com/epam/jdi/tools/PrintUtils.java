@@ -119,8 +119,8 @@ public final class PrintUtils {
     public static String printList(Object obj) {
         List<?> list = (List<?>)obj;
         String result = "[";
-        for (int i=0; i<list.size()-1;i++)
-            result += list.get(i)+", ";
+        for (Object el : list)
+            result += el + ", ";
         return result + list.get(list.size()-1) + "]";
     }
     public static String printArray(Object array) {

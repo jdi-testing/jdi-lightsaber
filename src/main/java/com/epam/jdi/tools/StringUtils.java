@@ -39,16 +39,22 @@ public final class StringUtils {
 
     public static String msgFormat(String template, List<Object> args) {
         String result = template;
-        for (int i=0;i<args.size();i++)
-            if (template.contains("{"+i+"}"))
-                result = result.replaceAll("\\{"+i+"}", args.get(i).toString());
+        int i = 0;
+        for (Object arg : args) {
+            if (template.contains("{" + i + "}"))
+                result = result.replaceAll("\\{" + i + "}", arg.toString());
+            i++;
+        }
         return result;
     }
     public static String msgFormat(String template, Object... args) {
         String result = template;
-        for (int i=0;i<args.length;i++)
-            if (template.contains("{"+i+"}"))
-                result = result.replaceAll("\\{"+i+"}", args[i].toString().replace("$", "\\$"));
+        int i = 0;
+        for (Object arg : args) {
+            if (template.contains("{" + i + "}"))
+                result = result.replaceAll("\\{" + i + "}", arg.toString().replace("$", "\\$"));
+            i++;
+        }
         return result;
     }
     public static String msgFormat(String template, Object obj) {
