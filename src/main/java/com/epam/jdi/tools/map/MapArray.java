@@ -17,7 +17,6 @@ import java.util.*;
 import java.util.Map.Entry;
 import java.util.concurrent.CopyOnWriteArrayList;
 
-import static com.epam.jdi.tools.LinqUtils.firstIndex;
 import static com.epam.jdi.tools.LinqUtils.listCopy;
 import static com.epam.jdi.tools.PrintUtils.print;
 import static com.epam.jdi.tools.TryCatchUtil.throwRuntimeException;
