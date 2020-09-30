@@ -308,6 +308,7 @@ public final class LinqUtils {
             for (T element : list) {
                 if (func.invoke(element))
                     return i;
+                i++;
             }
         } catch (Exception ignore) { }
         return -1;
