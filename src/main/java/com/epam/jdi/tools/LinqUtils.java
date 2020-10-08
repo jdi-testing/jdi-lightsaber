@@ -496,12 +496,12 @@ public final class LinqUtils {
     }
 
     public static <T> List<T> listCopy(List<T> list, int from, int to) {
-        if (from*to < 0)
-            throw new RuntimeException(format("from and to should have same sign (%s, %s)", from, to));
         if (from < 0)
             from = list.size() + from - 1;
         if (to < 0)
             to = list.size() + to - 1;
+        if (from > to)
+            throw new RuntimeException(format("'from' should be more than 'to' %s>%s", from, to));
         List<T> result = new ArrayList<>();
         for (int i = from; i <= to; i++)
             result.add(list.get(i));
