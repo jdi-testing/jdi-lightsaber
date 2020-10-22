@@ -16,12 +16,14 @@ import org.apache.commons.lang3.ObjectUtils;
 import java.util.*;
 import java.util.Map.Entry;
 import java.util.concurrent.CopyOnWriteArrayList;
+import java.util.stream.Collectors;
 
 import static com.epam.jdi.tools.LinqUtils.listCopy;
 import static com.epam.jdi.tools.PrintUtils.print;
 import static com.epam.jdi.tools.TryCatchUtil.throwRuntimeException;
 import static java.lang.String.format;
 import static java.util.Arrays.asList;
+import static java.util.stream.Collectors.*;
 
 public class MapArray<K, V> implements Collection<Pair<K, V>>, Cloneable {
     public List<Pair<K, V>> pairs;
@@ -226,7 +228,7 @@ public class MapArray<K, V> implements Collection<Pair<K, V>>, Cloneable {
     public MapArray<K, V> add(K key, V value) {
         if (has(key)) {
             if (!ignoreNotUnique)
-                throw new RuntimeException("Key "+ key +" already exist. " + toString());
+                throw new RuntimeException("Key '"+ key +"' already exist. " + toString());
         }
         else
             pairs.add(new Pair<>(key, value));
@@ -238,10 +240,14 @@ public class MapArray<K, V> implements Collection<Pair<K, V>>, Cloneable {
         return this;
     }
     public MapArray<K, V> update(K key, V value) {
-        if (has(key)) {
-            updateByKey(key, value);
-        } else {
+        try {
             add(key, value);
+        } catch (Exception ex) {
+            if (ex.getMessage().contains("already exist"))
+                updateByKey(key, value);
+            else {
+                throw ex;
+            }
         }
         return this;
     }
@@ -348,11 +354,11 @@ public class MapArray<K, V> implements Collection<Pair<K, V>>, Cloneable {
     }
 
     public List<K> keys() {
-        return LinqUtils.map(pairs, pair -> pair.key);
+        return pairs.stream().map(pair -> pair.key).collect(toList());
     }
 
     public List<V> values() {
-        return LinqUtils.map(pairs, pair -> pair.value);
+        return pairs.stream().map(pair -> pair.value).collect(toList());
     }
 
     public List<V> values(JFunc1<V, Boolean> condition) {
@@ -434,15 +440,19 @@ public class MapArray<K, V> implements Collection<Pair<K, V>>, Cloneable {
     }
 
     public void removeByKey(K key) {
-        int index = LinqUtils.firstIndex(pairs, pair -> pair.key.equals(key));
-        if (index > -1) {
-            pairs.remove(index);
+        for (Pair<K, V> pair : pairs) {
+            if (pair.key.equals(key)) {
+                pairs.remove(pair);
+                return;
+            }
         }
     }
     private void updateByKey(K key, V value) {
-        int index = LinqUtils.firstIndex(pairs, pair -> pair.key.equals(key));
-        if (index > -1) {
-            pairs.get(index).value = value;
+        for (Pair<K, V> pair : pairs) {
+            if (pair.key.equals(key)) {
+                pair.value = value;
+                return;
+            }
         }
     }
 

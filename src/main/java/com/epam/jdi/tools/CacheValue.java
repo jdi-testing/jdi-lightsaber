@@ -22,8 +22,8 @@ public class CacheValue<T> {
     public CacheValue() { }
     public CacheValue<T> copy() {
         CacheValue<T> cv = new CacheValue<>();
-        cv.elementCache = elementCache;
-        cv.value.set(value.get());
+        cv.elementCache = new Safe<>(() -> elementCache.get());
+        cv.value = new Safe<>(() -> value.get());
         cv.finalValue = finalValue;
         cv.getRule = getRule;
         return cv;
