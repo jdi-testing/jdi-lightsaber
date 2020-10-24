@@ -35,8 +35,8 @@ public class Safe<T> extends ThreadLocal<T> {
         return currentThread().getId();
     }
 
-    @Override
-    public String toString() {
-        return threadValues.toString();
-    }
+    // @Override
+    // public String toString() {
+    //     return threadValues.toString();
+    // }
 }
