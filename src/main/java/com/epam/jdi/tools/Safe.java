@@ -20,7 +20,13 @@ public class Safe<T> extends ThreadLocal<T> {
         if (threadValues.containsKey(threadId)) {
             return threadValues.get(threadId);
         }
-        T value = DEFAULT.execute();
+        T value;
+        if (threadValues.size() == 1 && threadValues.containsKey(1L)) {
+            value = threadValues.get(1L);
+            threadValues.clear();
+        } else {
+            value = DEFAULT.execute();
+        }
         update(threadId, value);
         return value;
     }
@@ -40,8 +46,8 @@ public class Safe<T> extends ThreadLocal<T> {
     private void update(long threadId, T value) {
         threadValues.compute(threadId,  (k,v) -> value);
     }
-    // @Override
-    // public String toString() {
-    //     return threadValues.toString();
-    // }
+    @Override
+    public String toString() {
+        return threadValues.keySet().toString();
+    }
 }
