@@ -19,6 +19,7 @@ import java.util.stream.Collectors;
 import static com.epam.jdi.tools.PrintUtils.*;
 import static com.epam.jdi.tools.ReflectionUtils.isClass;
 import static com.epam.jdi.tools.ReflectionUtils.isInterface;
+import static com.epam.jdi.tools.pairs.Pair.$;
 import static java.lang.String.format;
 import static java.util.Arrays.asList;
 import static java.util.Arrays.stream;
@@ -164,6 +165,30 @@ public final class LinqUtils {
     public static <T> List<T> filter(T[] list, JFunc1<T, Boolean> func) {
         return where(list, func);
     }
+    public static <T> MapArray<String, List<T>> partition(List<T> list, JFunc1<T, Boolean> split) {
+        return partition(list, $("match", split));
+    }
+    public static <T> MapArray<String, List<T>> partition(List<T> list, Pair<String, JFunc1<T, Boolean>>... matchers) {
+        if (list == null)
+            throw new RuntimeException("Can't do where. Collection is Null");
+        try {
+            MapArray<String, List<T>> result = new MapArray<>();
+            for (Pair<String, JFunc1<T, Boolean>> matcher : matchers) {
+                result.add(matcher.key, new ArrayList<>());
+            }
+            result.add("other", new ArrayList<>());
+            for (T el : list) {
+                Pair<String, JFunc1<T, Boolean>> matched = first(matchers, m -> m.value.invoke(el));
+                String key = matched != null ? matched.key : "other";
+                result.get(key).add(el);
+            }
+            return result;
+        } catch (Exception ex) {
+            throw exception("Can't do partition: %s. %s", ex, list);
+        }
+    }
+    public static <T> MapArray<String, List<T>> partition(T[] array, JFunc1<T, Boolean> split) { return partition(array, split); }
+
     public static <K, V> Map<K, V> where(Map<K, V> map, JFunc1<Map.Entry<K, V>, Boolean> func) {
         if (map == null)
             throw new RuntimeException("Can't do where. Collection is Null");
@@ -595,33 +620,33 @@ public final class LinqUtils {
             byte a = (byte) first;
             byte b = (byte) second;
             return strict ? a < b : a <= b;
-        } catch (Exception ex) {}
+        } catch (Exception ignored) {}
         try {
             int a = (int) first;
             int b = (int) second;
             return strict ? a < b : a <= b;
-        } catch (Exception ex) {}
+        } catch (Exception ignored) {}
         try {
             long a = (long) first;
             long b = (long) second;
             return strict ? a < b : a <= b;
-        } catch (Exception ex) {}
+        } catch (Exception ignored) {}
         try {
             float a = (float) first;
             float b = (float) second;
             return strict ? a < b : a <= b;
-        } catch (Exception ex) {}
+        } catch (Exception ignored) {}
         try {
             double a = (double) first;
             double b = (double) second;
             return strict ? a < b : a <= b;
-        } catch (Exception ex) {}
+        } catch (Exception ignored) {}
         try {
             String a = first.toString();
             String b = second.toString();
             int compare = a.compareTo(b);
             return strict ? compare < 0 : compare <= 0;
-        } catch (Exception ex) {}
+        } catch (Exception ignored) {}
         throw new RuntimeException(format("isAscending failed because values first='%s' second = '%s' are not comparable", first, second));
     }
     private static RuntimeException exception(String tmpl, Exception ex, Map<?, ?> map) {
