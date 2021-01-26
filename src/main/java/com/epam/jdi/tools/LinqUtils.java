@@ -6,6 +6,7 @@ package com.epam.jdi.tools;
  */
 
 import com.epam.jdi.tools.func.JAction1;
+import com.epam.jdi.tools.func.JFunc;
 import com.epam.jdi.tools.func.JFunc1;
 import com.epam.jdi.tools.func.JFunc2;
 import com.epam.jdi.tools.map.MapArray;
@@ -441,6 +442,11 @@ public final class LinqUtils {
         return last(asList(list), func);
     }
 
+    public static <T> T[] toArray(Collection<T> collection, JFunc1<Integer, T[]> constructor) {
+        if (collection == null)
+            throw new RuntimeException("Can't do toStringArray. Collection is Null");
+        return collection.toArray(constructor.execute(collection.size()));
+    }
     public static String[] toStringArray(Collection<String> collection) {
         if (collection == null)
             throw new RuntimeException("Can't do toStringArray. Collection is Null");

@@ -61,7 +61,7 @@ public final class PropertyReader {
         String prop = null;
         try {
             prop = loadProperties().getProperty(propertyName);
-        } catch (Throwable ignore) {}
+        } catch (Throwable ignore) { }
         if (isBlank(prop)) return "";
         if (isMvnProperty(prop)) {
             prop = replaceProperty(prop);
