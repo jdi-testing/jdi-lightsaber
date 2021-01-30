@@ -15,6 +15,7 @@ import java.util.regex.Pattern;
 
 import static java.util.regex.Matcher.quoteReplacement;
 import static org.apache.commons.lang3.StringUtils.isBlank;
+import static org.apache.commons.lang3.StringUtils.isNotBlank;
 
 public final class PropertyReader {
     private static String propertiesPath;
@@ -56,7 +57,13 @@ public final class PropertyReader {
         propertiesPath = path;
         return readProperties();
     }
-
+    public static boolean hasProperty(String name) {
+        try {
+            return isNotBlank(getProperty(name));
+        } catch (Exception ignore) {
+            return false;
+        }
+    }
     public static String getProperty(String propertyName) {
         String prop = null;
         try {
