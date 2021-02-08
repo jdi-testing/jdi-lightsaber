@@ -8,7 +8,6 @@ package com.epam.jdi.tools.map;
 import com.epam.jdi.tools.LinqUtils;
 import com.epam.jdi.tools.func.JAction1;
 import com.epam.jdi.tools.func.JAction2;
-import com.epam.jdi.tools.func.JFunc1;
 import com.epam.jdi.tools.func.JFunc2;
 import com.epam.jdi.tools.pairs.Pair;
 import org.apache.commons.lang3.ObjectUtils;
@@ -74,10 +73,12 @@ public class MapArray<K, V> implements Collection<Pair<K, V>>, Cloneable {
         this();
         try {
             for (T t : collection) {
-                if (ignoreNotUnique)
+                if (ignoreNotUnique) {
                     addNew(keyFunc.apply(t), valueFunc.apply(t));
-                else
+                }
+                else {
                     add(keyFunc.apply(t), valueFunc.apply(t));
+                }
             }
         } catch (Exception ex) {
             throw cantCreateMapException(ex);
@@ -115,8 +116,9 @@ public class MapArray<K, V> implements Collection<Pair<K, V>>, Cloneable {
         }
     }
     public void addUnique(K key, V value) {
-        if (keys().contains(key))
+        if (keys().contains(key)) {
             throw new RuntimeException("Duplicated keys " + key + ". Can't create MapArray");
+        }
         add(key, value);
     }
 
@@ -127,29 +129,26 @@ public class MapArray<K, V> implements Collection<Pair<K, V>>, Cloneable {
     }
     public MapArray(Map<K, V> map) {
         this();
-        if (map != null) {
-            for (Entry<K, V> entry : map.entrySet())
-                add(entry.getKey(), entry.getValue());
-        }
+        if (map == null) return;
+        for (Entry<K, V> entry : map.entrySet())
+            add(entry.getKey(), entry.getValue());
     }
 
     public MapArray(Object[][] objects) {
         this();
-        if (objects != null) {
-            add(objects);
-        }
+        if (objects == null) return;
+        add(objects);
     }
     public MapArray(Collection<K> keys, Collection<V> values) {
         this();
-        if (keys != null && values != null) {
-            if (keys.size() != values.size())
-                throw new RuntimeException(format("keys and values has different count (keys:[%s]; values:[%s])",
-                        safePrintCollection(keys), safePrintCollection(values)));
-            Iterator<K> ik = keys.iterator();
-            Iterator<V> vk = values.iterator();
-            for (int i = 0; i < keys.size(); i++) {
-                add(ik.next(), vk.next());
-            }
+        if (keys == null || values == null) return;
+        if (keys.size() != values.size())
+            throw new RuntimeException(format("keys and values has different count (keys:[%s]; values:[%s])",
+                    safePrintCollection(keys), safePrintCollection(values)));
+        Iterator<K> ik = keys.iterator();
+        Iterator<V> vk = values.iterator();
+        for (int i = 0; i < keys.size(); i++) {
+            add(ik.next(), vk.next());
         }
     }
     public MapArray(K[] keys, V[] values) {

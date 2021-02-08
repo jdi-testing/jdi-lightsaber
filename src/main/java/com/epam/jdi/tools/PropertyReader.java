@@ -25,10 +25,12 @@ public final class PropertyReader {
     private PropertyReader() {
     }
     public static String getPath() {
-        if (isBlank(propertiesPath))
+        if (isBlank(propertiesPath)) {
             return "";
-        if (propertiesPath.charAt(0) != '/')
+        }
+        if (propertiesPath.charAt(0) != '/') {
             propertiesPath = "/" + propertiesPath;
+        }
         return propertiesPath;
     }
 
@@ -36,12 +38,14 @@ public final class PropertyReader {
         properties = new Properties();
         try {
             inputStream = PropertyReader.class.getResourceAsStream(getPath());
-            if (inputStream != null)
+            if (inputStream != null) {
                 properties.load(inputStream);
+            }
         } catch (Exception ex) {
             try {
-                if (inputStream != null)
+                if (inputStream != null) {
                     inputStream.close();
+                }
             } catch (IOException e) {
                 throw new RuntimeException(e.getMessage());
             }
@@ -69,7 +73,9 @@ public final class PropertyReader {
         try {
             prop = loadProperties().getProperty(propertyName);
         } catch (Throwable ignore) { }
-        if (isBlank(prop)) return "";
+        if (isBlank(prop)) {
+            return "";
+        }
         if (isMvnProperty(prop)) {
             prop = replaceProperty(prop);
         }

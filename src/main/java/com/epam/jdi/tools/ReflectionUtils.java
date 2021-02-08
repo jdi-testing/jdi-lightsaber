@@ -30,23 +30,29 @@ public final class ReflectionUtils {
             return true;
         Class<?> type = t;
         while (type != null && type != Object.class)
-            if (type == expected) return true;
-            else type = type.getSuperclass();
+            if (type == expected) {
+                return true;
+            }
+            else {
+                type = type.getSuperclass();
+            }
         return isInterface(t, expected);
     }
 
     public static boolean isClassOr(Class<?> type, Class<?>... expected) {
         for (Class<?> expectedType : expected) {
-            if (isClass(type, expectedType))
+            if (isClass(type, expectedType)) {
                 return true;
+            }
         }
         return false;
     }
 
     public static boolean isClassAnd(Class<?> type, Class<?>... expected) {
         for (Class<?> expectedType : expected) {
-            if (!isClass(type, expectedType))
+            if (!isClass(type, expectedType)) {
                 return false;
+            }
         }
         return true;
     }
@@ -56,23 +62,27 @@ public final class ReflectionUtils {
 
     public static boolean isInterfaceAnd(Class<?> type, Class<?>... interfaces) {
         for (Class<?> i : interfaces) {
-            if (!isInterface(type, i))
+            if (!isInterface(type, i)) {
                 return false;
+            }
         }
         return true;
     }
     public static boolean isInterfaceAOr(Class<?> type, Class<?>... interfaces) {
         for (Class<?> i : interfaces) {
-            if (isInterface(type, i))
+            if (isInterface(type, i)) {
                 return true;
+            }
         }
         return false;
     }
     public static boolean isInterface(Class<?> type, Class<?> expected) {
-        if (type == null || expected == null || type == Object.class)
+        if (type == null || expected == null || type == Object.class) {
             return false;
-        if (type == expected)
+        }
+        if (type == expected) {
             return true;
+        }
         List<Class<?>> interfaces = asList(type.getInterfaces());
         return any(interfaces, i -> isInterface(i, expected)) || isInterface(type.getSuperclass(), expected);
     }
@@ -141,8 +151,9 @@ public final class ReflectionUtils {
         }
     }
     public static List<Field> getFieldsRegress(Class<?> type, Class<?>... stopTypes) {
-        if (stopTypes == null || stopTypes.length == 0)
+        if (stopTypes == null || stopTypes.length == 0) {
             return getTypeFields(type);
+        }
         return recursion(type, t -> !t.equals(Object.class), stopTypes.length == 1 && stopTypes[0] == Object.class
             ? ReflectionUtils::getFieldsDeep3
             : t -> getFieldsDeep2(t, stopTypes));

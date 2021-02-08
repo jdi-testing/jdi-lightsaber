@@ -124,20 +124,23 @@ public class Timer {
                 exception = ex;
                 sleep(retryTimeoutInMSec);
             }
-        if (exception != null)
+        if (exception != null) {
             throwException(exception);
+        }
         return false;
     }
     public boolean wait(Supplier<Boolean> waitCase) {
         Throwable exception = null;
         while (isRunning())
             try {
-                if (waitCase != null && waitCase.get())
+                if (waitCase != null && waitCase.get()) {
                     return true;
+                }
                 sleep(retryTimeoutInMSec);
             } catch (Exception | Error ex) { exception = ex; }
-        if (exception != null)
+        if (exception != null) {
             throwException(exception);
+        }
         return false;
     }
 
@@ -150,13 +153,15 @@ public class Timer {
          do {
             try {
                 T result = getFunc.invoke();
-                if (result != null && conditionFunc.apply(result))
+                if (result != null && conditionFunc.apply(result)) {
                     return result;
+                }
             } catch (Exception | Error ex) { exception = ex; }
             sleep(retryTimeoutInMSec);
         } while (isRunning());
-        if (exception != null)
+        if (exception != null) {
             throwException(exception);
+        }
         return null;
     }
 

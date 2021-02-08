@@ -32,14 +32,16 @@ import static org.apache.commons.lang3.StringUtils.isNotBlank;
 public final class LinqUtils {
     private static final String NULL_COLLECTION = "Can't do where. Collection is Null";
     public static <T1, T2> boolean invokeBoolean(BiFunction<T1, T2, Boolean> func, T1 arg1, T2 arg2) {
-        if (func == null)
+        if (func == null) {
             return false;
+        }
         Boolean result = func.apply(arg1, arg2);
         return result != null && result;
     }
     public static <T> boolean invokeBoolean(Function<T, Boolean> func, T arg) {
-        if (func == null)
+        if (func == null) {
             return false;
+        }
         Boolean result = func.apply(arg);
         return result != null && result;
     }

@@ -30,7 +30,9 @@ public class PathUtils {
         return "\\"+separator;
     }
     private static String toStandardSlash(String s) {
-        if (isBlank(s)) return "";
+        if (isBlank(s)) {
+            return "";
+        }
         return separator.equals("\\")
             ? s.replace("/", encodedSeparator())
             : s.replace("\\\\", separator);

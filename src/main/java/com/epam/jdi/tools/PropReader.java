@@ -24,8 +24,9 @@ public class PropReader {
         propertiesPath = path;
     }
     public String getPath() {
-        if (propertiesPath.charAt(0) != '/')
+        if (propertiesPath.charAt(0) != '/') {
             propertiesPath = "/" + propertiesPath;
+        }
         return propertiesPath;
     }
 
@@ -33,12 +34,14 @@ public class PropReader {
         properties = new Properties();
         try {
             inputStream = PropReader.class.getResourceAsStream(getPath());
-            if (inputStream != null)
+            if (inputStream != null) {
                 properties.load(inputStream);
+            }
         } catch (Exception ex) {
             try {
-                if (inputStream != null)
+                if (inputStream != null) {
                     inputStream.close();
+                }
             } catch (IOException e) {
                 throw new RuntimeException(e.getMessage());
             }

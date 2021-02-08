@@ -66,7 +66,9 @@ public final class StringUtils {
         while (matcher.find()) {
             final String pattern = matcher.group(1);
             Object replacement = args.get(pattern);
-            if (replacement == null) replacement = matcher.group();
+            if (replacement == null) {
+                replacement = matcher.group();
+            }
             matcher.appendReplacement(sb, quoteReplacement(getValue(replacement)));
         }
         matcher.appendTail(sb);
@@ -83,15 +85,18 @@ public final class StringUtils {
     }
     public static boolean contains(String string, List<String> strings) {
         for (String s : strings)
-            if (!string.contains(s)) return false;
+            if (!string.contains(s)) {
+                return false;
+            }
         return true;
     }
     //someVariable Name-Field -> some variable name field
     public static String splitLowerCase(String value) {
         String result = "";
         for (int i = 0; i < value.length(); i++) {
-            if (isUpperCase(value.charAt(i)))
+            if (isUpperCase(value.charAt(i))) {
                 result += " ";
+            }
             result += toLowerCase(value.charAt(i));
         }
         return result;
@@ -122,7 +127,9 @@ public final class StringUtils {
         return result + value.charAt(value.length() - 1);
     }
     private static String cleanupString(String text) {
-        if (isEmpty(text)) return "";
+        if (isEmpty(text)) {
+            return "";
+        }
         return text.replaceAll("[^a-zA-Z0-9 ]", "")
             .trim()
             .replaceAll(" +", " ");
