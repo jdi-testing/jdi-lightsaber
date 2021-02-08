@@ -7,10 +7,10 @@ package com.epam.jdi.tools;
 
 import com.epam.jdi.tools.func.JAction;
 import com.epam.jdi.tools.func.JFunc;
-import com.epam.jdi.tools.func.JFunc1;
 
 import java.text.SimpleDateFormat;
 import java.util.Date;
+import java.util.function.Function;
 import java.util.function.Supplier;
 
 import static com.epam.jdi.tools.ReflectionUtils.isClass;
@@ -63,7 +63,7 @@ public class Timer {
         } catch (InterruptedException ignore) { }
     }
 
-    public static <T> T getByCondition(JFunc<T> getFunc, JFunc1<T, Boolean> conditionFunc) {
+    public static <T> T getByCondition(JFunc<T> getFunc, Function<T, Boolean> conditionFunc) {
         return new Timer().getResultByCondition(getFunc, conditionFunc);
     }
 
@@ -104,8 +104,8 @@ public class Timer {
             .format(new Date(timePassedInMSec()));
     }
 
-    public boolean timeoutPassed() {
-        return timePassedInMSec() > timeoutInMSec;
+    public boolean isRunning() {
+        return timePassedInMSec() < timeoutInMSec;
     }
 
     private void throwException(Throwable ex) {
@@ -116,7 +116,7 @@ public class Timer {
     }
     public boolean wait(JAction waitCase) {
         Throwable exception = null;
-        while (!timeoutPassed())
+        while (isRunning())
             try {
                 waitCase.invoke();
                 return true;
@@ -130,9 +130,9 @@ public class Timer {
     }
     public boolean wait(Supplier<Boolean> waitCase) {
         Throwable exception = null;
-        while (!timeoutPassed())
+        while (isRunning())
             try {
-                if (waitCase.get())
+                if (waitCase != null && waitCase.get())
                     return true;
                 sleep(retryTimeoutInMSec);
             } catch (Exception | Error ex) { exception = ex; }
@@ -145,16 +145,16 @@ public class Timer {
         return getResultByCondition(getFunc, result -> true);
     }
 
-    public <T> T getResultByCondition(JFunc<T> getFunc, JFunc1<T, Boolean> conditionFunc) {
+    public <T> T getResultByCondition(JFunc<T> getFunc, Function<T, Boolean> conditionFunc) {
         Throwable exception = null;
          do {
             try {
                 T result = getFunc.invoke();
-                if (result != null && conditionFunc.invoke(result))
+                if (result != null && conditionFunc.apply(result))
                     return result;
             } catch (Exception | Error ex) { exception = ex; }
             sleep(retryTimeoutInMSec);
-        } while (!timeoutPassed());
+        } while (isRunning());
         if (exception != null)
             throwException(exception);
         return null;

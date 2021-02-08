@@ -16,9 +16,9 @@ import org.apache.commons.lang3.ObjectUtils;
 import java.util.*;
 import java.util.Map.Entry;
 import java.util.concurrent.CopyOnWriteArrayList;
+import java.util.function.Function;
 
-import static com.epam.jdi.tools.LinqUtils.invokeBoolean;
-import static com.epam.jdi.tools.LinqUtils.listCopy;
+import static com.epam.jdi.tools.LinqUtils.*;
 import static com.epam.jdi.tools.PrintUtils.print;
 import static com.epam.jdi.tools.TryCatchUtil.throwRuntimeException;
 import static java.lang.String.format;
@@ -28,6 +28,7 @@ import static java.util.stream.Collectors.toList;
 public class MapArray<K, V> implements Collection<Pair<K, V>>, Cloneable {
     public List<Pair<K, V>> pairs;
 
+    @SafeVarargs
     public static <K, V> MapArray<K, V> map(Pair<K, V>... pairs) {
         return new MapArray<>(pairs);
     }
@@ -43,7 +44,7 @@ public class MapArray<K, V> implements Collection<Pair<K, V>>, Cloneable {
         this();
         add(key, value);
     }
-
+    @SafeVarargs
     public MapArray(Pair<K, V>... pairs) {
         this(asList(pairs));
     }
@@ -53,58 +54,64 @@ public class MapArray<K, V> implements Collection<Pair<K, V>>, Cloneable {
             for (Pair<K, V> pair : pairs)
                 add(pair.key, pair.value);
         } catch (Exception ex) {
-            throw new RuntimeException(format("Can't create MapArray. Exception: %s", ex.getMessage()));
+            throw cantCreateMapException(ex);
         }
     }
-
-    public MapArray(Collection<K> collection, JFunc1<K, V> value) {
-        this(collection, k -> k, value::execute);
+    private RuntimeException cantCreateMapException(Exception ex) {
+        return new RuntimeException(format("Can't create MapArray. Exception: %s", ex.getMessage()));
     }
-    public <T> MapArray(Collection<T> collection, JFunc1<T, K> keyFunc, JFunc1<T, V> valueFunc) {
+    private RuntimeException cantConvertMapException(Exception ex) {
+        return new RuntimeException(format("Can't convert toMap. Exception: %s", ex.getMessage()));
+    }
+
+    public MapArray(Collection<K> collection, Function<K, V> value) {
+        this(collection, k -> k, value);
+    }
+    public <T> MapArray(Collection<T> collection, Function<T, K> keyFunc, Function<T, V> valueFunc) {
         this(collection, keyFunc, valueFunc, false);
     }
-    public <T> MapArray(Collection<T> collection, JFunc1<T, K> keyFunc, JFunc1<T, V> valueFunc, boolean ignoreNotUnique) {
+    public <T> MapArray(Collection<T> collection, Function<T, K> keyFunc, Function<T, V> valueFunc, boolean ignoreNotUnique) {
         this();
         try {
             for (T t : collection) {
                 if (ignoreNotUnique)
-                    addNew(keyFunc.invoke(t), valueFunc.invoke(t));
+                    addNew(keyFunc.apply(t), valueFunc.apply(t));
                 else
-                    add(keyFunc.invoke(t), valueFunc.invoke(t));
+                    add(keyFunc.apply(t), valueFunc.apply(t));
             }
         } catch (Exception ex) {
-            throw new RuntimeException(format("Can't create MapArray. Exception: %s", ex.getMessage()));
+            throw cantCreateMapException(ex);
         }
     }
 
-    public MapArray(K[] array, JFunc1<K, V> value) {
+    public MapArray(K[] array, Function<K, V> value) {
         this(asList(array), value);
     }
-    public <T> MapArray(T[] array, JFunc1<T, K> key, JFunc1<T, V> value) {
+    public <T> MapArray(T[] array, Function<T, K> key, Function<T, V> value) {
         this(array, key, value, false);
     }
-    public <T> MapArray(T[] array, JFunc1<T, K> key, JFunc1<T, V> value, boolean ignoreNotUnique) {
+    public <T> MapArray(T[] array, Function<T, K> key, Function<T, V> value, boolean ignoreNotUnique) {
         this(asList(array), key, value, ignoreNotUnique);
     }
 
-    public MapArray(int count, JFunc1<Integer, K> keyFunc, JFunc1<Integer, V> value) {
+    public MapArray(int count, Function<Integer, K> keyFunc, Function<Integer, V> value) {
         this();
         try {
             for (int i = 0; i < count; i++)
-                add(keyFunc.invoke(i), value.invoke(i));
+                add(keyFunc.apply(i), value.apply(i));
         } catch (Exception ex) {
-            throw new RuntimeException(format("Can't create MapArray. Exception: %s", ex.getMessage()));
+            throw cantCreateMapException(ex);
         }
     }
-    public MapArray(int count, JFunc1<Integer, Pair<K, V>> pairFunc) {
+    public MapArray(int count, Function<Integer, Pair<K, V>> pairFunc) {
         this();
         try {
             for (int i = 0; i < count; i++) {
-                Pair<K, V> pair = pairFunc.invoke(i);
+                Pair<K, V> pair = pairFunc.apply(i);
                 add(pair.key, pair.value);
             }
         } catch (Exception ex) {
-            throw new RuntimeException(format("Can't create MapArray. Exception: %s", ex.getMessage()));
+            throw cantCreateMapException(ex);
         }
     }
     public void addUnique(K key, V value) {
@@ -115,7 +122,8 @@ public class MapArray<K, V> implements Collection<Pair<K, V>>, Cloneable {
 
     public MapArray(MapArray<K, V> mapArray) {
         this();
-        addAll(new ArrayList<>(mapArray));
+        this.pairs = mapArray.pairs;
+        this.ignoreNotUnique = mapArray.ignoreNotUnique;
     }
     public MapArray(Map<K, V> map) {
         this();
@@ -136,7 +144,7 @@ public class MapArray<K, V> implements Collection<Pair<K, V>>, Cloneable {
         if (keys != null && values != null) {
             if (keys.size() != values.size())
                 throw new RuntimeException(format("keys and values has different count (keys:[%s]; values:[%s])",
-                        print(keys, Object::toString), print(values, Objects::toString)));
+                        safePrintCollection(keys), safePrintCollection(values)));
             Iterator<K> ik = keys.iterator();
             Iterator<V> vk = values.iterator();
             for (int i = 0; i < keys.size(); i++) {
@@ -158,11 +166,11 @@ public class MapArray<K, V> implements Collection<Pair<K, V>>, Cloneable {
         return mapArray;
     }
 
-    public static <Value> MapArray<Integer, Value> toMapArray(int count, JFunc1<Integer, Value> valueFunc) {
+    public static <Value> MapArray<Integer, Value> toMapArray(int count, Function<Integer, Value> valueFunc) {
         MapArray<Integer, Value> mapArray = new MapArray<>();
         try {
             for (int i = 0; i < count; i++)
-                mapArray.add(i, valueFunc.invoke(i));
+                mapArray.add(i, valueFunc.apply(i));
         } catch (Exception ex) {
             throw new RuntimeException(format("Can't get MapArray. Exception: %s", ex.getMessage())); }
         return mapArray;
@@ -185,46 +193,48 @@ public class MapArray<K, V> implements Collection<Pair<K, V>>, Cloneable {
         MapArray<KResult, VResult> result = new MapArray<>();
         try {
             for (Pair<K, V> pair : pairs)
-                result.add(key.invoke(pair.key, pair.value), value.invoke(pair.key, pair.value));
+                result.add(key.apply(pair.key, pair.value), value.apply(pair.key, pair.value));
         } catch (Exception ex) {
-            throw new RuntimeException(format("Can't convert toMap. Exception: %s", ex.getMessage())); }
+            throw cantConvertMapException(ex);
+        }
         return result;
     }
 
-    public <VResult> MapArray<K, VResult> toMapArray(JFunc1<V, VResult> value) {
+    public <VResult> MapArray<K, VResult> toMapArray(Function<V, VResult> value) {
         MapArray<K, VResult> result = new MapArray<>();
         try {
             for (Pair<K, V> pair : pairs)
-                result.add(pair.key, value.invoke(pair.value));
+                result.add(pair.key, value.apply(pair.value));
             return result;
         } catch (Exception ex) {
-            throw new RuntimeException(format("Can't convert toMap. Exception: %s", ex.getMessage())); }
+            throw cantConvertMapException(ex); }
     }
 
     public Map<K, V> toMap() {
         return toMap(v -> v);
     }
-    public <VResult> Map<K, VResult> toMap(JFunc1<V, VResult> value) {
-        return toMap((k, v) -> k, (k,v) -> value.invoke(v));
+    public <VResult> Map<K, VResult> toMap(Function<V, VResult> value) {
+        return toMap((k, v) -> k, (k,v) -> value.apply(v));
     }
     public <KResult, VResult> Map<KResult, VResult> toMap(
             JFunc2<K, V, KResult> key, JFunc2<K, V, VResult> value) {
         Map<KResult, VResult> result = new HashMap<>();
         try {
             for (Pair<K, V> pair : pairs)
-                result.put(key.invoke(pair.key, pair.value),
-                        value.invoke(pair.key, pair.value));
+                result.put(key.apply(pair.key, pair.value),
+                        value.apply(pair.key, pair.value));
         } catch (Exception ex) {
-            throw new RuntimeException(format("Can't convert toMap. Exception: %s", ex.getMessage()));
+            throw cantConvertMapException(ex);
         }
         return result;
     }
 
-    public boolean ignoreNotUnique = false;
+    private boolean ignoreNotUnique = false;
 
     public void ignoreNotUnique() {
         ignoreNotUnique = true;
     }
+    
     public MapArray<K, V> add(K key, V value) {
         if (has(key)) {
             if (!ignoreNotUnique)
@@ -252,13 +262,13 @@ public class MapArray<K, V> implements Collection<Pair<K, V>>, Cloneable {
         return this;
     }
 
-    public MapArray<K, V> update(K key, JFunc1<V, V> func) {
+    public MapArray<K, V> update(K key, Function<V, V> func) {
         try {
             if (has(key)) {
                 V value = get(key);
-                updateByKey(key, func.invoke(value));
+                updateByKey(key, func.apply(value));
             } else {
-                add(key, func.invoke(null));
+                add(key, func.apply(null));
             }
         } catch (Exception ex) {
             throw new RuntimeException(format("Can't do update. Exception: %s", ex.getMessage()));
@@ -279,7 +289,7 @@ public class MapArray<K, V> implements Collection<Pair<K, V>>, Cloneable {
             return ;
         for (Object[] pair : pairs)
             if (pair.length == 2)
-                update(cast(pair[0]), (V)cast(pair[1]));
+                update(cast(pair[0]), (V) cast(pair[1]));
     }
 
     private <R> R cast(Object obj) {
@@ -361,7 +371,7 @@ public class MapArray<K, V> implements Collection<Pair<K, V>>, Cloneable {
         return pairs.stream().map(pair -> pair.value).collect(toList());
     }
 
-    public List<V> values(JFunc1<V, Boolean> condition) {
+    public List<V> values(Function<V, Boolean> condition) {
         return LinqUtils.filter(values(), condition);
     }
 
@@ -382,10 +392,10 @@ public class MapArray<K, V> implements Collection<Pair<K, V>>, Cloneable {
     public boolean any() {
         return size() > 0;
     }
-    public boolean any(JFunc1<V, Boolean> func) {
+    public boolean any(Function<V, Boolean> func) {
         return LinqUtils.any(this.values(), func);
     }
-    public boolean all(JFunc1<V, Boolean> func) {
+    public boolean all(Function<V, Boolean> func) {
         return LinqUtils.all(this.values(), func);
     }
     public Pair<K, V> first() {
@@ -456,7 +466,7 @@ public class MapArray<K, V> implements Collection<Pair<K, V>>, Cloneable {
         }
     }
 
-    public int firstIndex(JFunc1<V, Boolean> func) {
+    public int firstIndex(Function<V, Boolean> func) {
         if (pairs == null || pairs.size() == 0)
             throw new RuntimeException("Can't get firstIndex. Collection is Null or empty");
         try {
@@ -520,10 +530,10 @@ public class MapArray<K, V> implements Collection<Pair<K, V>>, Cloneable {
     public boolean retainAll(Collection<?> c) {
         if (c == null)
             return false;
-        for (Pair pair : pairs)
-            if (!c.contains(pair))
-                if (!remove(pair))
-                    return false;
+        for (Pair<K, V> pair : pairs) {
+            if (!c.contains(pair) && !remove(pair))
+                return false;
+        }
         return true;
     }
 
@@ -533,7 +543,7 @@ public class MapArray<K, V> implements Collection<Pair<K, V>>, Cloneable {
 
     @Override
     public String toString() {
-        return print(LinqUtils.select(pairs, pair -> pair.key + ":" + pair.value));
+        return print(pairs, pair -> pair.key + ":" + pair.value);
     }
 
     @Override
@@ -548,28 +558,28 @@ public class MapArray<K, V> implements Collection<Pair<K, V>>, Cloneable {
     public <T1> List<T1> map(JFunc2<K, V, T1> func) {
         return select(func);
     }
-    public <T1> List<T1> map(JFunc1<V, T1> func) {
+    public <T1> List<T1> map(Function<V, T1> func) {
         return select(func);
     }
     public <T1> List<T1> select(JFunc2<K, V, T1> func) {
         try {
             List<T1> result = new ArrayList<>();
             for (Pair<K,V> pair : pairs)
-                result.add(func.invoke(pair.key, pair.value));
+                result.add(func.apply(pair.key, pair.value));
             return result;
         } catch (Exception ignore) {
             throwRuntimeException(ignore);
             return new ArrayList<>();
         }
     }
-    public <T1> List<T1> select(JFunc1<V, T1> func) {
+    public <T1> List<T1> select(Function<V, T1> func) {
         try {
             List<T1> result = new ArrayList<>();
             for (Pair<K,V> pair : pairs)
-                result.add(func.invoke(pair.value));
+                result.add(func.apply(pair.value));
             return result;
-        } catch (Exception ignore) {
-            throwRuntimeException(ignore);
+        } catch (Exception ex) {
+            throwRuntimeException(ex);
             return new ArrayList<>();
         }
     }
@@ -577,7 +587,7 @@ public class MapArray<K, V> implements Collection<Pair<K, V>>, Cloneable {
     public MapArray<K, V> filter(JFunc2<K, V, Boolean> func) {
         return where(func);
     }
-    public MapArray<K, V> filter(JFunc1<V, Boolean> func) {
+    public MapArray<K, V> filter(Function<V, Boolean> func) {
         return where(func);
     }
     public MapArray<K, V> where(JFunc2<K, V, Boolean> func) {
@@ -587,62 +597,62 @@ public class MapArray<K, V> implements Collection<Pair<K, V>>, Cloneable {
                 if (invokeBoolean(func, pair.key, pair.value))
                     result.add(pair);
             return result;
-        } catch (Exception ignore) {
-            throwRuntimeException(ignore);
+        } catch (Exception ex) {
+            throwRuntimeException(ex);
             return null;
         }
     }
-    public MapArray<K, V> where(JFunc1<V, Boolean> func) {
+    public MapArray<K, V> where(Function<V, Boolean> func) {
         try {
             MapArray<K, V> result = new MapArray<>();
             for (Pair<K,V> pair : pairs)
                 if (invokeBoolean(func, pair.value))
                     result.add(pair);
             return result;
-        } catch (Exception ignore) {
-            throwRuntimeException(ignore);
+        } catch (Exception ex) {
+            throwRuntimeException(ex);
             return null;
         }
     }
     public void ifDo(JFunc2<K, V, Boolean> condition, JAction1<V> action) {
         try {
             for (Pair<K,V> el : pairs)
-                if (condition.invoke(el.key, el.value))
+                if (invokeBoolean(condition, el.key, el.value))
                     action.invoke(el.value);
-        } catch (Exception ignore) {
-            throwRuntimeException(ignore);
+        } catch (Exception ex) {
+            throwRuntimeException(ex);
         }
     }
-    public void ifDo(JFunc1<V, Boolean> condition, JAction1<V> action) {
+    public void ifDo(Function<V, Boolean> condition, JAction1<V> action) {
         try {
             for (Pair<K,V> el : pairs)
-                if (condition.invoke(el.value))
+                if (invokeBoolean(condition, el.value))
                     action.invoke(el.value);
-        } catch (Exception ignore) {
-            throwRuntimeException(ignore);
+        } catch (Exception ex) {
+            throwRuntimeException(ex);
         }
     }
-    public <T> List<T> ifSelect(JFunc2<K, V, Boolean> condition, JFunc1<V, T> transform) {
+    public <T> List<T> ifSelect(JFunc2<K, V, Boolean> condition, Function<V, T> transform) {
         try {
             List<T> result = new ArrayList<>();
             for (Pair<K,V> el : pairs)
-                if (condition.invoke(el.key, el.value))
-                    result.add(transform.invoke(el.value));
+                if (invokeBoolean(condition, el.key, el.value))
+                    result.add(transform.apply(el.value));
             return result;
-        } catch (Exception ignore) {
-            throwRuntimeException(ignore);
+        } catch (Exception ex) {
+            throwRuntimeException(ex);
             return null;
         }
     }
-    public <T> List<T> ifSelect(JFunc1<V, Boolean> condition, JFunc1<V, T> transform) {
+    public <T> List<T> ifSelect(Function<V, Boolean> condition, Function<V, T> transform) {
         try {
             List<T> result = new ArrayList<>();
             for (Pair<K,V> el : pairs)
-                if (condition.invoke(el.value))
-                    result.add(transform.invoke(el.value));
+                if (invokeBoolean(condition, el.value))
+                    result.add(transform.apply(el.value));
             return result;
-        } catch (Exception ignore) {
-            throwRuntimeException(ignore);
+        } catch (Exception ex) {
+            throwRuntimeException(ex);
             return null;
         }
     }
@@ -651,7 +661,7 @@ public class MapArray<K, V> implements Collection<Pair<K, V>>, Cloneable {
         Pair<K, V> first = first(func);
         return first == null ? null : first.value;
     }
-    public V firstValue(JFunc1<V, Boolean> func) {
+    public V firstValue(Function<V, Boolean> func) {
         Pair<K, V> first = first(func);
         return first == null ? null : first.value;
     }
@@ -661,19 +671,19 @@ public class MapArray<K, V> implements Collection<Pair<K, V>>, Cloneable {
                 if (invokeBoolean(func, pair.key, pair.value))
                     return pair;
             return null;
-        } catch (Exception ignore) {
-            throwRuntimeException(ignore);
+        } catch (Exception ex) {
+            throwRuntimeException(ex);
             return null;
         }
     }
-    public Pair<K, V> first(JFunc1<V, Boolean> func) {
+    public Pair<K, V> first(Function<V, Boolean> func) {
         try {
             for (Pair<K, V> pair : pairs)
                 if (invokeBoolean(func, pair.value))
                     return pair;
             return null;
-        } catch (Exception ignore) {
-            throwRuntimeException(ignore);
+        } catch (Exception ex) {
+            throwRuntimeException(ex);
             return null;
         }
     }
@@ -681,7 +691,7 @@ public class MapArray<K, V> implements Collection<Pair<K, V>>, Cloneable {
         Pair<K, V> last = last(func);
         return last == null ? null : last.value;
     }
-    public V lastValue(JFunc1<V, Boolean> func) {
+    public V lastValue(Function<V, Boolean> func) {
         Pair<K, V> last = last(func);
         return last == null ? null : last.value;
     }
@@ -692,20 +702,20 @@ public class MapArray<K, V> implements Collection<Pair<K, V>>, Cloneable {
                 if (invokeBoolean(func, pair.key, pair.value))
                     result = pair;
             return result;
-        } catch (Exception ignore) {
-            throwRuntimeException(ignore);
+        } catch (Exception ex) {
+            throwRuntimeException(ex);
             return null;
         }
     }
-    public Pair<K, V> last(JFunc1<V, Boolean> func) {
+    public Pair<K, V> last(Function<V, Boolean> func) {
         Pair<K, V> result = null;
         try {
             for (Pair<K, V> pair : pairs)
                 if (invokeBoolean(func, pair.value))
                     result = pair;
             return result;
-        } catch (Exception ignore) {
-            throwRuntimeException(ignore);
+        } catch (Exception ex) {
+            throwRuntimeException(ex);
             return null;
         }
     }
@@ -717,8 +727,8 @@ public class MapArray<K, V> implements Collection<Pair<K, V>>, Cloneable {
         try {
             for (Pair<K, V> pair : pairs)
                 action.invoke(pair.key, pair.value);
-        } catch (Exception ignore) {
-            throwRuntimeException(ignore);
+        } catch (Exception ex) {
+            throwRuntimeException(ex);
         }
     }
 
@@ -726,21 +736,21 @@ public class MapArray<K, V> implements Collection<Pair<K, V>>, Cloneable {
         try {
             List<R> result = new ArrayList<>();
             for (Pair<K, V> pair : pairs)
-                result.addAll(func.invoke(pair.key, pair.value));
+                result.addAll(func.apply(pair.key, pair.value));
             return result;
-        } catch (Exception ignore) {
-            throwRuntimeException(ignore);
+        } catch (Exception ex) {
+            throwRuntimeException(ex);
             return null;
         }
     }
-    public <R> List<R> selectMany(JFunc1<V, List<R>> func) {
+    public <R> List<R> selectMany(Function<V, List<R>> func) {
         try {
             List<R> result = new ArrayList<>();
             for (Pair<K, V> pair : pairs)
-                result.addAll(func.invoke(pair.value));
+                result.addAll(func.apply(pair.value));
             return result;
-        } catch (Exception ignore) {
-            throwRuntimeException(ignore);
+        } catch (Exception ex) {
+            throwRuntimeException(ex);
             return null;
         }
     }

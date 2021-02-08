@@ -12,6 +12,8 @@ import java.lang.reflect.Field;
 import java.util.HashMap;
 import java.util.Map;
 
+import static com.epam.jdi.tools.ReflectionUtils.getValueField;
+
 public class DataClass<T> {
     public T set(JAction1<T> valueFunc) {
         T thisObj = (T) this;
@@ -31,7 +33,7 @@ public class DataClass<T> {
     }
     public MapArray<String, Object> fields() {
         Field[] fields = getClass().getDeclaredFields();
-        return new MapArray<>(fields, Field::getName, f -> f.get(this));
+        return new MapArray<>(fields, Field::getName, f -> getValueField(f, this));
     }
 
     @Override

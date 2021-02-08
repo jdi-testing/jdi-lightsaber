@@ -9,6 +9,7 @@ import java.lang.reflect.Field;
 import java.util.List;
 
 import static com.epam.jdi.tools.LinqUtils.first;
+import static com.epam.jdi.tools.ReflectionUtils.getValueField;
 import static java.util.Arrays.asList;
 
 public final class EnumUtils {
@@ -41,9 +42,8 @@ public final class EnumUtils {
         Field field;
         try {
             field = type.getDeclaredField("value");
-            field.setAccessible(true);
-            return field.get(enumWithValue).toString();
-        } catch (NoSuchFieldException | IllegalAccessException ex) {
+            return getValueField(field, enumWithValue).toString();
+        } catch (NoSuchFieldException ex) {
             return enumWithValue.toString();
         }
     }

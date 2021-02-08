@@ -10,7 +10,6 @@ import java.util.Collection;
 import java.util.List;
 import java.util.function.Function;
 
-import static com.epam.jdi.tools.LinqUtils.select;
 import static com.epam.jdi.tools.PrintUtils.print;
 import static com.epam.jdi.tools.pairs.Pair.$;
 import static java.util.Arrays.asList;
@@ -69,7 +68,7 @@ public class Pairs<TValue1, TValue2> extends ArrayList<Pair<TValue1, TValue2>> {
 
     @Override
     public String toString() {
-        return print(select(this, pair -> pair.key + ":" + pair.value));
+        return print(this, pair -> pair.key + ":" + pair.value);
     }
 
     @Override

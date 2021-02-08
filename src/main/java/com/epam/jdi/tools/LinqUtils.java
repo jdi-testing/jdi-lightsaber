@@ -6,7 +6,6 @@ package com.epam.jdi.tools;
  */
 
 import com.epam.jdi.tools.func.JAction1;
-import com.epam.jdi.tools.func.JFunc1;
 import com.epam.jdi.tools.func.JFunc2;
 import com.epam.jdi.tools.map.MapArray;
 import com.epam.jdi.tools.pairs.Pair;
@@ -18,7 +17,6 @@ import java.util.function.BiFunction;
 import java.util.function.Function;
 import java.util.stream.Collectors;
 
-import static com.epam.jdi.tools.PrintUtils.print;
 import static com.epam.jdi.tools.ReflectionUtils.isClass;
 import static com.epam.jdi.tools.ReflectionUtils.isInterface;
 import static com.epam.jdi.tools.pairs.Pair.$;
@@ -33,13 +31,13 @@ import static org.apache.commons.lang3.StringUtils.isNotBlank;
 
 public final class LinqUtils {
     private static final String NULL_COLLECTION = "Can't do where. Collection is Null";
-    public static <T1, T2> boolean invokeBoolean(BiFunction<T1, T2, Boolean> func, T1 arg1, T2 arg2) throws Exception {
+    public static <T1, T2> boolean invokeBoolean(BiFunction<T1, T2, Boolean> func, T1 arg1, T2 arg2) {
         if (func == null)
             return false;
         Boolean result = func.apply(arg1, arg2);
         return result != null && result;
     }
-    public static <T> boolean invokeBoolean(Function<T, Boolean> func, T arg) throws Exception {
+    public static <T> boolean invokeBoolean(Function<T, Boolean> func, T arg) {
         if (func == null)
             return false;
         Boolean result = func.apply(arg);
@@ -68,83 +66,82 @@ public final class LinqUtils {
             throw exception("Failed to create newMap: amount of parameters should be even but " + keyValues.length, keyValues);
         Map<K,V> map = new HashMap<>();
         for (int i = 0; i < keyValues.length; i = i + 2) {
-            K key = getTypeFromObject(keyValues[i], "newMap");
-            V value = getTypeFromObject(keyValues[i + 1], "newMap");
+            K key = getTypeFromObject(keyValues[i]);
+            V value = getTypeFromObject(keyValues[i + 1]);
             map.put(key, value);
         }
         return map;
     }
-    private static <T> T getTypeFromObject(Object o, String methodName) {
+    private static <T> T getTypeFromObject(Object o) {
         try {
             return (T) o;
         }
          catch (Exception ex) {
-            throw new RuntimeException("Failed to Cast object for " + methodName + "() method");
+            throw new RuntimeException("Failed to Cast object for newMap() method");
          }
     }
-
-    public static <T, TR> List<TR> select(Collection<T> list, JFunc1<T, TR> func) {
+    public static <T, TR> List<TR> select(Collection<T> list, Function<T, TR> func) {
         if (list == null)
             throw new RuntimeException("Can't do select list. Collection is Null");
         try {
             List<TR> result = new CopyOnWriteArrayList<>();
             for (T el : list)
-                result.add(func.invoke(el));
+                result.add(func.apply(el));
             return result;
         } catch (Exception ex) {
             throw exception("Can't do select list: %s. %s", ex, list);
         }
     }
-    public static <T, TR> List<TR> map(Collection<T> list, JFunc1<T, TR> func) { return select(list, func); }
-    public static <T, TR> List<TR> select(T[] array, JFunc1<T, TR> func) {
+    public static <T, TR> List<TR> map(Collection<T> list, Function<T, TR> func) { return select(list, func); }
+    public static <T, TR> List<TR> select(T[] array, Function<T, TR> func) {
         return select(asList(array), func);
     }
-    public static <T, TR> List<TR> map(T[] array, JFunc1<T, TR> func) { return select(array, func); }
+    public static <T, TR> List<TR> map(T[] array, Function<T, TR> func) { return select(array, func); }
 
-    public static <K, V, R> List<R> selectMap(Map<K, V> map, JFunc1<Map.Entry<K, V>, R> func) {
+    public static <K, V, R> List<R> selectMap(Map<K, V> map, Function<Map.Entry<K, V>, R> func) {
         if (map == null)
             throw new RuntimeException("Can't do selectMap. Collection is Null");
         try {
             List<R> result = new CopyOnWriteArrayList<>();
             for (Map.Entry<K,V> el : map.entrySet())
-                result.add(func.invoke(el));
+                result.add(func.apply(el));
             return result;
         } catch (Exception ex) {
             throw exception("Can't do selectMap: %s. %s", ex, map);
         }
     }
 
-    public static <K, V, TR> Map<K, TR> select(Map<K, V> map, JFunc1<V, TR> func) {
+    public static <K, V, TR> Map<K, TR> select(Map<K, V> map, Function<V, TR> func) {
         if (map == null)
             throw new RuntimeException("Can't do select map. Collection is Null");
         try {
             Map<K, TR> result = new HashMap<>();
             for (Map.Entry<K, V> el : map.entrySet())
-                result.put(el.getKey(), func.invoke(el.getValue()));
+                result.put(el.getKey(), func.apply(el.getValue()));
             return result;
         } catch (Exception ex) {
             throw exception("Can't do select map: %s. %s", ex, map);
         }
     }
-    public static <K, V, TR> Map<K, TR> map(Map<K, V> map, JFunc1<V, TR> func) {
+    public static <K, V, TR> Map<K, TR> map(Map<K, V> map, Function<V, TR> func) {
         return select(map, func);
     }
-    public static <N, T> Map<N, T> toMap(List<T> list, JFunc1<T, N> nameFunc) {
+    public static <N, T> Map<N, T> toMap(List<T> list, Function<T, N> nameFunc) {
         Map<N, T> map = new HashMap<>();
         for(T el : list)
-            map.put(nameFunc.execute(el), el);
+            map.put(nameFunc.apply(el), el);
         return map;
     }
-    public static <K, V, T> Map<K, V> toMap(List<T> list, JFunc1<T, K> key, JFunc1<T, V> value) {
+    public static <K, V, T> Map<K, V> toMap(List<T> list, Function<T, K> key, Function<T, V> value) {
         Map<K, V> map = new HashMap<>();
         for(T el : list)
-            map.put(key.execute(el), value.execute(el));
+            map.put(key.apply(el), value.apply(el));
         return map;
     }
-    public static <N, T> Map<N, T> toMap(T[] list, JFunc1<T, N> nameFunc) {
+    public static <N, T> Map<N, T> toMap(T[] list, Function<T, N> nameFunc) {
         return toMap(asList(list), nameFunc);
     }
-    public static <K, V, T> Map<K, V> toMap(T[] list, JFunc1<T, K> key, JFunc1<T, V> value) {
+    public static <K, V, T> Map<K, V> toMap(T[] list, Function<T, K> key, Function<T, V> value) {
         return toMap(asList(list), key, value);
     }
     public static <K, V, TR> List<TR> toList(Map<K, V> map, JFunc2<K, V, TR> func) {
@@ -153,14 +150,14 @@ public final class LinqUtils {
         try {
             List<TR> result = new CopyOnWriteArrayList<>();
             for (Map.Entry<K,V> el : map.entrySet())
-                result.add(func.invoke(el.getKey(), el.getValue()));
+                result.add(func.apply(el.getKey(), el.getValue()));
             return result;
         } catch (Exception ex) {
             throw exception("Can't do toList: %s. %s", ex, map);
         }
     }
 
-    public static <T> List<T> where(Collection<T> list, JFunc1<T, Boolean> func) {
+    public static <T> List<T> where(Collection<T> list, Function<T, Boolean> func) {
         if (list == null)
             throw new RuntimeException(NULL_COLLECTION);
         try {
@@ -173,29 +170,29 @@ public final class LinqUtils {
             throw exception("Can't do where: %s. %s", ex, list);
         }
     }
-    public static <T> List<T> filter(Collection<T> list, JFunc1<T, Boolean> func) {
+    public static <T> List<T> filter(Collection<T> list, Function<T, Boolean> func) {
         return where(list, func);
     }
-    public static <T> List<T> where(T[] list, JFunc1<T, Boolean> func) {
+    public static <T> List<T> where(T[] list, Function<T, Boolean> func) {
         return where(asList(list), func);
     }
-    public static <T> List<T> filter(T[] list, JFunc1<T, Boolean> func) {
+    public static <T> List<T> filter(T[] list, Function<T, Boolean> func) {
         return where(list, func);
     }
-    public static <T> MapArray<String, List<T>> partition(List<T> list, JFunc1<T, Boolean> split) {
+    public static <T> MapArray<String, List<T>> partition(List<T> list, Function<T, Boolean> split) {
         return partition(list, $("match", split));
     }
-    public static <T> MapArray<String, List<T>> partition(List<T> list, Pair<String, JFunc1<T, Boolean>>... matchers) {
+    public static <T> MapArray<String, List<T>> partition(List<T> list, Pair<String, Function<T, Boolean>>... matchers) {
         if (list == null)
             throw new RuntimeException(NULL_COLLECTION);
         try {
             MapArray<String, List<T>> result = new MapArray<>();
-            for (Pair<String, JFunc1<T, Boolean>> matcher : matchers) {
+            for (Pair<String, Function<T, Boolean>> matcher : matchers) {
                 result.add(matcher.key, new ArrayList<>());
             }
             result.add("other", new ArrayList<>());
             for (T el : list) {
-                Pair<String, JFunc1<T, Boolean>> matched = first(matchers, m -> m.value.invoke(el));
+                Pair<String, Function<T, Boolean>> matched = first(matchers, m -> m.value.apply(el));
                 String key = matched != null ? matched.key : "other";
                 result.get(key).add(el);
             }
@@ -204,9 +201,9 @@ public final class LinqUtils {
             throw exception("Can't do partition: %s. %s", ex, list);
         }
     }
-    public static <T> MapArray<String, List<T>> partition(T[] array, JFunc1<T, Boolean> split) { return partition(array, split); }
+    public static <T> MapArray<String, List<T>> partition(T[] array, Function<T, Boolean> split) { return partition(array, split); }
 
-    public static <K, V> Map<K, V> where(Map<K, V> map, JFunc1<Map.Entry<K, V>, Boolean> func) {
+    public static <K, V> Map<K, V> where(Map<K, V> map, Function<Map.Entry<K, V>, Boolean> func) {
         if (map == null)
             throw new RuntimeException(NULL_COLLECTION);
         try {
@@ -219,52 +216,52 @@ public final class LinqUtils {
             throw exception("Can't do where: %s. %s", ex, map);
         }
     }
-    public static <K, V> Map<K, V> filter(Map<K, V> map, JFunc1<Map.Entry<K, V>, Boolean> func) {
+    public static <K, V> Map<K, V> filter(Map<K, V> map, Function<Map.Entry<K, V>, Boolean> func) {
         return where(map, func);
     }
-    public static <T> void ifDo(Collection<T> list, JFunc1<T, Boolean> condition, JAction1<T> action) {
+    public static <T> void ifDo(Collection<T> list, Function<T, Boolean> condition, JAction1<T> action) {
         try {
             for (T el : list)
-                if (condition.invoke(el))
+                if (invokeBoolean(condition, el))
                     action.invoke(el);
         } catch (Exception ex) {
             throw exception("Can't perform ifDo: %s. %s", ex, list);
         }
     }
-    public static <T> void ifDo(T[] array, JFunc1<T, Boolean> condition, JAction1<T> action) {
+    public static <T> void ifDo(T[] array, Function<T, Boolean> condition, JAction1<T> action) {
         ifDo(asList(array), condition, action);
     }
-    public static <K, V> void ifDo(Map<K, V> map, JFunc1<Map.Entry<K, V>, Boolean> condition, JAction1<V> action) {
+    public static <K, V> void ifDo(Map<K, V> map, Function<Map.Entry<K, V>, Boolean> condition, JAction1<V> action) {
         try {
         for (Map.Entry<K,V> el : map.entrySet())
-            if (condition.invoke(el))
+            if (invokeBoolean(condition, el))
                 action.invoke(el.getValue());
         } catch (Exception ex) {
             throw exception("Can't perform ifDo: %s. %s", ex, map);
         }
     }
 
-    public static <T, R> List<R> ifSelect(Collection<T> list, JFunc1<T, Boolean> condition, JFunc1<T, R> transform) {
+    public static <T, R> List<R> ifSelect(Collection<T> list, Function<T, Boolean> condition, Function<T, R> transform) {
         try {
             List<R> result = new ArrayList<>();
             for (T el : list)
-                if (condition.invoke(el))
-                    result.add(transform.invoke(el));
+                if (invokeBoolean(condition, el))
+                    result.add(transform.apply(el));
             return result;
         } catch (Exception ex) {
             throw exception("Can't perform ifSelect: %s. %s", ex, list);
         }
     }
     public static <T, R> List<R> ifSelect(T[] array,
-            JFunc1<T, Boolean> condition, JFunc1<T, R> transform) {
+            Function<T, Boolean> condition, Function<T, R> transform) {
         return ifSelect(asList(array), condition, transform);
     }
-    public static <K, V, T> List<T> ifSelect(Map<K, V> map, JFunc2<K, V, Boolean> condition, JFunc1<V, T> transform) {
+    public static <K, V, T> List<T> ifSelect(Map<K, V> map, JFunc2<K, V, Boolean> condition, Function<V, T> transform) {
         try {
             List<T> result = new ArrayList<>();
             for (Map.Entry<K,V> el : map.entrySet())
-                if (condition.invoke(el.getKey(), el.getValue()))
-                    result.add(transform.invoke(el.getValue()));
+                if (invokeBoolean(condition, el.getKey(), el.getValue()))
+                    result.add(transform.apply(el.getValue()));
             return result;
         } catch (Exception ex) {
             throw exception("Can't perform ifSelect: %s. %s", ex, map);
@@ -297,14 +294,14 @@ public final class LinqUtils {
         }
     }
 
-    public static <T> boolean any(Collection<T> list, JFunc1<T, Boolean> func) {
+    public static <T> boolean any(Collection<T> list, Function<T, Boolean> func) {
         return first(list, func) != null;
     }
-    public static <T> boolean any(T[] list, JFunc1<T, Boolean> func) {
+    public static <T> boolean any(T[] list, Function<T, Boolean> func) {
         return first(list, func) != null;
     }
-    public static <T> T single(Collection<T> list, JFunc1<T, Boolean> func) {
-        if (list == null || list.size() == 0)
+    public static <T> T single(Collection<T> list, Function<T, Boolean> func) {
+        if (isEmpty(list))
             return null;
         T found = null;
         try {
@@ -318,22 +315,22 @@ public final class LinqUtils {
         }
         return found;
     }
-    public static <T> T single(T[] array, JFunc1<T, Boolean> func) {
+    public static <T> T single(T[] array, Function<T, Boolean> func) {
         return single(asList(array), func);
     }
-    public static <T> boolean all(Collection<T> list, JFunc1<T, Boolean> func) {
+    public static <T> boolean all(Collection<T> list, Function<T, Boolean> func) {
         if (list == null)
             return true;
         try {
             for (T el : list)
-                if (!func.invoke(el))
+                if (!invokeBoolean(func, el))
                     return false;
         } catch (Exception ex) {
             return false;
         }
         return true;
     }
-    public static <T> boolean all(T[] array, JFunc1<T, Boolean> func) {
+    public static <T> boolean all(T[] array, Function<T, Boolean> func) {
         return all(asList(array), func);
     }
     private static <T> int getStartIndex(List<T> list) {
@@ -343,8 +340,8 @@ public final class LinqUtils {
                 : 0;
         } catch (Exception ex) { return 1; }
     }
-    public static <T> int firstIndex(List<T> list, JFunc1<T, Boolean> func) {
-        if (list == null || list.size() == 0)
+    public static <T> int firstIndex(List<T> list, Function<T, Boolean> func) {
+        if (isEmpty(list))
             return -1;
         try {
             int i = getStartIndex(list);
@@ -357,7 +354,7 @@ public final class LinqUtils {
         return -1;
     }
 
-    public static <T> int firstIndex(T[] array, JFunc1<T, Boolean> func) {
+    public static <T> int firstIndex(T[] array, Function<T, Boolean> func) {
         try {
             if (array == null || array.length == 0)
                 return -1;
@@ -384,8 +381,8 @@ public final class LinqUtils {
         return map.entrySet().iterator().next().getValue();
     }
 
-    public static <T> T first(Collection<T> list, JFunc1<T, Boolean> func) {
-        if (list == null || list.size() == 0)
+    public static <T> T first(Collection<T> list, Function<T, Boolean> func) {
+        if (isEmpty(list))
             return null;
         try {
             for (T el : list)
@@ -397,11 +394,11 @@ public final class LinqUtils {
         return null;
     }
 
-    public static <T> T first(T[] list, JFunc1<T, Boolean> func) {
+    public static <T> T first(T[] list, Function<T, Boolean> func) {
         return first(asList(list), func);
     }
 
-    public static <K, V> V first(Map<K, V> map, JFunc1<K, Boolean> func) {
+    public static <K, V> V first(Map<K, V> map, Function<K, Boolean> func) {
         if (map == null || map.size() == 0)
             throw new RuntimeException("Can't do first map. Collection is Null or empty");
         try {
@@ -414,9 +411,10 @@ public final class LinqUtils {
         return null;
     }
 
-    public static <K, V> V first(MapArray<K, V> map, JFunc1<K, Boolean> func) {
-        if (map == null || map.size() == 0)
+    public static <K, V> V first(MapArray<K, V> map, Function<K, Boolean> func) {
+        if (isEmpty(map)) {
             throw new RuntimeException("Can't do first map. Collection is Null or empty");
+        }
         try {
             for (Pair<K, V> pair : map.pairs)
                 if (invokeBoolean(func, pair.key))
@@ -428,8 +426,9 @@ public final class LinqUtils {
     }
 
     public static <T> T last(Collection<T> list) {
-        if (list == null || list.size() == 0)
+        if (isEmpty(list)) {
             throw new RuntimeException("Can't do last list. Collection is Null or empty");
+        }
         T result = null;
         for (T el : list)
             result = el;
@@ -440,8 +439,8 @@ public final class LinqUtils {
         return last(asList(list));
     }
 
-    public static <T> T last(Collection<T> list, JFunc1<T, Boolean> func) {
-        if (list == null || list.size() == 0)
+    public static <T> T last(Collection<T> list, Function<T, Boolean> func) {
+        if (isEmpty(list))
             throw new RuntimeException("Can't do last list. Collection is Null");
         T result = null;
         try {
@@ -454,26 +453,26 @@ public final class LinqUtils {
         return result;
     }
 
-    public static <T> T last(T[] list, JFunc1<T, Boolean> func) {
+    public static <T> T last(T[] list, Function<T, Boolean> func) {
         return last(asList(list), func);
     }
 
-    public static <T> T[] toArray(Collection<T> collection, JFunc1<Integer, T[]> constructor) {
+    public static <T> T[] toArray(Collection<T> collection, Function<Integer, T[]> constructor) {
         if (collection == null)
             throw new RuntimeException("Can't do toStringArray. Collection is Null");
-        return collection.toArray(constructor.execute(collection.size()));
+        return collection.toArray(constructor.apply(collection.size()));
     }
     public static String[] toStringArray(Collection<String> collection) {
         if (collection == null)
             throw new RuntimeException("Can't do toStringArray. Collection is Null");
-        return collection.toArray(new String[collection.size()]);
+        return collection.toArray(new String[0]);
     }
 
     public static Integer[] toIntegerArray(Collection<Integer> collection) {
         if (collection == null)
             throw new RuntimeException("Can't do toIntegerArray. Collection is Null");
         Integer[] result = new Integer[collection.size()];
-        Integer i = 0;
+        int i = 0;
         for (Integer el : collection)
             result[i++] = el;
         return result;
@@ -563,22 +562,22 @@ public final class LinqUtils {
         return listCopy(list, 0, to);
     }
 
-    public static <T, R> List<R> selectMany(List<T> list, JFunc1<T, List<R>> func) {
+    public static <T, R> List<R> selectMany(List<T> list, Function<T, List<R>> func) {
         try {
             List<R> result = new ArrayList<>();
             for (T el : list)
-                result.addAll(func.invoke(el));
+                result.addAll(func.apply(el));
             return result;
         } catch (Exception ex) {
             throw exception("Can't do selectMany list: %s. %s", ex, list);
         }
     }
 
-    public static <T> List<T> selectManyArray(List<T> list, JFunc1<T, T[]> func) {
+    public static <T> List<T> selectManyArray(List<T> list, Function<T, T[]> func) {
         try {
                 List<T> result = new ArrayList<>();
             for (T el : list)
-                result.addAll(Arrays.asList(func.invoke(el)));
+                result.addAll(Arrays.asList(func.apply(el)));
             return result;
         } catch (Exception ex) {
             throw exception("Can't do selectManyArray: %s. %s", ex, list);
@@ -642,53 +641,72 @@ public final class LinqUtils {
             byte a = (byte) first;
             byte b = (byte) second;
             return strict ? a < b : a <= b;
-        } catch (Exception ignored) {}
+        } catch (Exception ignored) { }
         try {
             int a = (int) first;
             int b = (int) second;
             return strict ? a < b : a <= b;
-        } catch (Exception ignored) {}
+        } catch (Exception ignored) { }
         try {
             long a = (long) first;
             long b = (long) second;
             return strict ? a < b : a <= b;
-        } catch (Exception ignored) {}
+        } catch (Exception ignored) { }
         try {
             float a = (float) first;
             float b = (float) second;
             return strict ? a < b : a <= b;
-        } catch (Exception ignored) {}
+        } catch (Exception ignored) { }
         try {
             double a = (double) first;
             double b = (double) second;
             return strict ? a < b : a <= b;
-        } catch (Exception ignored) {}
+        } catch (Exception ignored) { }
         try {
             String a = first.toString();
             String b = second.toString();
             int compare = a.compareTo(b);
             return strict ? compare < 0 : compare <= 0;
-        } catch (Exception ignored) {}
+        } catch (Exception ignored) { }
         throw new RuntimeException(format("isAscending failed because values first='%s' second = '%s' are not comparable", first, second));
     }
     private static RuntimeException exception(String tmpl, Exception ex, Map<?, ?> map) {
         try {
             List<String> m = selectMap(map, e -> e.getKey().toString() + ":" + e.getValue());
-            return new RuntimeException(format(tmpl, safeException(ex), print(m)));
+            return new RuntimeException(format(tmpl, safeException(ex), safePrintCollection(m)));
         } catch (Exception exception) {
-            return new RuntimeException(tmpl);
+            return new RuntimeException(tmpl, ex);
+        }
+    }
+
+    public static String safePrintCollection(Collection<?> list) {
+        try {
+            String result = "[";
+            for (Object el : list) {
+                result += tryToString(el) + ";";
+            }
+            return result.substring(0, result.length() - 1) + "]";
+        } catch (Exception ex) {
+            return "Failed to print list";
+        }
+    }
+    private static String tryToString(Object obj) {
+        try {
+            return obj.toString();
+        } catch (Exception ex) {
+            return "Failed to Print";
         }
     }
     private static RuntimeException exception(String tmpl, Exception ex, Collection<?> list) {
         try {
-            return new RuntimeException(format(tmpl, safeException(ex), print(list, Object::toString)));
+            return new RuntimeException(format(tmpl, safeException(ex), safePrintCollection(list)));
         } catch (Exception exception) {
             return new RuntimeException(tmpl);
         }
     }
     private static RuntimeException exception(String msg, Collection<?> list) {
         try {
-            return new RuntimeException(msg + "| " + print(list, Object::toString));
+            return new RuntimeException(msg + "| " + safePrintCollection(list));
         } catch (Exception exception) {
             return new RuntimeException(msg);
         }
@@ -702,7 +720,7 @@ public final class LinqUtils {
         try {
             if (isBlank(msg) && isClass(ex.getClass(), InvocationTargetException.class))
                 msg = ((InvocationTargetException) ex).getTargetException().getMessage();
-        } catch (Throwable th) { }
+        } catch (Throwable ignore) { }
         return isNotBlank(msg) ? msg : ex.toString();
     }
 }

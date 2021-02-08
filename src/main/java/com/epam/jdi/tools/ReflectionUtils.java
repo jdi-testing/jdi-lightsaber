@@ -5,7 +5,6 @@ package com.epam.jdi.tools;
  * Email: roman.iovlev.jdi@gmail.com; Skype: roman.iovlev
  */
 
-import com.epam.jdi.tools.func.JFunc1;
 import com.epam.jdi.tools.map.MapArray;
 
 import java.lang.reflect.*;
@@ -14,6 +13,7 @@ import java.util.List;
 import java.util.function.Function;
 
 import static com.epam.jdi.tools.LinqUtils.*;
+import static com.epam.jdi.tools.PrintUtils.print;
 import static java.lang.String.format;
 import static java.lang.reflect.Modifier.isStatic;
 import static java.util.Arrays.asList;
@@ -99,7 +99,7 @@ public final class ReflectionUtils {
     public static List<Field> getFieldsExact(Class<?> cl) {
         return getTypeFields(cl);
     }
-    public static List<Field> getFieldsExact(Class<?> cl, JFunc1<Field, Boolean> filter) {
+    public static List<Field> getFieldsExact(Class<?> cl, Function<Field, Boolean> filter) {
         return filter(getFieldsExact(cl), filter);
     }
     public static List<Field> getFieldsExact(Class<?> cl, Class<?>... stopTypes) {
@@ -135,8 +135,9 @@ public final class ReflectionUtils {
             }
             return result;
         } catch (Exception ex) {
-            throw new RuntimeException(format("Failed to get Fields from '%s'; fields: %s; filterTypes: %s", obj.getClass().getSimpleName(), PrintUtils.print(fields, Field::getName),
-                    PrintUtils.print(asList(filterTypes), Class::getSimpleName)));
+            throw new RuntimeException(format("Failed to get Fields from '%s'; fields: %s; filterTypes: %s",
+                    obj.getClass().getSimpleName(), print(fields, Field::getName),
+                    print(asList(filterTypes), Class::getSimpleName)));
         }
     }
     public static List<Field> getFieldsRegress(Class<?> type, Class<?>... stopTypes) {
@@ -147,10 +148,10 @@ public final class ReflectionUtils {
             : t -> getFieldsDeep2(t, stopTypes));
     }
     public static List<Field> recursion(Class<?> objType,
-            JFunc1<Class<?>, Boolean> condition, JFunc1<Class<?>, List<Field>> func) {
+            Function<Class<?>, Boolean> condition, Function<Class<?>, List<Field>> func) {
         List<Field> fields = new ArrayList<>();
-        while (condition.execute(objType)) {
-            List<Field> fList = func.execute(objType);
+        while (invokeBoolean(condition, objType)) {
+            List<Field> fList = func.apply(objType);
             for (Field field : fList) {
                 Field notUnique = first(fields, f -> f.getName().equals(field.getName()));
                 if (notUnique != null)
@@ -307,14 +308,14 @@ public final class ReflectionUtils {
         throw new RuntimeException(format("%s has no appropriate constructors", cs.getSimpleName()));
     }
 
-    public static boolean isList(Field f, JFunc1<Class<?>, Boolean> func) {
+    public static boolean isList(Field f, Function<Class<?>, Boolean> func) {
         try {
-            return f.getType() == List.class && func.execute(getGenericType(f));
+            return f.getType() == List.class && func.apply(getGenericType(f));
         } catch (Exception ex) { return false; }
     }
-    public static boolean isList(Class<?> clazz, JFunc1<Class<?>, Boolean> func) {
+    public static boolean isList(Class<?> clazz, Function<Class<?>, Boolean> func) {
         try {
-            return clazz == List.class && func.execute(getGenericType(clazz));
+            return clazz == List.class && func.apply(getGenericType(clazz));
         } catch (Exception ex) { return false; }
     }
     public static boolean isList(Field f, Class<?> type) {

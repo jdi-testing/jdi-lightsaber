@@ -5,12 +5,12 @@ package com.epam.jdi.tools;
  * Email: roman.iovlev.jdi@gmail.com; Skype: roman.iovlev
  */
 
-import com.epam.jdi.tools.func.JFunc1;
 import com.epam.jdi.tools.map.MapArray;
 import com.epam.jdi.tools.pairs.Pair;
 
 import java.text.MessageFormat;
 import java.util.*;
+import java.util.function.Function;
 
 import static com.epam.jdi.tools.LinqUtils.*;
 import static com.epam.jdi.tools.ReflectionUtils.getFieldsDeep;
@@ -98,15 +98,15 @@ public final class PrintUtils {
                 field -> format("%s:%s", field.getName(), getValueField(field, obj))), separator, "%s");
         return format("%s(%s)", className, params);
     }
-    public static <T> String print(Collection<T> list, JFunc1<T, String> func) {
-        return print(map(list, func));
+    public static <T> String print(Collection<T> list, Function<T, String> func) {
+        return print(select(list, func));
     }
-    public static <T> String print(Collection<T> list, JFunc1<T, String> func, String separator) {
-        return print(map(list, func), separator);
+    public static <T> String print(Collection<T> list, Function<T, String> func, String separator) {
+        return print(select(list, func), separator);
     }
     public static <T> String print(Collection<T> list,
-           JFunc1<T, String> func, String separator, String format) {
-        return print(map(list, func), separator, format);
+           Function<T, String> func, String separator, String format) {
+        return print(select(list, func), separator, format);
     }
     public static String formatParams(String template, MapArray<String, String> params) {
         String result = template;
