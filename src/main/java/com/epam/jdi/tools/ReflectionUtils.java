@@ -17,6 +17,7 @@ import static com.epam.jdi.tools.LinqUtils.*;
 import static java.lang.String.format;
 import static java.lang.reflect.Modifier.isStatic;
 import static java.util.Arrays.asList;
+import static org.apache.commons.lang3.ObjectUtils.isEmpty;
 
 public final class ReflectionUtils {
     private ReflectionUtils() { }
@@ -72,14 +73,13 @@ public final class ReflectionUtils {
             return false;
         if (type == expected)
             return true;
-        List<Class> interfaces = asList(type.getInterfaces());
+        List<Class<?>> interfaces = asList(type.getInterfaces());
         return any(interfaces, i -> isInterface(i, expected)) || isInterface(type.getSuperclass(), expected);
     }
 
     public static MapArray<String, Object> getAllFields(Object obj) {
-        MapArray<String, Object> map = new MapArray<>(getFields(obj, Object.class),
+        return new MapArray<>(getFields(obj, Object.class),
             Field::getName, f -> getValueField(f, obj), true);
-        return map;
     }
     public static List<Field> getFields(Object obj) {
         return getFields(obj, new Class<?>[] {}, (Class<?>) null);
@@ -96,16 +96,16 @@ public final class ReflectionUtils {
     public static List<Field> getFieldsRegress(Object obj, Class<?>[] filterTypes, Class<?>... stopTypes) {
         return getFields(obj, getFieldsRegress(obj.getClass(), stopTypes), filterTypes, f -> !isStatic(f.getModifiers()));
     }
-    public static List<Field> getFieldsExact(Class cl) {
+    public static List<Field> getFieldsExact(Class<?> cl) {
         return getTypeFields(cl);
     }
-    public static List<Field> getFieldsExact(Class cl, JFunc1<Field, Boolean> filter) {
+    public static List<Field> getFieldsExact(Class<?> cl, JFunc1<Field, Boolean> filter) {
         return filter(getFieldsExact(cl), filter);
     }
-    public static List<Field> getFieldsExact(Class cl, Class<?>... stopTypes) {
+    public static List<Field> getFieldsExact(Class<?> cl, Class<?>... stopTypes) {
         return getFieldsExact(cl, f -> any(stopTypes, stopType -> f.getType() == stopType));
     }
-    public static List<Field> getFieldsExact(Class cl, Class<?> stopType) {
+    public static List<Field> getFieldsExact(Class<?> cl, Class<?> stopType) {
         return getFieldsExact(cl, f -> f.getType() == stopType);
     }
     public static List<Field> getFieldsExact(Object obj, Class<?>... stopTypes) {
@@ -118,20 +118,26 @@ public final class ReflectionUtils {
         return getFields(obj, getTypeFields(obj.getClass()), filterTypes, f -> true);
     }
     public static List<Field> getFields(Object obj, List<Field> fields, Class<?>[] filterTypes, Function<Field, Boolean> filter) {
-        List<Field> result = new ArrayList<>();
-        for (Field field : fields) {
-            if (filter.apply(field)) {
-                Object value = null;
-                if (obj != null)
-                     value = getValueField(field, obj);
-                if (value != null) {
-                    if (isExpectedClass(value, filterTypes))
-                        result.add(field);
-                } else if (isExpectedClass(field, filterTypes))
-                    result.add(field);
-            }
+        if (obj == null) {
+            return new ArrayList<>();
         }
-        return result;
+        List<Field> result = new ArrayList<>();
+        try {
+            for (Field field : fields) {
+                if (invokeBoolean(filter, field)) {
+                    Object value = getValueField(field, obj);
+                    if (value != null) {
+                        if (isExpectedClass(value, filterTypes))
+                            result.add(field);
+                    } else if (isExpectedClass(field, filterTypes))
+                        result.add(field);
+                }
+            }
+            return result;
+        } catch (Exception ex) {
+            throw new RuntimeException(format("Failed to get Fields from '%s'; fields: %s; filterTypes: %s", obj.getClass().getSimpleName(), PrintUtils.print(fields, Field::getName),
+                    PrintUtils.print(asList(filterTypes), Class::getSimpleName)));
+        }
     }
     public static List<Field> getFieldsRegress(Class<?> type, Class<?>... stopTypes) {
         if (stopTypes == null || stopTypes.length == 0)
@@ -262,8 +268,8 @@ public final class ReflectionUtils {
 
     public static <T> T newEntity(Class<T> entityClass) {
         try {
-            return entityClass.newInstance();
-        } catch (InstantiationException | IllegalAccessException e) {
+            return entityClass.getDeclaredConstructor().newInstance();
+        } catch (Exception e) {
             throw new RuntimeException("Can't instantiate " + entityClass.getSimpleName() +
                     ". You must have empty constructor to do this");
         }
@@ -291,7 +297,7 @@ public final class ReflectionUtils {
             throw new RuntimeException("Can't init class. Class Type is null.");
         Constructor<?>[] constructors = cs.getDeclaredConstructors();
         List<Constructor<?>> listConst = filter(constructors, c -> c.getParameterCount() == params.length);
-        if (listConst.size() == 0)
+        if (isEmpty(listConst))
             throw new RuntimeException(format("%s has no constructor with %s params", cs.getSimpleName(), params.length));
         for(Constructor<?> cnst : listConst) {
             try {

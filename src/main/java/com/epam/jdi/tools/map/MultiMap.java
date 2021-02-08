@@ -16,15 +16,17 @@ import java.util.*;
 import java.util.Map.Entry;
 import java.util.concurrent.CopyOnWriteArrayList;
 
-import static com.epam.jdi.tools.LinqUtils.listCopy;
-import static com.epam.jdi.tools.LinqUtils.listCopyUntil;
+import static com.epam.jdi.tools.LinqUtils.*;
 import static com.epam.jdi.tools.PrintUtils.print;
 import static com.epam.jdi.tools.TryCatchUtil.throwRuntimeException;
 import static java.lang.String.format;
 import static java.util.Arrays.asList;
 
 public class MultiMap<K, V> implements Collection<Pair<K, V>>, Cloneable {
-    public List<Pair<K, V>> pairs;
+    private List<Pair<K, V>> pairs;
+    public List<Pair<K, V>> getPairs() {
+        return pairs;
+    }
 
     public static <K, V> MultiMap<K, V> multiMap(Pair<K, V>... pairs) {
         return new MultiMap<>(pairs);
@@ -50,7 +52,7 @@ public class MultiMap<K, V> implements Collection<Pair<K, V>>, Cloneable {
             for (Pair<K, V> pair : pairs)
                 add(pair.key, pair.value);
         } catch (Exception ex) {
-            throw new RuntimeException(format("Can't create MapArray. Exception: %s", ex.getMessage()));
+            throw cantCreateException(ex);
         }
     }
 
@@ -63,7 +65,7 @@ public class MultiMap<K, V> implements Collection<Pair<K, V>>, Cloneable {
             for (T t : collection)
                 add(keyFunc.invoke(t), valueFunc.invoke(t));
         } catch (Exception ex) {
-            throw new RuntimeException(format("Can't create MapArray. Exception: %s", ex.getMessage()));
+            throw cantCreateException(ex);
         }
     }
 
@@ -80,7 +82,7 @@ public class MultiMap<K, V> implements Collection<Pair<K, V>>, Cloneable {
             for (int i = 0; i < count; i++)
                 add(keyFunc.invoke(i), value.invoke(i));
         } catch (Exception ex) {
-            throw new RuntimeException(format("Can't create MapArray. Exception: %s", ex.getMessage()));
+            throw cantCreateException(ex);
         }
     }
     public MultiMap(int count, JFunc1<Integer, Pair<K, V>> pairFunc) {
@@ -91,7 +93,7 @@ public class MultiMap<K, V> implements Collection<Pair<K, V>>, Cloneable {
                 add(pair.key, pair.value);
             }
         } catch (Exception ex) {
-            throw new RuntimeException(format("Can't create MapArray. Exception: %s", ex.getMessage()));
+            throw cantCreateException(ex);
         }
     }
 
@@ -115,7 +117,8 @@ public class MultiMap<K, V> implements Collection<Pair<K, V>>, Cloneable {
     }
     public MultiMap(List<K> keys, List<V> values) {
         this();
-        assert keys != null && values != null;
+        if (keys == null || values == null) 
+            throw new RuntimeException("Can't create MultiMap for null keys or values");
         if (keys.size() != values.size())
             throw new RuntimeException(format("keys and values has different count (keys:[%s]; values:[%s])",
                 print(keys, Object::toString), print(values, Objects::toString)));
@@ -124,6 +127,13 @@ public class MultiMap<K, V> implements Collection<Pair<K, V>>, Cloneable {
     }
     public MultiMap(K[] keys, V[] values) {
         this(asList(keys), asList(values));
+    }
+    
+    private RuntimeException cantCreateException(Exception ex) {
+        return new RuntimeException("Can't create MapArray", ex);
+    }
+    private RuntimeException cantConvertException(Exception ex) {
+        throw new RuntimeException(format("Can't convert toMap. Exception: %s", ex.getMessage()));
     }
 
     public static <T> MultiMap<Integer, T> toMultiMap(Collection<T> collection) {
@@ -168,7 +178,8 @@ public class MultiMap<K, V> implements Collection<Pair<K, V>>, Cloneable {
             for (Pair<K, V> pair : pairs)
                 result.add(key.invoke(pair.key, pair.value), value.invoke(pair.key, pair.value));
         } catch (Exception ex) {
-            throw new RuntimeException(format("Can't convert toMap. Exception: %s", ex.getMessage())); }
+            throw cantConvertException(ex);
+        }
         return result;
     }
 
@@ -180,7 +191,7 @@ public class MultiMap<K, V> implements Collection<Pair<K, V>>, Cloneable {
             result.add(pair.key, value.invoke(pair.value));
         return result;
         } catch (Exception ex) {
-            throw new RuntimeException(format("Can't convert toMap. Exception: %s", ex.getMessage())); }
+            throw cantConvertException(ex); }
     }
 
     public Map<K, V> toMap() {
@@ -197,7 +208,7 @@ public class MultiMap<K, V> implements Collection<Pair<K, V>>, Cloneable {
                 result.put(key.invoke(pair.key, pair.value),
                         value.invoke(pair.key, pair.value));
         } catch (Exception ex) {
-            throw new RuntimeException(format("Can't convert toMap. Exception: %s", ex.getMessage()));
+            throw cantConvertException(ex);
         }
         return result;
     }
@@ -415,11 +426,7 @@ public class MultiMap<K, V> implements Collection<Pair<K, V>>, Cloneable {
     }
 
     public boolean retainAll(Collection<?> c) {
-        for (Pair pair : pairs)
-            if (!c.contains(pair))
-                if (!remove(pair))
-                    return false;
-        return true;
+        return pairs.stream().filter(pair -> !c.contains(pair)).allMatch(this::remove);
     }
 
     public void clear() {
@@ -452,8 +459,8 @@ public class MultiMap<K, V> implements Collection<Pair<K, V>>, Cloneable {
             for (Pair<K,V> pair : pairs)
                 result.add(func.invoke(pair.key, pair.value));
             return result;
-        } catch (Exception ignore) {
-            throwRuntimeException(ignore);
+        } catch (Exception ex) {
+            throwRuntimeException(ex);
             return new ArrayList<>();
         }
     }
@@ -463,8 +470,8 @@ public class MultiMap<K, V> implements Collection<Pair<K, V>>, Cloneable {
             for (Pair<K,V> pair : pairs)
                 result.add(func.invoke(pair.value));
             return result;
-        } catch (Exception ignore) {
-            throwRuntimeException(ignore);
+        } catch (Exception ex) {
+            throwRuntimeException(ex);
             return new ArrayList<>();
         }
     }
@@ -479,11 +486,11 @@ public class MultiMap<K, V> implements Collection<Pair<K, V>>, Cloneable {
         try {
             MultiMap<K, V> result = new MultiMap<>();
             for (Pair<K,V> pair : pairs)
-                if (func.invoke(pair.key, pair.value))
+                if (invokeBoolean(func, pair.key, pair.value))
                     result.add(pair);
             return result;
-        } catch (Exception ignore) {
-            throwRuntimeException(ignore);
+        } catch (Exception ex) {
+            throwRuntimeException(ex);
             return null;
         }
     }
@@ -491,41 +498,41 @@ public class MultiMap<K, V> implements Collection<Pair<K, V>>, Cloneable {
         try {
             MultiMap<K, V> result = new MultiMap<>();
             for (Pair<K,V> pair : pairs)
-                if (func.invoke(pair.value))
+                if (invokeBoolean(func, pair.value))
                     result.add(pair);
             return result;
-        } catch (Exception ignore) {
-            throwRuntimeException(ignore);
+        } catch (Exception ex) {
+            throwRuntimeException(ex);
             return null;
         }
     }
     public void ifDo(JFunc2<K, V, Boolean> condition, JAction1<V> action) {
         try {
             for (Pair<K,V> el : pairs)
-                if (condition.invoke(el.key, el.value))
+                if (invokeBoolean(condition, el.key, el.value))
                     action.invoke(el.value);
-        } catch (Exception ignore) {
-            throwRuntimeException(ignore);
+        } catch (Exception ex) {
+            throwRuntimeException(ex);
         }
     }
     public void ifDo(JFunc1<V, Boolean> condition, JAction1<V> action) {
         try {
             for (Pair<K,V> el : pairs)
-                if (condition.invoke(el.value))
+                if (invokeBoolean(condition, el.value))
                     action.invoke(el.value);
-        } catch (Exception ignore) {
-            throwRuntimeException(ignore);
+        } catch (Exception ex) {
+            throwRuntimeException(ex);
         }
     }
     public <T> List<T> ifSelect(JFunc2<K, V, Boolean> condition, JFunc1<V, T> transform) {
         try {
             List<T> result = new ArrayList<>();
             for (Pair<K,V> el : pairs)
-                if (condition.invoke(el.key, el.value))
+                if (invokeBoolean(condition, el.key, el.value))
                     result.add(transform.invoke(el.value));
             return result;
-        } catch (Exception ignore) {
-            throwRuntimeException(ignore);
+        } catch (Exception ex) {
+            throwRuntimeException(ex);
             return null;
         }
     }
@@ -533,11 +540,11 @@ public class MultiMap<K, V> implements Collection<Pair<K, V>>, Cloneable {
         try {
             List<T> result = new ArrayList<>();
             for (Pair<K,V> el : pairs)
-                if (condition.invoke(el.value))
+                if (invokeBoolean(condition, el.value))
                     result.add(transform.invoke(el.value));
             return result;
-        } catch (Exception ignore) {
-            throwRuntimeException(ignore);
+        } catch (Exception ex) {
+            throwRuntimeException(ex);
             return null;
         }
     }
@@ -553,7 +560,7 @@ public class MultiMap<K, V> implements Collection<Pair<K, V>>, Cloneable {
     public Pair<K, V> first(JFunc2<K, V, Boolean> func) {
         try {
             for (Pair<K, V> pair : pairs)
-                if (func.invoke(pair.key, pair.value))
+                if (invokeBoolean(func, pair.key, pair.value))
                     return pair;
             return null;
         } catch (Exception ignore) {
@@ -564,7 +571,7 @@ public class MultiMap<K, V> implements Collection<Pair<K, V>>, Cloneable {
     public Pair<K, V> first(JFunc1<V, Boolean> func) {
         try {
             for (Pair<K, V> pair : pairs)
-                if (func.invoke(pair.value))
+                if (invokeBoolean(func, pair.value))
                     return pair;
             return null;
         } catch (Exception ignore) {
@@ -584,11 +591,11 @@ public class MultiMap<K, V> implements Collection<Pair<K, V>>, Cloneable {
         Pair<K, V> result = null;
         try {
             for (Pair<K, V> pair : pairs)
-                if (func.invoke(pair.key, pair.value))
+                if (invokeBoolean(func, pair.key, pair.value))
                     result = pair;
             return result;
-        } catch (Exception ignore) {
-            throwRuntimeException(ignore);
+        } catch (Exception ex) {
+            throwRuntimeException(ex);
             return null;
         }
     }
@@ -596,7 +603,7 @@ public class MultiMap<K, V> implements Collection<Pair<K, V>>, Cloneable {
         Pair<K, V> result = null;
         try {
             for (Pair<K, V> pair : pairs)
-                if (func.invoke(pair.value))
+                if (invokeBoolean(func, pair.value))
                     result = pair;
             return result;
         } catch (Exception ignore) {

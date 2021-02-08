@@ -17,6 +17,7 @@ import java.util.*;
 import java.util.Map.Entry;
 import java.util.concurrent.CopyOnWriteArrayList;
 
+import static com.epam.jdi.tools.LinqUtils.invokeBoolean;
 import static com.epam.jdi.tools.LinqUtils.listCopy;
 import static com.epam.jdi.tools.PrintUtils.print;
 import static com.epam.jdi.tools.TryCatchUtil.throwRuntimeException;
@@ -460,7 +461,7 @@ public class MapArray<K, V> implements Collection<Pair<K, V>>, Cloneable {
             throw new RuntimeException("Can't get firstIndex. Collection is Null or empty");
         try {
             for (int i = 0; i < size(); i++)
-                if (func.invoke(pairs.get(i).value))
+                if (invokeBoolean(func, pairs.get(i).value))
                     return i;
         } catch (Exception ex) {
             throw new RuntimeException("Can't get firstIndex." + ex.getMessage());
@@ -583,7 +584,7 @@ public class MapArray<K, V> implements Collection<Pair<K, V>>, Cloneable {
         try {
             MapArray<K, V> result = new MapArray<>();
             for (Pair<K,V> pair : pairs)
-                if (func.invoke(pair.key, pair.value))
+                if (invokeBoolean(func, pair.key, pair.value))
                     result.add(pair);
             return result;
         } catch (Exception ignore) {
@@ -595,7 +596,7 @@ public class MapArray<K, V> implements Collection<Pair<K, V>>, Cloneable {
         try {
             MapArray<K, V> result = new MapArray<>();
             for (Pair<K,V> pair : pairs)
-                if (func.invoke(pair.value))
+                if (invokeBoolean(func, pair.value))
                     result.add(pair);
             return result;
         } catch (Exception ignore) {
@@ -657,7 +658,7 @@ public class MapArray<K, V> implements Collection<Pair<K, V>>, Cloneable {
     public Pair<K, V> first(JFunc2<K, V, Boolean> func) {
         try {
             for (Pair<K, V> pair : pairs)
-                if (func.invoke(pair.key, pair.value))
+                if (invokeBoolean(func, pair.key, pair.value))
                     return pair;
             return null;
         } catch (Exception ignore) {
@@ -668,7 +669,7 @@ public class MapArray<K, V> implements Collection<Pair<K, V>>, Cloneable {
     public Pair<K, V> first(JFunc1<V, Boolean> func) {
         try {
             for (Pair<K, V> pair : pairs)
-                if (func.invoke(pair.value))
+                if (invokeBoolean(func, pair.value))
                     return pair;
             return null;
         } catch (Exception ignore) {
@@ -688,7 +689,7 @@ public class MapArray<K, V> implements Collection<Pair<K, V>>, Cloneable {
         Pair<K, V> result = null;
         try {
             for (Pair<K, V> pair : pairs)
-                if (func.invoke(pair.key, pair.value))
+                if (invokeBoolean(func, pair.key, pair.value))
                     result = pair;
             return result;
         } catch (Exception ignore) {
@@ -700,7 +701,7 @@ public class MapArray<K, V> implements Collection<Pair<K, V>>, Cloneable {
         Pair<K, V> result = null;
         try {
             for (Pair<K, V> pair : pairs)
-                if (func.invoke(pair.value))
+                if (invokeBoolean(func, pair.value))
                     result = pair;
             return result;
         } catch (Exception ignore) {

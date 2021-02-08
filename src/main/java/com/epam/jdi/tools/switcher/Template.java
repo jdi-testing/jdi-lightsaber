@@ -6,31 +6,31 @@ package com.epam.jdi.tools.switcher;
  */
 
 import com.epam.jdi.tools.LinqUtils;
-import com.epam.jdi.tools.func.JFunc1;
 
 import java.util.List;
+import java.util.function.Function;
 
 import static com.epam.jdi.tools.LinqUtils.filter;
 import static com.epam.jdi.tools.LinqUtils.foreach;
 import static java.util.Arrays.asList;
 
 public class Template<T, R> {
-    private final JFunc1<T, Boolean> template;
-    private final JFunc1<T, R> result;
-    Template(JFunc1<T, Boolean> template, JFunc1<T, R> result) {
+    private final Function<T, Boolean> template;
+    private final Function<T, R> result;
+    Template(Function<T, Boolean> template, Function<T, R> result) {
         this.template = template;
         this.result = result;
     }
     public void of(List<T> pairs) {
-        foreach(filter(pairs, template::execute), result::execute);
+        foreach(filter(pairs, template::apply), result::apply);
     }
     public void of(T... pairs) {
         of(asList(pairs));
     }
     public R get(List<T> pairs) {
-        T first = LinqUtils.first(pairs, template::execute);
+        T first = LinqUtils.first(pairs, template::apply);
         return first != null
-                ? result.execute(first)
+                ? result.apply(first)
                 : null;
     }
     public R get(T... pairs) {

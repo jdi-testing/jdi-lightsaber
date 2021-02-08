@@ -19,8 +19,7 @@ import static java.lang.String.format;
 import static java.util.Arrays.asList;
 
 public final class PrintUtils {
-    private PrintUtils() {
-    }
+    private PrintUtils() { }
 
     public static String print(Collection<String> list) {
         return print(list, ",", "%s");
@@ -129,43 +128,43 @@ public final class PrintUtils {
             if (a.length == 1)
                 return a[0].toString();
             return Arrays.toString(a);
-        } catch (Exception ex) {}
+        } catch (Exception ignored) { }
         try {
             int[] a = (int[])array;
             if (a.length == 1)
                 return String.valueOf(a[0]);
             return Arrays.toString(a);
-        } catch (Exception ex) {}
+        } catch (Exception ignored) { }
         try {
             boolean[] a = (boolean[])array;
             if (a.length == 1)
                 return String.valueOf(a[0]);
             return Arrays.toString(a);
-        } catch (Exception ex) {}
+        } catch (Exception ignored) { }
         try {
             float[] a = (float[])array;
             if (a.length == 1)
                 return String.valueOf(a[0]);
             return Arrays.toString(a);
-        } catch (Exception ex) {}
+        } catch (Exception ignored) { }
         try {
             double[] a = (double[])array;
             if (a.length == 1)
                 return String.valueOf(a[0]);
             return Arrays.toString(a);
-        } catch (Exception ex) {}
+        } catch (Exception ignored) { }
         try {
             char[] a = (char[])array;
             if (a.length == 1)
                 return String.valueOf(a[0]);
             return Arrays.toString(a);
-        } catch (Exception ex) {}
+        } catch (Exception ignored) { }
         try {
             byte[] a = (byte[])array;
             if (a.length == 1)
                 return String.valueOf(a[0]);
             return Arrays.toString(a);
-        } catch (Exception ex) {}
+        } catch (Exception ignored) { }
         return "Unsupported array";
     }
 

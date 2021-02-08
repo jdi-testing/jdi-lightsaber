@@ -1,6 +1,6 @@
 package com.epam.jdi.tools.switcher;
 
-import com.epam.jdi.tools.func.JFunc1;
+import java.util.function.Function;
 
 /**
  * Created by Roman Iovlev on 14.02.2018
@@ -8,9 +8,9 @@ import com.epam.jdi.tools.func.JFunc1;
  */
 
 public class CaseR<T, R> {
-    JFunc1<T, Boolean> condition;
-    JFunc1<T, R> result;
-    CaseR(JFunc1<T, Boolean> condition, JFunc1<T, R> result) {
+    Function<T, Boolean> condition;
+    Function<T, R> result;
+    CaseR(Function<T, Boolean> condition, Function<T, R> result) {
         this.condition = condition;
         this.result = result;
     }

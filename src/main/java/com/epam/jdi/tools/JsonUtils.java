@@ -7,13 +7,11 @@ import com.google.gson.GsonBuilder;
 import com.google.gson.JsonParser;
 
 import java.io.*;
-import java.nio.file.Files;
-import java.nio.file.Paths;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
-import java.util.stream.Collectors;
 
+import static com.epam.jdi.tools.FileUtils.findFilesInFolder;
 import static com.epam.jdi.tools.PathUtils.mergePath;
 import static com.epam.jdi.tools.PropertyReader.getPath;
 import static com.epam.jdi.tools.PropertyReader.getProperty;
@@ -22,9 +20,10 @@ import static java.lang.String.format;
 import static org.apache.commons.lang3.StringUtils.isBlank;
 
 public class JsonUtils {
+    private JsonUtils() { }
     public static String readFileData(String filePath) {
         String data;
-        try(InputStream inputStream = JsonUtils.class.getResourceAsStream(filePath.replaceAll("\\\\", "/"))) {
+        try(InputStream inputStream = JsonUtils.class.getResourceAsStream(filePath.replace("\\\\", "/"))) {
             data = readFromInputStream(inputStream);
         } catch (IOException e) {
             throw new RuntimeException("Can't read from stream!");
@@ -64,10 +63,7 @@ public class JsonUtils {
         try {
             if (!folderName.contains(":"))
                 folderName = mergePath(System.getProperty("user.dir"), folderName);
-            return Files.walk(Paths.get(folderName))
-                    .filter(Files::isRegularFile)
-                    .map(f -> f.toAbsolutePath().toString())
-                    .collect(Collectors.toList());
+            return findFilesInFolder(folderName);
         } catch (Exception ex) { throw new RuntimeException("Can't get element: " + ex.getMessage()); }
     }
     public static MapArray<String, String> jsonToMap(List<String> filePaths) {

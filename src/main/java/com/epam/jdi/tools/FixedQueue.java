@@ -1,16 +1,18 @@
 package com.epam.jdi.tools;
 
+import java.util.ArrayList;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.Queue;
-import java.util.stream.Collectors;
+
+import static java.lang.Math.max;
 
 public class FixedQueue<T> {
-    private Queue<T> queue;
-    private int limit;
+    protected Queue<T> queue;
+    protected int limit;
 
     public FixedQueue(int limit) {
-        this.limit = limit > 0 ? limit : 0;
+        this.limit = max(limit, 0);
         queue = new LinkedList<>();
     }
     public void push(T element) {
@@ -22,7 +24,7 @@ public class FixedQueue<T> {
         queue.add(element);
     }
     public List<T> values() {
-        return queue.stream().collect(Collectors.toList());
+        return new ArrayList<>(queue);
     }
     public void clear() {
         queue.clear();

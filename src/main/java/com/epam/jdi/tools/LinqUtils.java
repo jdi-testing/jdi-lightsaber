@@ -14,6 +14,8 @@ import com.epam.jdi.tools.pairs.Pair;
 import java.lang.reflect.InvocationTargetException;
 import java.util.*;
 import java.util.concurrent.CopyOnWriteArrayList;
+import java.util.function.BiFunction;
+import java.util.function.Function;
 import java.util.stream.Collectors;
 
 import static com.epam.jdi.tools.PrintUtils.print;
@@ -23,11 +25,26 @@ import static com.epam.jdi.tools.pairs.Pair.$;
 import static java.lang.String.format;
 import static java.util.Arrays.asList;
 import static java.util.Arrays.stream;
+import static java.util.Map.Entry;
 import static java.util.stream.IntStream.rangeClosed;
+import static org.apache.commons.lang3.ObjectUtils.isEmpty;
 import static org.apache.commons.lang3.StringUtils.isBlank;
 import static org.apache.commons.lang3.StringUtils.isNotBlank;
 
 public final class LinqUtils {
+    private static final String NULL_COLLECTION = "Can't do where. Collection is Null";
+    public static <T1, T2> boolean invokeBoolean(BiFunction<T1, T2, Boolean> func, T1 arg1, T2 arg2) throws Exception {
+        if (func == null)
+            return false;
+        Boolean result = func.apply(arg1, arg2);
+        return result != null && result;
+    }
+    public static <T> boolean invokeBoolean(Function<T, Boolean> func, T arg) throws Exception {
+        if (func == null)
+            return false;
+        Boolean result = func.apply(arg);
+        return result != null && result;
+    }
     private LinqUtils() {
     }
 
@@ -145,11 +162,11 @@ public final class LinqUtils {
 
     public static <T> List<T> where(Collection<T> list, JFunc1<T, Boolean> func) {
         if (list == null)
-            throw new RuntimeException("Can't do where. Collection is Null");
+            throw new RuntimeException(NULL_COLLECTION);
         try {
             List<T> result = new ArrayList<>();
             for (T el : list)
-                if (func.invoke(el))
+                if (invokeBoolean(func, el))
                     result.add(el);
             return result;
         } catch (Exception ex) {
@@ -170,7 +187,7 @@ public final class LinqUtils {
     }
     public static <T> MapArray<String, List<T>> partition(List<T> list, Pair<String, JFunc1<T, Boolean>>... matchers) {
         if (list == null)
-            throw new RuntimeException("Can't do where. Collection is Null");
+            throw new RuntimeException(NULL_COLLECTION);
         try {
             MapArray<String, List<T>> result = new MapArray<>();
             for (Pair<String, JFunc1<T, Boolean>> matcher : matchers) {
@@ -191,11 +208,11 @@ public final class LinqUtils {
 
     public static <K, V> Map<K, V> where(Map<K, V> map, JFunc1<Map.Entry<K, V>, Boolean> func) {
         if (map == null)
-            throw new RuntimeException("Can't do where. Collection is Null");
+            throw new RuntimeException(NULL_COLLECTION);
         try {
             Map<K, V> result = new HashMap<>();
             for (Map.Entry<K,V> el : map.entrySet())
-                if (func.invoke(el))
+                if (invokeBoolean(func, el))
                     result.put(el.getKey(), el.getValue());
             return result;
         } catch (Exception ex) {
@@ -273,7 +290,7 @@ public final class LinqUtils {
         if (map == null)
             throw new RuntimeException("Can't do foreach. Collection is Null");
         try {
-            for (Map.Entry e : map.entrySet())
+            for (Entry<K,V> e : map.entrySet())
                 action.invoke(e);
         } catch (Exception ex) {
             throw exception("Can't do foreach: %s. %s", ex, map);
@@ -292,7 +309,7 @@ public final class LinqUtils {
         T found = null;
         try {
             for (T el : list)
-                if (func.invoke(el)) {
+                if (invokeBoolean(func, el)) {
                     if (found != null) return null;
                     else found = el;
                 }
@@ -332,7 +349,7 @@ public final class LinqUtils {
         try {
             int i = getStartIndex(list);
             for (T element : list) {
-                if (func.invoke(element))
+                if (invokeBoolean(func, element))
                     return i;
                 i++;
             }
@@ -345,14 +362,14 @@ public final class LinqUtils {
             if (array == null || array.length == 0)
                 return -1;
             for (int i = 0; i < array.length; i++)
-                if (func.invoke(array[i]))
+                if (invokeBoolean(func, array[i]))
                     return i;
         } catch (Exception ignore) { }
         return -1;
     }
 
     public static <T> T first(Collection<T> list) {
-        if (list == null || list.size() == 0)
+        if (isEmpty(list))
             throw new RuntimeException("Can't do first. Collection is Null or empty");
         return list.iterator().next();
     }
@@ -372,7 +389,7 @@ public final class LinqUtils {
             return null;
         try {
             for (T el : list)
-                if (func.invoke(el))
+                if (invokeBoolean(func, el))
                     return el;
         } catch (Exception ex) {
             throw exception("Can't do first list: %s. %s", ex, list);
@@ -389,7 +406,7 @@ public final class LinqUtils {
             throw new RuntimeException("Can't do first map. Collection is Null or empty");
         try {
             for (Map.Entry<K, V> el : map.entrySet())
-                if (func.invoke(el.getKey()))
+                if (invokeBoolean(func, el.getKey()))
                     return el.getValue();
         } catch (Exception ex) {
             throw exception("Can't do first map: %s. %s", ex, map);
@@ -402,7 +419,7 @@ public final class LinqUtils {
             throw new RuntimeException("Can't do first map. Collection is Null or empty");
         try {
             for (Pair<K, V> pair : map.pairs)
-                if (func.invoke(pair.key))
+                if (invokeBoolean(func, pair.key))
                     return pair.value;
         } catch (Exception ex) {
             throw exception("Can't do first map: %s. %s", ex, map);
@@ -429,7 +446,7 @@ public final class LinqUtils {
         T result = null;
         try {
             for (T el : list)
-                if (func.invoke(el))
+                if (invokeBoolean(func, el))
                     result = el;
         } catch (Exception ex) {
             throw exception("Can't do last list: %s. %s", ex, list);

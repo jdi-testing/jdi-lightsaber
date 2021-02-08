@@ -11,9 +11,11 @@ import com.epam.jdi.tools.func.JFunc1;
 
 import java.text.SimpleDateFormat;
 import java.util.Date;
+import java.util.function.Supplier;
 
 import static com.epam.jdi.tools.ReflectionUtils.isClass;
 import static java.lang.System.currentTimeMillis;
+import static java.lang.System.out;
 
 public class Timer {
     private Long start = currentTimeMillis();
@@ -58,8 +60,7 @@ public class Timer {
     public static void sleep(long mSec) {
         try {
             Thread.sleep(mSec);
-        } catch (InterruptedException ignore) {
-        }
+        } catch (InterruptedException ignore) { }
     }
 
     public static <T> T getByCondition(JFunc<T> getFunc, JFunc1<T, Boolean> conditionFunc) {
@@ -72,7 +73,7 @@ public class Timer {
 
     public static boolean alwaysDoneAction(JAction action) {
         return new Timer().wait(() -> {
-            action.invoke();
+            action.execute();
             return true;
         });
     }
@@ -127,11 +128,11 @@ public class Timer {
             throwException(exception);
         return false;
     }
-    public boolean wait(JFunc<Boolean> waitCase) {
+    public boolean wait(Supplier<Boolean> waitCase) {
         Throwable exception = null;
         while (!timeoutPassed())
             try {
-                if (waitCase.invoke())
+                if (waitCase.get())
                     return true;
                 sleep(retryTimeoutInMSec);
             } catch (Exception | Error ex) { exception = ex; }
@@ -160,8 +161,7 @@ public class Timer {
     }
 
     private static int i = 1;
-    private static int getNum() { return i = i++;}
     public static void logTime() {
-        System.out.println(i++ + ": " + Timer.nowTime());
+        out.println(i++ + ": " + Timer.nowTime());
     }
 }

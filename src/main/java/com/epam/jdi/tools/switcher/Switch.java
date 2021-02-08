@@ -17,13 +17,13 @@ public class Switch<T> {
     Switch(T value) { this.value = value; }
     public void of(Case<T>... pairs) {
         foreach(filter(pairs,
-            p -> p.condition.execute(value)),
-            p -> p.action.execute(value));
+            p -> p.condition.apply(value)),
+            p -> p.action.accept(value));
     }
     public <R> R get(CaseR<T, R>... pairs) {
-        CaseR<T,R> result = LinqUtils.first(pairs, p -> p.condition.execute(value));
+        CaseR<T,R> result = LinqUtils.first(pairs, p -> p.condition.apply(value));
         return result != null
-            ? result.result.execute(value)
+            ? result.result.apply(value)
             : null;
     }
 }

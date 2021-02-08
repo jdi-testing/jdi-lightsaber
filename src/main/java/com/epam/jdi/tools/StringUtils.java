@@ -129,13 +129,13 @@ public final class StringUtils {
     }
     public static String toCamelCase(String value) {
         String result = cleanupString(value);
-        result.replaceAll(" ", "");
+        result = result.replace(" ", "");
         if (isEmpty(result)) return "";
         return toLowerCase(result.charAt(0)) + result.substring(1);
     }
     public static String toPascalCase(String value) {
         String result = cleanupString(value);
-        result.replaceAll(" ", "");
+        result = result.replace(" ", "");
         if (isEmpty(result)) return "";
         return toUpperCase(result.charAt(0)) + result.substring(1);
     }
@@ -309,7 +309,6 @@ public final class StringUtils {
         try {
             if (Double.class.isAssignableFrom(field.getType())) {
                 field.set(obj, parseDouble(value));
-                return;
             }
         } catch (Exception ignore) { }
     }

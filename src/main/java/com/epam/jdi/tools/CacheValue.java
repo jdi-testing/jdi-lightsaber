@@ -71,7 +71,7 @@ public class CacheValue<T> {
         value.set(null);
     }
     public boolean hasValue() {
-        return finalValue != null || isUseCache() && value.get() != null && elementCache.get() == globalCache.get();
+        return finalValue != null || isUseCache() && value.get() != null && elementCache.get().equals(globalCache.get());
     }
     public boolean isUseCache() {
         return elementCache.get() > -1;

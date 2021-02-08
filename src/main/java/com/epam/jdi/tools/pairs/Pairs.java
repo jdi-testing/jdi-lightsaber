@@ -6,26 +6,24 @@ package com.epam.jdi.tools.pairs;
  */
 
 import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.Collection;
 import java.util.List;
-import java.util.function.Consumer;
 import java.util.function.Function;
 
 import static com.epam.jdi.tools.LinqUtils.select;
 import static com.epam.jdi.tools.PrintUtils.print;
 import static com.epam.jdi.tools.pairs.Pair.$;
+import static java.util.Arrays.asList;
 
 public class Pairs<TValue1, TValue2> extends ArrayList<Pair<TValue1, TValue2>> {
     // TODO update pairs to MapArray level
     // Tuple
     // Pull Tuple any get removes element
-    public Pairs() {
-    }
+    public Pairs() { }
 
     public Pairs(Pair<TValue1, TValue2>... pairs) {
         if (pairs == null) return;
-        addAll(Arrays.asList(pairs));
+        addAll(asList(pairs));
     }
     public Pairs(List<Pair<TValue1, TValue2>> pairs) {
         if (pairs == null) return;
@@ -34,7 +32,7 @@ public class Pairs<TValue1, TValue2> extends ArrayList<Pair<TValue1, TValue2>> {
 
     public Pairs(TValue1 value1, TValue2 value2, Collection<Pair<TValue1, TValue2>> pairs) {
         if (pairs != null)
-            pairs.forEach(this::add);
+            this.addAll(pairs);
         add(value1, value2);
     }
 
@@ -52,22 +50,17 @@ public class Pairs<TValue1, TValue2> extends ArrayList<Pair<TValue1, TValue2>> {
     }
 
     public Pairs<TValue1, TValue2> add(Pair<TValue1, TValue2>... pairs) {
-        for (Pair pair : pairs)
-            add(pair);
+        this.addAll(asList(pairs));
         return this;
     }
     public Pairs<TValue1, TValue2> add(Pairs<TValue1, TValue2> pairs) {
-        pairs.foreach(this::add);
+        this.addAll(pairs);
         return this;
     }
 
     public void addNew(TValue1 value1, TValue2 value2) {
         clear();
         add($(value1, value2));
-    }
-
-    public void foreach(Consumer<Pair<TValue1, TValue2>> action) {
-        this.forEach(action::accept);
     }
 
     public Pairs<TValue1, TValue2> subList(int from) {

@@ -9,6 +9,7 @@ import static org.apache.commons.lang3.StringUtils.isBlank;
  * Created by Roman_Iovlev on 4/17/2018.
  */
 public class PathUtils {
+    private PathUtils() { }
     public static String path(String first, String... more) {
         return Paths.get(first, more).toAbsolutePath().toString();
     }
@@ -31,8 +32,8 @@ public class PathUtils {
     private static String toStandardSlash(String s) {
         if (isBlank(s)) return "";
         return separator.equals("\\")
-            ? s.replaceAll("/", encodedSeparator())
-            : s.replaceAll("\\\\", separator);
+            ? s.replace("/", encodedSeparator())
+            : s.replace("\\\\", separator);
     }
     private static String[] toStandardSlash(String... strings) {
         String[] result = new String[strings.length];

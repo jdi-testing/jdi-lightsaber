@@ -14,7 +14,7 @@ import java.util.Map;
 
 public class DataClass<T> {
     public T set(JAction1<T> valueFunc) {
-        T thisObj = (T)this;
+        T thisObj = (T) this;
         valueFunc.execute(thisObj);
         return thisObj;
     }

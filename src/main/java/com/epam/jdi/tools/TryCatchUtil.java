@@ -18,7 +18,6 @@ public final class TryCatchUtil {
     }
 
     public static void throwRuntimeException(Throwable ignore) {
-        // if (exceptionThrown)
         throw (ignore instanceof RuntimeException) ? (RuntimeException) ignore : new RuntimeException(ignore);
     }
 }

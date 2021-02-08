@@ -7,7 +7,7 @@ package com.epam.jdi.tools.pairs;
 
 import com.epam.jdi.tools.DataClass;
 
-public class Pair<TFirst, TSecond> extends DataClass {
+public class Pair<TFirst, TSecond> extends DataClass<Pair<TFirst, TSecond>> {
 
     public static <K,E> Pair<K, E> $(K value1, E value2) {
         return new Pair<>(value1, value2);
