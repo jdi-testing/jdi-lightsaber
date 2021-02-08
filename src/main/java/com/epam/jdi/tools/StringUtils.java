@@ -98,15 +98,15 @@ public final class StringUtils {
     }
     public static String splitFirstCapital(String name) {
         String result = toUpperCase(name.charAt(0))+"";
-        for(int i = 1; i < name.length() - 1; ++i) {
-            if (!isUpperCase(name.charAt(i)) || !isLowerCase(name.charAt(i + 1))
-                    && !isLowerCase(name.charAt(i - 1))) {
-                result += name.charAt(i);
-            } else {
-                if (name.charAt(i) != ' ') {
+        char previousLetter = name.charAt(0);
+        for (int i = 1; i < name.length() - 1; ++i) {
+            if (isDigit(name.charAt(i)) || isLetter(name.charAt(i))) {
+                if (isUpperCase(name.charAt(i)) && isLowerCase(previousLetter)
+                        || !(isDigit(name.charAt(i-1)) || isLetter(name.charAt(i-1)))) {
                     result += " ";
                 }
                 result += toLowerCase(name.charAt(i));
+                previousLetter = name.charAt(i);
             }
         }
         return result + name.charAt(name.length() - 1);

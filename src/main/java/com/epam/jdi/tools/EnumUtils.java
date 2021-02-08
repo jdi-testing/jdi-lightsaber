@@ -8,6 +8,7 @@ package com.epam.jdi.tools;
 import java.lang.reflect.Field;
 import java.util.List;
 
+import static com.epam.jdi.tools.LinqUtils.first;
 import static com.epam.jdi.tools.TryCatchUtil.tryGetResult;
 import static java.util.Arrays.asList;
 
@@ -25,21 +26,33 @@ public final class EnumUtils {
         Class<?> type = enumWithValue.getClass();
         Field[] fields = type.getDeclaredFields();
         Field field;
-        switch (fields.length) {
-            case 0:
-                return enumWithValue.toString();
-            case 1:
-                field = fields[0];
-                break;
-            default:
-                try {
-                    field = type.getField("value");
-                } catch (NoSuchFieldException ex) {
+        try {
+            switch (fields.length) {
+                case 0:
                     return enumWithValue.toString();
-                }
-                break;
+                case 1:
+                    return fields[0].get(enumWithValue).toString();
+                default:
+                    try {
+                        field = type.getDeclaredField("value");
+                        field.setAccessible(true);
+                        return field.get(enumWithValue).toString();
+                    } catch (NoSuchFieldException ex) {
+                        return enumWithValue.toString();
+                    }
+            }
+        } catch (Exception ex) {
+            throw new RuntimeException("Failed to get Enum value: " + enumWithValue, ex);
         }
-        return tryGetResult(() -> field.get(enumWithValue).toString());
+    }
+    public static <T extends Enum> T getEnumValueByName(Class<T> cl, String expectedValueName, T defaultValue) {
+        T firstType = first(getAllEnumValues(cl), t -> getType(t, expectedValueName));
+        return firstType != null ? firstType : defaultValue;
+    }
+
+    private static boolean getType(Object enumType, String type) {
+        return enumType.toString().trim().replaceAll("[^a-z]", "")
+                .equalsIgnoreCase(type.trim().replaceAll("[^a-z]", ""));
     }
 
     public static <T extends Enum> List<T> getAllEnumValues(Class<T> enumValue) {
