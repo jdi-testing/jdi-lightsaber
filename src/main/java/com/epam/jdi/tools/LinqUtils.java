@@ -5,8 +5,6 @@ package com.epam.jdi.tools;
  * Email: roman.iovlev.jdi@gmail.com; Skype: roman.iovlev
  */
 
-import com.epam.jdi.tools.func.JAction1;
-import com.epam.jdi.tools.func.JFunc2;
 import com.epam.jdi.tools.map.MapArray;
 import com.epam.jdi.tools.pairs.Pair;
 
@@ -14,6 +12,7 @@ import java.lang.reflect.InvocationTargetException;
 import java.util.*;
 import java.util.concurrent.CopyOnWriteArrayList;
 import java.util.function.BiFunction;
+import java.util.function.Consumer;
 import java.util.function.Function;
 import java.util.stream.Collectors;
 
@@ -114,12 +113,14 @@ public final class LinqUtils {
     }
 
     public static <K, V, TR> Map<K, TR> select(Map<K, V> map, Function<V, TR> func) {
-        if (map == null)
+        if (map == null) {
             throw new RuntimeException("Can't do select map. Collection is Null");
+        }
         try {
             Map<K, TR> result = new HashMap<>();
-            for (Map.Entry<K, V> el : map.entrySet())
+            for (Map.Entry<K, V> el : map.entrySet()) {
                 result.put(el.getKey(), func.apply(el.getValue()));
+            }
             return result;
         } catch (Exception ex) {
             throw exception("Can't do select map: %s. %s", ex, map);
@@ -146,13 +147,14 @@ public final class LinqUtils {
     public static <K, V, T> Map<K, V> toMap(T[] list, Function<T, K> key, Function<T, V> value) {
         return toMap(asList(list), key, value);
     }
-    public static <K, V, TR> List<TR> toList(Map<K, V> map, JFunc2<K, V, TR> func) {
+    public static <K, V, TR> List<TR> toList(Map<K, V> map, BiFunction<K, V, TR> func) {
         if (map == null)
             throw new RuntimeException("Can't do toList. Map is Null");
         try {
             List<TR> result = new CopyOnWriteArrayList<>();
-            for (Map.Entry<K,V> el : map.entrySet())
+            for (Map.Entry<K,V> el : map.entrySet()) {
                 result.add(func.apply(el.getKey(), el.getValue()));
+            }
             return result;
         } catch (Exception ex) {
             throw exception("Can't do toList: %s. %s", ex, map);
@@ -164,9 +166,11 @@ public final class LinqUtils {
             throw new RuntimeException(NULL_COLLECTION);
         try {
             List<T> result = new ArrayList<>();
-            for (T el : list)
-                if (invokeBoolean(func, el))
+            for (T el : list) {
+                if (invokeBoolean(func, el)) {
                     result.add(el);
+                }
+            }
             return result;
         } catch (Exception ex) {
             throw exception("Can't do where: %s. %s", ex, list);
@@ -221,23 +225,23 @@ public final class LinqUtils {
     public static <K, V> Map<K, V> filter(Map<K, V> map, Function<Map.Entry<K, V>, Boolean> func) {
         return where(map, func);
     }
-    public static <T> void ifDo(Collection<T> list, Function<T, Boolean> condition, JAction1<T> action) {
+    public static <T> void ifDo(Collection<T> list, Function<T, Boolean> condition, Consumer<T> action) {
         try {
             for (T el : list)
                 if (invokeBoolean(condition, el))
-                    action.invoke(el);
+                    action.accept(el);
         } catch (Exception ex) {
             throw exception("Can't perform ifDo: %s. %s", ex, list);
         }
     }
-    public static <T> void ifDo(T[] array, Function<T, Boolean> condition, JAction1<T> action) {
+    public static <T> void ifDo(T[] array, Function<T, Boolean> condition, Consumer<T> action) {
         ifDo(asList(array), condition, action);
     }
-    public static <K, V> void ifDo(Map<K, V> map, Function<Map.Entry<K, V>, Boolean> condition, JAction1<V> action) {
+    public static <K, V> void ifDo(Map<K, V> map, Function<Map.Entry<K, V>, Boolean> condition, Consumer<V> action) {
         try {
         for (Map.Entry<K,V> el : map.entrySet())
             if (invokeBoolean(condition, el))
-                action.invoke(el.getValue());
+                action.accept(el.getValue());
         } catch (Exception ex) {
             throw exception("Can't perform ifDo: %s. %s", ex, map);
         }
@@ -258,7 +262,7 @@ public final class LinqUtils {
             Function<T, Boolean> condition, Function<T, R> transform) {
         return ifSelect(asList(array), condition, transform);
     }
-    public static <K, V, T> List<T> ifSelect(Map<K, V> map, JFunc2<K, V, Boolean> condition, Function<V, T> transform) {
+    public static <K, V, T> List<T> ifSelect(Map<K, V> map, BiFunction<K, V, Boolean> condition, Function<V, T> transform) {
         try {
             List<T> result = new ArrayList<>();
             for (Map.Entry<K,V> el : map.entrySet())
@@ -270,27 +274,27 @@ public final class LinqUtils {
         }
     }
 
-    public static <T> void foreach(Collection<T> list, JAction1<T> action) {
+    public static <T> void foreach(Collection<T> list, Consumer<T> action) {
         if (list == null)
             throw new RuntimeException("Can't do foreach. Collection is Null");
         try {
             for (T el : list)
-                action.invoke(el);
+                action.accept(el);
         } catch (Exception ex) {
             throw exception("Can't do foreach: %s. %s", ex, list);
         }
     }
 
-    public static <T> void foreach(T[] list, JAction1<T> action) {
+    public static <T> void foreach(T[] list, Consumer<T> action) {
         foreach(asList(list), action);
     }
 
-    public static <K, V> void foreach(Map<K, V> map, JAction1<Map.Entry<K, V>> action) {
+    public static <K, V> void foreach(Map<K, V> map, Consumer<Map.Entry<K, V>> action) {
         if (map == null)
             throw new RuntimeException("Can't do foreach. Collection is Null");
         try {
             for (Entry<K,V> e : map.entrySet())
-                action.invoke(e);
+                action.accept(e);
         } catch (Exception ex) {
             throw exception("Can't do foreach: %s. %s", ex, map);
         }
@@ -672,7 +676,7 @@ public final class LinqUtils {
         } catch (Exception ignored) { }
         throw new RuntimeException(format("isAscending failed because values first='%s' second = '%s' are not comparable", first, second));
     }
-    private static RuntimeException exception(String tmpl, Exception ex, Map<?, ?> map) {
+    public static RuntimeException exception(String tmpl, Exception ex, Map<?, ?> map) {
         try {
             List<String> m = selectMap(map, e -> e.getKey().toString() + ":" + e.getValue());
             return new RuntimeException(format(tmpl, safeException(ex), safePrintCollection(m)));
