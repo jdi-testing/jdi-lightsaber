@@ -124,7 +124,7 @@ public class MapArray<K, V> implements Collection<Pair<K, V>>, Cloneable {
 
     public MapArray(MapArray<K, V> mapArray) {
         this();
-        this.pairs = mapArray.pairs;
+        addAll(mapArray.pairs);
         this.ignoreNotUnique = mapArray.ignoreNotUnique;
     }
     public MapArray(Map<K, V> map) {

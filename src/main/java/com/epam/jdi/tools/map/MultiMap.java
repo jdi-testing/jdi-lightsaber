@@ -99,12 +99,12 @@ public class MultiMap<K, V> implements Collection<Pair<K, V>>, Cloneable {
 
     public MultiMap(MultiMap<K, V> mapArray) {
         this();
-        this.pairs = mapArray.pairs;
+        addAll(mapArray.pairs);
         this.ignoreKeyCase = mapArray.ignoreKeyCase;
     }
     public MultiMap(MapArray<K, V> mapArray) {
         this();
-        this.pairs = mapArray.pairs;
+        addAll(mapArray.pairs);
     }
     public MultiMap(Map<K, V> map) {
         this();
