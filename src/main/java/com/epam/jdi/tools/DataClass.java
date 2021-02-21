@@ -9,12 +9,17 @@ import com.epam.jdi.tools.func.JAction1;
 import com.epam.jdi.tools.map.MapArray;
 
 import java.lang.reflect.Field;
+import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 
 import static com.epam.jdi.tools.ReflectionUtils.getValueField;
+import static java.lang.String.format;
+import static java.lang.String.join;
+import static org.apache.commons.lang3.ObjectUtils.isNotEmpty;
 
-public class DataClass<T> {
+public class DataClass<T> implements Cloneable, ComparableData {
     public T set(JAction1<T> valueFunc) {
         T thisObj = (T) this;
         valueFunc.execute(thisObj);
@@ -23,12 +28,9 @@ public class DataClass<T> {
     public Map<String, Object> fieldsAsMap() {
         Map<String, Object> map = new HashMap<>();
         Field[] fields = getClass().getDeclaredFields();
-        for (Field field : fields)
-            try {
-                map.put(field.getName(), field.get(this));
-            } catch (IllegalAccessException ex) {
-                throw new RuntimeException(ex);
-            }
+        for (Field field : fields) {
+            map.put(field.getName(), getValueField(field, this));
+        }
         return map;
     }
     public MapArray<String, Object> fields() {
@@ -39,6 +41,24 @@ public class DataClass<T> {
     @Override
     public String toString() {
         return PrintUtils.printFields(this);
+    }
+
+    public String compareTo(DataClass<?> article) {
+        List<String> inequality = new ArrayList<>();
+        Map<String, Object> toCompare = article.fieldsAsMap();
+        for (Map.Entry<String, Object> field : fieldsAsMap().entrySet()) {
+            Object compareValue = toCompare.get(field.getKey());
+            if (compareValue == null) {
+                if (field.getValue() != null) {
+                    inequality.add(format("Field '%s' value should be '%s' but 'null'",
+                        field.getKey(), field.getValue()));
+                }
+            } else if (!compareValue.equals(field.getValue())) {
+                inequality.add(format("Field '%s' value should be '%s' but '%s'",
+                    field.getKey(), field.getValue(), compareValue));
+            }
+        }
+        return isNotEmpty(inequality) ? join("\n", inequality) : "";
     }
 
     @Override
