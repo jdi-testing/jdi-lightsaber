@@ -14,6 +14,7 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
+import static com.epam.jdi.tools.ReflectionUtils.*;
 import static com.epam.jdi.tools.ReflectionUtils.getValueField;
 import static java.lang.String.format;
 import static java.lang.String.join;
@@ -69,11 +70,11 @@ public class DataClass<T> implements Cloneable, ComparableData {
             Field[] otherFields = o.getClass().getDeclaredFields();
             for (Field f : getClass().getDeclaredFields()) {
                 Field fOther = LinqUtils.first(otherFields, fo -> fo.getName().equals(f.getName()));
-                if (f.get(this) == null && fOther.get(o) == null)
+                if (getValueField(f, this) == null && fOther.get(o) == null)
                     continue;
-                if (f.get(this) != null && fOther.get(o) == null ||
-                    f.get(this) == null && fOther.get(o) != null ||
-                    !f.get(this).equals(fOther.get(o)))
+                if (getValueField(f, this) != null && fOther.get(o) == null ||
+                    getValueField(f, this) == null && fOther.get(o) != null ||
+                    !getValueField(f, this).equals(fOther.get(o)))
                     return false;
                 }
         }
@@ -87,7 +88,9 @@ public class DataClass<T> implements Cloneable, ComparableData {
     public int hashCode() {
         int result = 0;
         for (Field f : getClass().getDeclaredFields())
-            try { result += 31 * result + f.get(this).hashCode();
+            try {
+                Object value = getValueField(f, this);
+                result += 31 * result + (value != null ? value.hashCode() : 0);
             } catch (Exception ex) {
                 throw new RuntimeException(ex.getMessage());
             }
