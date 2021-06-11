@@ -1,17 +1,16 @@
 package com.epam.jdi.tools;
 
-import com.epam.jdi.tools.func.JFunc;
-
 import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.function.Function;
+import java.util.function.Supplier;
 
 import static java.lang.Thread.currentThread;
 
 public class Safe<T> extends ThreadLocal<T> {
-    private JFunc<T> DEFAULT;
+    private Supplier<T> DEFAULT;
     public Safe() { this(() -> null); }
-    public Safe(JFunc<T> func) { DEFAULT = func; }
+    public Safe(Supplier<T> func) { DEFAULT = func; }
     public Safe(T value) { this(() -> value); }
     Map<Long, T> threadValues = new ConcurrentHashMap<>();
     @Override
@@ -25,7 +24,7 @@ public class Safe<T> extends ThreadLocal<T> {
             value = threadValues.get(1L);
             threadValues.clear();
         } else {
-            value = DEFAULT.execute();
+            value = DEFAULT.get();
         }
         update(threadId, value);
         return value;
@@ -37,8 +36,8 @@ public class Safe<T> extends ThreadLocal<T> {
     public void update(Function<T, T> func) {
         set(func.apply(get()));
     }
-    public void reset() { set(DEFAULT.execute()); }
-    public T getDefault() { return DEFAULT.execute(); }
+    public void reset() { set(DEFAULT.get()); }
+    public T getDefault() { return DEFAULT.get(); }
     private long threadId() {
         return currentThread().getId();
     }

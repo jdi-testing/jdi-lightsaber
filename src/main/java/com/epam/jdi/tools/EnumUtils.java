@@ -9,7 +9,6 @@ import java.lang.reflect.Field;
 import java.util.List;
 
 import static com.epam.jdi.tools.LinqUtils.first;
-import static com.epam.jdi.tools.ReflectionUtils.*;
 import static com.epam.jdi.tools.ReflectionUtils.getValueField;
 import static java.util.Arrays.asList;
 

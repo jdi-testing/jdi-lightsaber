@@ -6,7 +6,6 @@ package com.epam.jdi.tools;
  */
 
 import com.epam.jdi.tools.func.JAction;
-import com.epam.jdi.tools.func.JFunc;
 
 import java.text.SimpleDateFormat;
 import java.util.Date;
@@ -63,11 +62,11 @@ public class Timer {
         } catch (InterruptedException ignore) { }
     }
 
-    public static <T> T getByCondition(JFunc<T> getFunc, Function<T, Boolean> conditionFunc) {
+    public static <T> T getByCondition(Supplier<T> getFunc, Function<T, Boolean> conditionFunc) {
         return new Timer().getResultByCondition(getFunc, conditionFunc);
     }
 
-    public static <T> T getResultAction(JFunc<T> getFunc) {
+    public static <T> T getResultAction(Supplier<T> getFunc) {
         return new Timer().getResultByCondition(getFunc, result -> true);
     }
 
@@ -78,7 +77,7 @@ public class Timer {
         });
     }
 
-    public static boolean waitCondition(JFunc<Boolean> condition) {
+    public static boolean waitCondition(Supplier<Boolean> condition) {
         return new Timer().wait(condition);
     }
 
@@ -144,15 +143,15 @@ public class Timer {
         return false;
     }
 
-    public <T> T getResult(JFunc<T> getFunc) {
+    public <T> T getResult(Supplier<T> getFunc) {
         return getResultByCondition(getFunc, result -> true);
     }
 
-    public <T> T getResultByCondition(JFunc<T> getFunc, Function<T, Boolean> conditionFunc) {
+    public <T> T getResultByCondition(Supplier<T> getFunc, Function<T, Boolean> conditionFunc) {
         Throwable exception = null;
          do {
             try {
-                T result = getFunc.invoke();
+                T result = getFunc.get();
                 if (result != null && conditionFunc.apply(result)) {
                     return result;
                 }
@@ -166,6 +165,7 @@ public class Timer {
     }
 
     private static int i = 1;
+
     public static void logTime() {
         out.println(i++ + ": " + Timer.nowTime());
     }

@@ -4,8 +4,7 @@ package com.epam.jdi.tools;
  * Created by Roman Iovlev on 14.02.2018
  * Email: roman.iovlev.jdi@gmail.com; Skype: roman.iovlev
  */
-
-import com.epam.jdi.tools.func.JFunc;
+import java.util.function.Supplier;
 
 import static java.lang.System.currentTimeMillis;
 
@@ -15,11 +14,17 @@ public class CacheValue<T> {
     public static void reset() {
         globalCache.set(currentTimeMillis());
     }
+
     private Safe<Long> elementCache = new Safe<>(() -> 0L);
+
     private Safe<T> value = new Safe<>(() -> null);
+
     private T finalValue = null;
-    private JFunc<T> getRule = () -> null;
+
+    private Supplier<T> getRule = () -> null;
+
     public CacheValue() { }
+
     public CacheValue<T> copy() {
         CacheValue<T> cv = new CacheValue<>();
         cv.elementCache = new Safe<>(() -> elementCache.get());
@@ -28,7 +33,7 @@ public class CacheValue<T> {
         cv.getRule = getRule;
         return cv;
     }
-    public CacheValue(JFunc<T> getRule) { this.getRule = getRule; }
+    public CacheValue(Supplier<T> getRule) { this.getRule = getRule; }
     public T get() {
         return get(getRule);
     }
@@ -36,13 +41,13 @@ public class CacheValue<T> {
         reset();
         return get();
     }
-    public T get(JFunc<T> defaultResult) {
+    public T get(Supplier<T> defaultResult) {
         if (finalValue != null)
             return finalValue;
         if (!isUseCache())
-            return defaultResult.execute();
+            return defaultResult.get();
         if (elementCache.get() < globalCache.get() || value.get() == null) {
-            this.value.set(getRule.execute());
+            this.value.set(getRule.get());
             elementCache.set(globalCache.get());
         }
         return value.get();
@@ -64,7 +69,7 @@ public class CacheValue<T> {
             return finalValue;
         return !isUseCache() ? value : setForce(value);
     }
-    public void setRule(JFunc<T> getRule) {
+    public void setRule(Supplier<T> getRule) {
         this.getRule = getRule;
     }
     public void clear() {

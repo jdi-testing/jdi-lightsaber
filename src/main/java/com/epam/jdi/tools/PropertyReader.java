@@ -4,12 +4,10 @@ package com.epam.jdi.tools;
  * Created by Roman Iovlev on 14.02.2018
  * Email: roman.iovlev.jdi@gmail.com; Skype: roman.iovlev
  */
-
-import com.epam.jdi.tools.func.JAction1;
-
 import java.io.IOException;
 import java.io.InputStream;
 import java.util.Properties;
+import java.util.function.Consumer;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
@@ -82,14 +80,18 @@ public final class PropertyReader {
         return prop;
     }
 
-    public static void fillAction(JAction1<String> action, String name) {
+    public static void fillAction(Consumer<String> action, String name) {
         String property = getProperty(name);
-        if (isBlank(property)) return;
-        action.execute(property);
+        if (isBlank(property)) {
+            return;
+        }
+        action.accept(property);
     }
+
     private static boolean isMvnProperty(String prop) {
         return prop.matches("^\\$\\{.+}");
     }
+
     private static String replaceProperty(String property) {
         final Matcher matcher = Pattern.compile("\\$\\{([^}]*)}").matcher(property);
         final StringBuffer sb = new StringBuffer();

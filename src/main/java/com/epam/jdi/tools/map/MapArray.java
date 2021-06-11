@@ -6,15 +6,15 @@ package com.epam.jdi.tools.map;
  */
 
 import com.epam.jdi.tools.LinqUtils;
-import com.epam.jdi.tools.func.JAction1;
-import com.epam.jdi.tools.func.JAction2;
-import com.epam.jdi.tools.func.JFunc2;
 import com.epam.jdi.tools.pairs.Pair;
 import org.apache.commons.lang3.ObjectUtils;
 
 import java.util.*;
 import java.util.Map.Entry;
 import java.util.concurrent.CopyOnWriteArrayList;
+import java.util.function.BiConsumer;
+import java.util.function.BiFunction;
+import java.util.function.Consumer;
 import java.util.function.Function;
 
 import static com.epam.jdi.tools.LinqUtils.*;
@@ -193,7 +193,7 @@ public class MapArray<K, V> implements Collection<Pair<K, V>>, Cloneable {
     }
 
     public <KResult, VResult> MapArray<KResult, VResult> toMapArray(
-            JFunc2<K, V, KResult> key, JFunc2<K, V, VResult> value) {
+            BiFunction<K, V, KResult> key, BiFunction<K, V, VResult> value) {
         MapArray<KResult, VResult> result = new MapArray<>();
         try {
             for (Pair<K, V> pair : pairs) {
@@ -223,7 +223,7 @@ public class MapArray<K, V> implements Collection<Pair<K, V>>, Cloneable {
         return toMap((k, v) -> k, (k,v) -> value.apply(v));
     }
     public <KResult, VResult> Map<KResult, VResult> toMap(
-            JFunc2<K, V, KResult> key, JFunc2<K, V, VResult> value) {
+            BiFunction<K, V, KResult> key, BiFunction<K, V, VResult> value) {
         Map<KResult, VResult> result = new HashMap<>();
         try {
             for (Pair<K, V> pair : pairs) {
@@ -588,13 +588,13 @@ public class MapArray<K, V> implements Collection<Pair<K, V>>, Cloneable {
         return clone();
     }
 
-    public <T1> List<T1> map(JFunc2<K, V, T1> func) {
+    public <T1> List<T1> map(BiFunction<K, V, T1> func) {
         return select(func);
     }
     public <T1> List<T1> map(Function<V, T1> func) {
         return select(func);
     }
-    public <T1> List<T1> select(JFunc2<K, V, T1> func) {
+    public <T1> List<T1> select(BiFunction<K, V, T1> func) {
         try {
             List<T1> result = new ArrayList<>();
             for (Pair<K,V> pair : pairs) {
@@ -619,13 +619,13 @@ public class MapArray<K, V> implements Collection<Pair<K, V>>, Cloneable {
         }
     }
 
-    public MapArray<K, V> filter(JFunc2<K, V, Boolean> func) {
+    public MapArray<K, V> filter(BiFunction<K, V, Boolean> func) {
         return where(func);
     }
     public MapArray<K, V> filter(Function<V, Boolean> func) {
         return where(func);
     }
-    public MapArray<K, V> where(JFunc2<K, V, Boolean> func) {
+    public MapArray<K, V> where(BiFunction<K, V, Boolean> func) {
         try {
             MapArray<K, V> result = new MapArray<>();
             for (Pair<K,V> pair : pairs) {
@@ -653,29 +653,29 @@ public class MapArray<K, V> implements Collection<Pair<K, V>>, Cloneable {
             return null;
         }
     }
-    public void ifDo(JFunc2<K, V, Boolean> condition, JAction1<V> action) {
+    public void ifDo(BiFunction<K, V, Boolean> condition, Consumer<V> action) {
         try {
             for (Pair<K,V> el : pairs) {
                 if (invokeBoolean(condition, el.key, el.value)) {
-                    action.invoke(el.value);
+                    action.accept(el.value);
                 }
             }
         } catch (Exception ex) {
             throwRuntimeException(ex);
         }
     }
-    public void ifDo(Function<V, Boolean> condition, JAction1<V> action) {
+    public void ifDo(Function<V, Boolean> condition, Consumer<V> action) {
         try {
             for (Pair<K,V> el : pairs) {
                 if (invokeBoolean(condition, el.value)) {
-                    action.invoke(el.value);
+                    action.accept(el.value);
                 }
             }
         } catch (Exception ex) {
             throwRuntimeException(ex);
         }
     }
-    public <T> List<T> ifSelect(JFunc2<K, V, Boolean> condition, Function<V, T> transform) {
+    public <T> List<T> ifSelect(BiFunction<K, V, Boolean> condition, Function<V, T> transform) {
         try {
             List<T> result = new ArrayList<>();
             for (Pair<K,V> el : pairs) {
@@ -704,7 +704,7 @@ public class MapArray<K, V> implements Collection<Pair<K, V>>, Cloneable {
         }
     }
 
-    public V firstValue(JFunc2<K, V, Boolean> func) {
+    public V firstValue(BiFunction<K, V, Boolean> func) {
         Pair<K, V> first = first(func);
         return first == null ? null : first.value;
     }
@@ -712,7 +712,7 @@ public class MapArray<K, V> implements Collection<Pair<K, V>>, Cloneable {
         Pair<K, V> first = first(func);
         return first == null ? null : first.value;
     }
-    public Pair<K, V> first(JFunc2<K, V, Boolean> func) {
+    public Pair<K, V> first(BiFunction<K, V, Boolean> func) {
         try {
             for (Pair<K, V> pair : pairs) {
                 if (invokeBoolean(func, pair.key, pair.value)) {
@@ -738,7 +738,7 @@ public class MapArray<K, V> implements Collection<Pair<K, V>>, Cloneable {
             return null;
         }
     }
-    public V lastValue(JFunc2<K, V, Boolean> func) {
+    public V lastValue(BiFunction<K, V, Boolean> func) {
         Pair<K, V> last = last(func);
         return last == null ? null : last.value;
     }
@@ -746,7 +746,7 @@ public class MapArray<K, V> implements Collection<Pair<K, V>>, Cloneable {
         Pair<K, V> last = last(func);
         return last == null ? null : last.value;
     }
-    public Pair<K, V> last(JFunc2<K, V, Boolean> func) {
+    public Pair<K, V> last(BiFunction<K, V, Boolean> func) {
         Pair<K, V> result = null;
         try {
             for (Pair<K, V> pair : pairs) {
@@ -778,17 +778,17 @@ public class MapArray<K, V> implements Collection<Pair<K, V>>, Cloneable {
     public MapArray<K,V> slice(int from, int to) {
         return new MapArray<>(listCopy(pairs, from, to));
     }
-    public void foreach(JAction2<K, V> action) {
+    public void foreach(BiConsumer<K, V> action) {
         try {
             for (Pair<K, V> pair : pairs) {
-                action.invoke(pair.key, pair.value);
+                action.accept(pair.key, pair.value);
             }
         } catch (Exception ex) {
             throwRuntimeException(ex);
         }
     }
 
-    public <R> List<R> selectMany(JFunc2<K, V, List<R>> func) {
+    public <R> List<R> selectMany(BiFunction<K, V, List<R>> func) {
         try {
             List<R> result = new ArrayList<>();
             for (Pair<K, V> pair : pairs) {

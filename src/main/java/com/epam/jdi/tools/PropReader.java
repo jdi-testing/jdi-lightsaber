@@ -4,12 +4,10 @@ package com.epam.jdi.tools;
  * Created by Roman Iovlev on 14.02.2018
  * Email: roman.iovlev.jdi@gmail.com; Skype: roman.iovlev
  */
-
-import com.epam.jdi.tools.func.JAction1;
-
 import java.io.IOException;
 import java.io.InputStream;
 import java.util.Properties;
+import java.util.function.Consumer;
 
 import static com.epam.jdi.tools.StringUtils.LINE_BREAK;
 import static java.lang.String.format;
@@ -62,19 +60,23 @@ public class PropReader {
         return loadProperties().getProperty(propertyName);
     }
 
-    public void fillAction(JAction1<String> action, String name) {
+    public void fillAction(Consumer<String> action, String name) {
         String prop = null;
         try {
             prop = getProperty(name);
         } catch (Exception ignore) {}
-        if (isBlank(prop)) return;
-        if (isMvnProperty(prop))
+        if (isBlank(prop)) {
+            return;
+        }
+        if (isMvnProperty(prop)) {
             throw new RuntimeException(format("Can't read Maven property '%s'. Get value '%s'" + LINE_BREAK +
                 "You need to add property in pom.xml and add <resources> block in <build>. " +
                 "See example: https://github.com/jdi-templates/jdi-light-testng-template/blob/master/pom.xml",
-                    name, prop));
-        action.execute(prop);
+            name, prop));
+        }
+        action.accept(prop);
     }
+
     private boolean isMvnProperty(String prop) {
         return prop.matches("^\\$\\{.+}");
     }

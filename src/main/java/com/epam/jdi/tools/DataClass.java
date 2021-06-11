@@ -5,7 +5,6 @@ package com.epam.jdi.tools;
  * Email: roman.iovlev.jdi@gmail.com; Skype: roman.iovlev
  */
 
-import com.epam.jdi.tools.func.JAction1;
 import com.epam.jdi.tools.map.MapArray;
 
 import java.lang.reflect.Field;
@@ -13,17 +12,17 @@ import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.function.Consumer;
 
-import static com.epam.jdi.tools.ReflectionUtils.*;
 import static com.epam.jdi.tools.ReflectionUtils.getValueField;
 import static java.lang.String.format;
 import static java.lang.String.join;
 import static org.apache.commons.lang3.ObjectUtils.isNotEmpty;
 
 public class DataClass<T> implements Cloneable, ComparableData {
-    public T set(JAction1<T> valueFunc) {
+    public T set(Consumer<T> valueFunc) {
         T thisObj = (T) this;
-        valueFunc.execute(thisObj);
+        valueFunc.accept(thisObj);
         return thisObj;
     }
     public Map<String, Object> fieldsAsMap() {

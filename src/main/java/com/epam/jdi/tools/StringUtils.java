@@ -16,6 +16,7 @@ import java.io.InputStreamReader;
 import java.lang.reflect.Field;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.function.Supplier;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
@@ -47,6 +48,7 @@ public final class StringUtils {
         }
         return result;
     }
+
     public static String msgFormat(String template, Object... args) {
         String result = template;
         int i = 0;
@@ -57,9 +59,11 @@ public final class StringUtils {
         }
         return result;
     }
+
     public static String msgFormat(String template, Object obj) {
         return msgFormat(template, getAllFields(obj));
     }
+
     public static String msgFormat(String template, MapArray<String, Object> args) {
         final Matcher matcher = Pattern.compile("\\{([^}]*)}").matcher(template);
         final StringBuffer sb = new StringBuffer();
@@ -74,15 +78,28 @@ public final class StringUtils {
         matcher.appendTail(sb);
         return sb.toString();
     }
+
     private static String getValue(Object obj) {
-        return isClass(obj.getClass(), JFunc.class) ? ((JFunc<String>) obj).execute() : obj.toString();
+        Supplier<String> supplier;
+        try {
+            supplier = (Supplier<String>) obj;
+        } catch (Exception ignore) {
+            supplier = null;
+        }
+        if (supplier != null) {
+            return supplier.get();
+        }
+        return obj != null ? obj.toString() : "";
     }
+
     public static String msgFormat(String template, Pair<String, Object>... pairs) {
         return msgFormat(template, map(pairs));
     }
+
     public static boolean contains(String string, String[] strings) {
         return contains(string, asList(strings));
     }
+
     public static boolean contains(String string, List<String> strings) {
         for (String s : strings)
             if (!string.contains(s)) {
@@ -122,10 +139,11 @@ public final class StringUtils {
         String result = (value.charAt(0) + "").toUpperCase();
         for (int i = 1; i < value.length() - 1; i++)
             result += (isUpperCase(value.charAt(i)) && (
-                    isLowerCase(value.charAt(i+1)) || isLowerCase(value.charAt(i-1)))
-                    ? " " : "") + value.charAt(i);
+                isLowerCase(value.charAt(i+1)) || isLowerCase(value.charAt(i-1)))
+                ? " " : "") + value.charAt(i);
         return result + value.charAt(value.length() - 1);
     }
+
     private static String cleanupString(String text) {
         if (isEmpty(text)) {
             return "";
@@ -134,33 +152,39 @@ public final class StringUtils {
             .trim()
             .replaceAll(" +", " ");
     }
+
     public static String toCamelCase(String value) {
         String result = cleanupString(value);
         result = result.replace(" ", "");
         if (isEmpty(result)) return "";
         return toLowerCase(result.charAt(0)) + result.substring(1);
     }
+
     public static String toPascalCase(String value) {
         String result = cleanupString(value);
         result = result.replace(" ", "");
         if (isEmpty(result)) return "";
         return toUpperCase(result.charAt(0)) + result.substring(1);
     }
+
     public static String toSnakeCase(String value) {
         String clean = cleanupString(value);
         if (isEmpty(clean)) return "";
         return processString(clean, "_").toLowerCase();
     }
+
     public static String toKebabCase(String value) {
         String clean = cleanupString(value);
         if (isEmpty(clean)) return "";
         return processString(clean, "-").toLowerCase();
     }
+
     public static String toUpperSnakeCase(String value) {
         String clean = cleanupString(value).toUpperCase();
         if (isEmpty(clean)) return "";
         return processString(clean, "_").toUpperCase();
     }
+
     private static String processString(String str, String splitter) {
         if (isBlank(str) || str.length() < 3)
             return str;
@@ -178,9 +202,12 @@ public final class StringUtils {
         }
         return result + str.charAt(str.length()-1);
     }
+
     public static String splitHyphen(String value) {
         String text = cleanupString(value);
-        if (isEmpty(text)) return "";
+        if (isEmpty(text)) {
+            return "";
+        }
         return text.toLowerCase().replace(" ", "-");
     }
 
@@ -202,7 +229,6 @@ public final class StringUtils {
         } catch (Exception ex) { throw new RuntimeException("Can't read Input Stream: " + ex.getMessage()); }
         return list;
     }
-
 
     public static String arrayToString(Object array) {
         String result = "";
