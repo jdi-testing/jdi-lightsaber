@@ -16,7 +16,7 @@ public class Safe<T> extends ThreadLocal<T> {
     @Override
     public T get() {
         long threadId = threadId();
-        if (threadValues.containsKey(threadId)) {
+        if (hasValue()) {
             return threadValues.get(threadId);
         }
         T value;
@@ -35,6 +35,9 @@ public class Safe<T> extends ThreadLocal<T> {
     }
     public void update(Function<T, T> func) {
         set(func.apply(get()));
+    }
+    public boolean hasValue() {
+        return threadValues.containsKey(threadId());
     }
     public void reset() { set(DEFAULT.get()); }
     public T getDefault() { return DEFAULT.get(); }

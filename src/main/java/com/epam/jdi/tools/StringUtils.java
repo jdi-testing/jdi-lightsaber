@@ -5,7 +5,6 @@ package com.epam.jdi.tools;
  * Email: roman.iovlev.jdi@gmail.com; Skype: roman.iovlev
  */
 
-import com.epam.jdi.tools.func.JFunc;
 import com.epam.jdi.tools.map.MapArray;
 import com.epam.jdi.tools.pairs.Pair;
 
@@ -21,7 +20,6 @@ import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
 import static com.epam.jdi.tools.ReflectionUtils.getAllFields;
-import static com.epam.jdi.tools.ReflectionUtils.isClass;
 import static com.epam.jdi.tools.map.MapArray.map;
 import static java.lang.Character.*;
 import static java.lang.Integer.parseInt;

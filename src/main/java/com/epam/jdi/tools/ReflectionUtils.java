@@ -337,11 +337,28 @@ public final class ReflectionUtils {
     }
     public static Type[] getGenericTypes(Field field) {
         try {
-            return ((ParameterizedType) field.getGenericType()).getActualTypeArguments();
-        } catch (Exception ex) {
+            Type cl = field.getGenericType();
+            while (!cl.getTypeName().endsWith("Object")) {
+                try {
+                    return ((ParameterizedType) cl).getActualTypeArguments();
+                } catch (ClassCastException ignore) {
+                    try {
+                        cl = ((Class<?>) cl).getGenericSuperclass();
+                    } catch (ClassCastException ignore2) {
+                        try {
+                            cl = ((Class<?>) cl).getSuperclass();
+                        } catch (ClassCastException ignore3) {
+                            return new Type[]{};
+                        }
+                    }
+                }
+            }
+            return new Type[]{ };
+        } catch (Throwable ex) {
             throw new RuntimeException(format("'%s' is List but has no Generic types", field.getName()), ex);
         }
     }
+
     public static Class<?> getGenericType(Field field) {
         try {
             return (Class<?>)getGenericTypes(field)[0];
