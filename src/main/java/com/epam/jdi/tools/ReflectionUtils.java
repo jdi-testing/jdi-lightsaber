@@ -29,13 +29,13 @@ public final class ReflectionUtils {
         if (expected == Object.class)
             return true;
         Class<?> type = t;
-        while (type != null && type != Object.class)
+        while (type != null && type != Object.class) {
             if (type == expected) {
                 return true;
-            }
-            else {
+            } else {
                 type = type.getSuperclass();
             }
+        }
         return isInterface(t, expected);
     }
 
@@ -56,6 +56,7 @@ public final class ReflectionUtils {
         }
         return true;
     }
+
     public static boolean isInterface(Field field, Class<?> expected) {
         return isInterface(field.getType(), expected);
     }
@@ -68,7 +69,7 @@ public final class ReflectionUtils {
         }
         return true;
     }
-    public static boolean isInterfaceAOr(Class<?> type, Class<?>... interfaces) {
+    public static boolean isInterfaceOr(Class<?> type, Class<?>... interfaces) {
         for (Class<?> i : interfaces) {
             if (isInterface(type, i)) {
                 return true;
@@ -91,42 +92,67 @@ public final class ReflectionUtils {
         return new MapArray<>(getFields(obj, Object.class),
             Field::getName, f -> getValueField(f, obj), true);
     }
+
     public static List<Field> getFields(Object obj) {
         return getFields(obj, new Class<?>[] {}, (Class<?>) null);
     }
-    public static List<Field> getFieldsDeep(Object obj) {
-        return getFieldsRegress(obj, new Class<?>[] { }, Object.class);
+
+    public static List<Field> getFieldsDeep(Field field) {
+        return getFieldsDeep(field.getType());
     }
+    public static List<Field> getFieldsDeep(Class<?> cl) {
+        return getFieldsDeep(cl, Object.class);
+    }
+    public static List<Field> getFieldsDeep(Class<?> cl, Class<?> stopClass) {
+        return recursion(cl, t -> t != null && !t.equals(stopClass),
+            s -> asList(s.getDeclaredFields()));
+    }
+    public static List<Field> getFieldsDeep(Object obj) {
+        return getFieldsDeep(obj, Object.class);
+    }
+    public static List<Field> getFieldsDeep(Object obj, Class<?>... stopClasses) {
+        return getFieldsRegress(obj, new Class<?>[] { }, stopClasses);
+    }
+
     public static List<Field> getFields(Object obj, Class<?>... stopTypes) {
         return getFieldsRegress(obj, stopTypes, Object.class);
     }
+
     public static List<Field> getFields(Object obj, Class<?>[] filterTypes, Class<?>... stopTypes) {
         return getFields(obj, getFieldsDeep(obj.getClass(), stopTypes), filterTypes, f -> !isStatic(f.getModifiers()));
     }
+
     public static List<Field> getFieldsRegress(Object obj, Class<?>[] filterTypes, Class<?>... stopTypes) {
         return getFields(obj, getFieldsRegress(obj.getClass(), stopTypes), filterTypes, f -> !isStatic(f.getModifiers()));
     }
+
     public static List<Field> getFieldsExact(Class<?> cl) {
         return getTypeFields(cl);
     }
+
     public static List<Field> getFieldsExact(Class<?> cl, Function<Field, Boolean> filter) {
         return filter(getFieldsExact(cl), filter);
     }
+
     public static List<Field> getFieldsExact(Class<?> cl, Class<?>... stopTypes) {
         return getFieldsExact(cl, f -> any(stopTypes, stopType -> f.getType() == stopType));
     }
     public static List<Field> getFieldsExact(Class<?> cl, Class<?> stopType) {
         return getFieldsExact(cl, f -> f.getType() == stopType);
     }
+
     public static List<Field> getFieldsExact(Object obj, Class<?>... stopTypes) {
         return getFieldsExact(obj.getClass(), stopTypes);
     }
+
     public static List<Field> getFields(List<Field> fields, Class<?>[] filterTypes, Function<Field, Boolean> filter) {
         return getFields(null, fields, filterTypes, filter);
     }
+
     public static List<Field> getFieldsInterfaceOf(Object obj, Class<?>... filterTypes) {
         return getFields(obj, getTypeFields(obj.getClass()), filterTypes, f -> true);
     }
+
     public static List<Field> getFields(Object obj, List<Field> fields, Class<?>[] filterTypes, Function<Field, Boolean> filter) {
         if (obj == null) {
             return new ArrayList<>();
@@ -137,19 +163,23 @@ public final class ReflectionUtils {
                 if (invokeBoolean(filter, field)) {
                     Object value = getValueField(field, obj);
                     if (value != null) {
-                        if (isExpectedClass(value, filterTypes))
+                        if (isExpectedClass(value, filterTypes)) {
                             result.add(field);
-                    } else if (isExpectedClass(field, filterTypes))
+                        }
+                    } else
+                        if (isExpectedClass(field, filterTypes)) {
                         result.add(field);
+                    }
                 }
             }
             return result;
         } catch (Exception ex) {
             throw new RuntimeException(format("Failed to get Fields from '%s'; fields: %s; filterTypes: %s",
-                    obj.getClass().getSimpleName(), print(fields, Field::getName),
-                    print(asList(filterTypes), Class::getSimpleName)));
+                obj.getClass().getSimpleName(), print(fields, Field::getName),
+                print(asList(filterTypes), Class::getSimpleName)));
         }
     }
+
     public static List<Field> getFieldsRegress(Class<?> type, Class<?>... stopTypes) {
         if (stopTypes == null || stopTypes.length == 0) {
             return getTypeFields(type);
@@ -158,6 +188,7 @@ public final class ReflectionUtils {
             ? ReflectionUtils::getFieldsDeep3
             : t -> getFieldsDeep2(t, stopTypes));
     }
+
     public static List<Field> recursion(Class<?> objType,
             Function<Class<?>, Boolean> condition, Function<Class<?>, List<Field>> func) {
         List<Field> fields = new ArrayList<>();
@@ -165,52 +196,66 @@ public final class ReflectionUtils {
             List<Field> fList = func.apply(objType);
             for (Field field : fList) {
                 Field notUnique = first(fields, f -> f.getName().equals(field.getName()));
-                if (notUnique != null)
+                if (notUnique != null) {
                     fields.remove(notUnique);
+                }
                 fields.add(field);
             }
             objType = objType.getSuperclass();
         }
         return fields;
     }
+
     public static List<Field> getFieldsDeep(Class<?> type, Class<?>... stopTypes) {
-        if (stopTypes == null || stopTypes.length == 0)
+        if (stopTypes == null || stopTypes.length == 0) {
             return getTypeFields(type);
+        }
         return stopTypes.length == 1 && stopTypes[0] == Object.class
             ? getFieldsDeep3(type)
             : getFieldsDeep2(type, stopTypes);
     }
+
     private static List<Field> getFieldsDeep3(Class<?> type) {
-        if (type == Object.class)
-            return new ArrayList<>();
-        return new ArrayList<>(getTypeFields(type));
+        return type == Object.class
+            ? new ArrayList<>()
+            : new ArrayList<>(getTypeFields(type));
     }
 
     private static List<Field> getFieldsDeep2(Class<?> type, Class<?>[] stopTypes) {
-        if (asList(stopTypes).contains(type) || type == Object.class)
-            return new ArrayList<>();
-        return new ArrayList<>(getTypeFields(type));
+        return asList(stopTypes).contains(type) || type == Object.class
+            ? new ArrayList<>()
+            : new ArrayList<>(getTypeFields(type));
     }
 
     public static <T> T getFirstField(Object obj, Class<?>... types) {
-        return (T) getValueField(first(getTypeFields(obj.getClass()), field -> isExpectedClass(field, types)), obj);
+        return (T) getValueField(first(getTypeFields(obj.getClass()),
+            field -> isExpectedClass(field, types)), obj);
     }
+
     private static boolean isExpectedClass(Field field, Class<?>... types) {
-        if (types == null || types.length == 0)
+        if (types == null || types.length == 0) {
             return true;
-        for (Class<?> type : types)
-            if (isClass(field, type) || isInterface(field, type))
+        }
+        for (Class<?> type : types) {
+            if (isClass(field, type) || isInterface(field, type)) {
                 return true;
+            }
+        }
         return false;
     }
+
     private static boolean isExpectedClass(Object obj, Class<?>... types) {
-        if (obj == null)
+        if (obj == null) {
             return false;
-        if (types == null || types.length == 0)
+        }
+        if (types == null || types.length == 0) {
             return true;
-        for (Class<?> type : types)
-            if (isClass(obj.getClass(), type) || isInterface(obj.getClass(), type))
+        }
+        for (Class<?> type : types) {
+            if (isClass(obj.getClass(), type) || isInterface(obj.getClass(), type)) {
                 return true;
+            }
+        }
         return false;
     }
 
@@ -224,10 +269,12 @@ public final class ReflectionUtils {
     }
 
     public static Object stringToPrimitive(String str) {
-        if (str.equalsIgnoreCase("true"))
+        if (str.equalsIgnoreCase("true")) {
             return true;
-        if (str.equalsIgnoreCase("false"))
+        }
+        if (str.equalsIgnoreCase("false")) {
             return false;
+        }
         try { return Byte.parseByte(str); }
         catch (Exception ignore) { }
         try { return Short.parseShort(str); }
@@ -244,23 +291,32 @@ public final class ReflectionUtils {
         catch (Exception ignore) { }
         return str;
     }
+
     public static Object convertStringToType(String value, Class<?> clazz) {
-        if (clazz.isAssignableFrom(String.class) || value == null)
+        if (clazz.isAssignableFrom(String.class) || value == null) {
             return value;
-        if (clazz.isAssignableFrom(Byte.class))
+        }
+        if (clazz.isAssignableFrom(Byte.class)) {
             return Byte.parseByte(value);
-        if (clazz.isAssignableFrom(Short.class))
+        }
+        if (clazz.isAssignableFrom(Short.class)) {
             return Short.parseShort(value);
-        if (clazz.isAssignableFrom(Integer.class))
+        }
+        if (clazz.isAssignableFrom(Integer.class)) {
             return Integer.parseInt(value);
-        if (clazz.isAssignableFrom(Long.class))
+        }
+        if (clazz.isAssignableFrom(Long.class)) {
             return Long.parseLong(value);
-        if (clazz.isAssignableFrom(Float.class))
+        }
+        if (clazz.isAssignableFrom(Float.class)) {
             return Float.parseFloat(value);
-        if (clazz.isAssignableFrom(Double.class))
+        }
+        if (clazz.isAssignableFrom(Double.class)) {
             return Float.parseFloat(value);
-        if (clazz.isAssignableFrom(Boolean.class))
+        }
+        if (clazz.isAssignableFrom(Boolean.class)) {
             return Boolean.parseBoolean(value);
+        }
         throw new IllegalArgumentException("Can't parse field string " + value + ". Type [" + clazz + "] is unsupported");
     }
     public static Object convertStringToType(String value, Field field) {
@@ -273,8 +329,9 @@ public final class ReflectionUtils {
     }
 
     public static <T> Class<T> checkEntityIsNotNull(Class<T> entityClass) {
-        if (entityClass == null)
+        if (entityClass == null) {
             throw new IllegalArgumentException("Entity type was not specified");
+        }
         return entityClass;
     }
 
@@ -286,6 +343,7 @@ public final class ReflectionUtils {
                     ". You must have empty constructor to do this");
         }
     }
+
     private static List<Field> getTypeFields(Class<?> type) {
         Field[] fields = type.getDeclaredFields();
         return filter(fields, f -> !f.getName().contains("$"));
@@ -295,22 +353,27 @@ public final class ReflectionUtils {
         cs.setAccessible(true);
         return (T) cs.newInstance(params);
     }
+
     public static <T> T create(Class<T> cs) throws IllegalAccessException, InvocationTargetException, InstantiationException {
-        if (cs == null)
+        if (cs == null) {
             throw new RuntimeException("Can't init class. Class Type is null.");
+        }
         Constructor<?>[] constructors = cs.getDeclaredConstructors();
         Constructor<?> constructor = first(constructors, c -> c.getParameterCount() == 0);
-        if (constructor != null)
+        if (constructor != null) {
             return csInit(constructor);
+        }
         throw new RuntimeException(format("%s has no empty constructors", cs.getSimpleName()));
     }
+
     public static <T> T create(Class<T> cs, Object... params) {
         if (cs == null)
             throw new RuntimeException("Can't init class. Class Type is null.");
         Constructor<?>[] constructors = cs.getDeclaredConstructors();
         List<Constructor<?>> listConst = filter(constructors, c -> c.getParameterCount() == params.length);
-        if (isEmpty(listConst))
+        if (isEmpty(listConst)) {
             throw new RuntimeException(format("%s has no constructor with %s params", cs.getSimpleName(), params.length));
+        }
         for(Constructor<?> cnst : listConst) {
             try {
                 return csInit(cnst, params);
@@ -324,17 +387,21 @@ public final class ReflectionUtils {
             return f.getType() == List.class && func.apply(getGenericType(f));
         } catch (Exception ex) { return false; }
     }
+
     public static boolean isList(Class<?> clazz, Function<Class<?>, Boolean> func) {
         try {
             return clazz == List.class && func.apply(getGenericType(clazz));
         } catch (Exception ex) { return false; }
     }
+
     public static boolean isList(Field f, Class<?> type) {
         return isList(f, g -> g == type);
     }
+
     public static boolean isListOf(Field field, Class<?> type) {
         return isList(field, g -> isClass(g, type) || isInterface(g, type));
     }
+
     public static Type[] getGenericTypes(Field field) {
         try {
             Type cl = field.getGenericType();
@@ -366,6 +433,7 @@ public final class ReflectionUtils {
             throw new RuntimeException(format("'%s' is List but has no Generic types", field.getName()), ex);
         }
     }
+
     public static Class<?> getGenericType(Class<?> clazz) {
         try {
             return (Class<?>) ((ParameterizedType) clazz.getGenericSuperclass()).getActualTypeArguments()[0];
