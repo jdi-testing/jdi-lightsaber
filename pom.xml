@@ -7,7 +7,7 @@
 
 	<groupId>com.jdiai.tools</groupId>
     <artifactId>jdi-light-saber</artifactId>
-	<version>3.0.1</version>
+	<version>3.0.2</version>
     <name>Light Saber java utils</name>
     <packaging>jar</packaging>
 

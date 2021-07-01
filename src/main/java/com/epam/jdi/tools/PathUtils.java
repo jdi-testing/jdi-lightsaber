@@ -22,8 +22,9 @@ public class PathUtils {
                 path = path.substring(1);
             suffix = path.split(encodedSeparator());
         }
-        if (root.charAt(root.length() - 1) == separator.charAt(0))
-            root = root.substring(0, root.length()-1);
+        if (root.charAt(root.length() - 1) == separator.charAt(0)) {
+            root = root.substring(0, root.length() - 1);
+        }
         return root + separator + String.join(separator, suffix);
     }
     public static String encodedSeparator() {
