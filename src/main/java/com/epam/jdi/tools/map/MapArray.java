@@ -517,6 +517,9 @@ public class MapArray<K, V> implements Collection<Pair<K, V>>, Cloneable {
         return true;
     }
 
+    public boolean addAll(Pair<K, V>... pairs) {
+        return addAll(asList(pairs));
+    }
     public boolean addAll(Collection<? extends Pair<K, V>> c) {
         if (c == null)
             return false;
