@@ -34,50 +34,65 @@ public class CacheValue<T> {
         return cv;
     }
     public CacheValue(Supplier<T> getRule) { this.getRule = getRule; }
+
     public T get() {
         return get(getRule);
     }
+
     public T getForce() {
         reset();
         return get();
     }
+
     public T get(Supplier<T> defaultResult) {
-        if (finalValue != null)
+        if (finalValue != null) {
             return finalValue;
-        if (!isUseCache())
+        }
+        if (!isUseCache()) {
             return defaultResult.get();
+        }
         if (elementCache.get() < globalCache.get() || value.get() == null) {
             this.value.set(getRule.get());
             elementCache.set(globalCache.get());
         }
         return value.get();
     }
+
     public void useCache(boolean value) { elementCache.set(value ? 0L : -1L); }
+
     public T setForce(T value) {
-        if (finalValue != null)
+        if (finalValue != null) {
             return finalValue;
+        }
         elementCache.set(globalCache.get());
         this.value.set(value);
         return value;
     }
+
     public T setFinal(T value) {
         finalValue = value;
         return value;
     }
+
     public T set(T value) {
-        if (finalValue != null)
+        if (finalValue != null) {
             return finalValue;
+        }
         return !isUseCache() ? value : setForce(value);
     }
+
     public void setRule(Supplier<T> getRule) {
         this.getRule = getRule;
     }
+
     public void clear() {
         value.set(null);
     }
+
     public boolean hasValue() {
         return finalValue != null || isUseCache() && value.get() != null && elementCache.get().equals(globalCache.get());
     }
+
     public boolean isUseCache() {
         return elementCache.get() > -1;
     }
