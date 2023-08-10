@@ -25,7 +25,7 @@ public class JsonUtils {
             data = readFromInputStream(inputStream);
         } catch (IOException e) {
             throw new RuntimeException("Can't read from stream!");
-        } catch(NullPointerException npe) {
+        } catch (NullPointerException npe) {
             throw new RuntimeException(format("Can't find file by path %s !", filePath));
         }
         return data;
@@ -55,7 +55,7 @@ public class JsonUtils {
         return toMapArray(deserializeJsonToMap(jsonName, propertyName));
     }
     public static String beautifyJson(String json) {
-        return new GsonBuilder().setPrettyPrinting().create().toJson(new JsonParser().parse(json).getAsJsonObject());
+        return new GsonBuilder().setPrettyPrinting().create().toJson(JsonParser.parseString(json).getAsJsonObject());
     }
     public static List<String> scanFolder(String folderName) {
         try {
